@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Fira_Sans } from "next/font/google";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -30,6 +31,7 @@ type PatientNameRow = {
 
 type RecentAssessmentDisplay = {
   id: number;
+  patientId: number;
   nhiNumber: string;
   patientName: string;
   date: string;
@@ -65,6 +67,8 @@ function getStatusColor(status: string) {
 }
 
 export default function RecentAssessments() {
+  const router = useRouter();
+
   const [rows, setRows] = useState<RecentAssessmentDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +114,7 @@ export default function RecentAssessments() {
       }
 
       const { data: patientNameData, error: patientNameError } = await supabase
-        .from("Patient Name")
+        .from("Patient Name") // change if needed
         .select("PATIENTpatient_id, given_name, family_name")
         .in("PATIENTpatient_id", patientIds);
 
@@ -124,28 +128,25 @@ export default function RecentAssessments() {
       const patientNames = (patientNameData ?? []) as PatientNameRow[];
 
       const patientMap = new Map<number, PatientRow>();
-      patients.forEach((patient) => {
-        patientMap.set(patient.patient_id, patient);
-      });
+      patients.forEach((p) => patientMap.set(p.patient_id, p));
 
-      const patientNameMap = new Map<number, PatientNameRow>();
-      patientNames.forEach((name) => {
-        patientNameMap.set(name.PATIENTpatient_id, name);
-      });
+      const nameMap = new Map<number, PatientNameRow>();
+      patientNames.forEach((n) => nameMap.set(n.PATIENTpatient_id, n));
 
-      const mappedRows: RecentAssessmentDisplay[] = assessments.map((assessment) => {
-        const patient = patientMap.get(assessment.PATIENTpatient_id);
-        const name = patientNameMap.get(assessment.PATIENTpatient_id);
+      const mappedRows: RecentAssessmentDisplay[] = assessments.map((a) => {
+        const patient = patientMap.get(a.PATIENTpatient_id);
+        const name = nameMap.get(a.PATIENTpatient_id);
 
         return {
-          id: assessment.assessment_id,
+          id: a.assessment_id,
+          patientId: a.PATIENTpatient_id,
           nhiNumber: patient?.nhi_number ?? "N/A",
           patientName: name
             ? `${name.given_name} ${name.family_name}`
-            : `Patient #${assessment.PATIENTpatient_id}`,
-          date: formatDate(assessment.assessment_date),
-          versionNumber: `v${assessment.current_version}`,
-          status: assessment.status,
+            : `Patient #${a.PATIENTpatient_id}`,
+          date: formatDate(a.assessment_date),
+          versionNumber: `v${a.current_version}`,
+          status: a.status,
         };
       });
 
@@ -206,40 +207,19 @@ export default function RecentAssessments() {
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px 16px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
-                  Loading recent assessments...
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
+                  Loading...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px 16px",
-                    textAlign: "center",
-                    color: "#B91C1C",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
                   {error}
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px 16px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
                   No recent assessments to display.
                 </td>
               </tr>
@@ -247,19 +227,35 @@ export default function RecentAssessments() {
               rows.map((row) => (
                 <tr
                   key={row.id}
+                  onClick={() => router.push(`/history/${row.patientId}`)}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLTableRowElement).style.backgroundColor = "#EEF2F7")
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLTableRowElement).style.backgroundColor = "transparent")
+                  }
                   style={{
                     borderBottom: "1px solid #8A97AD",
+                    cursor: "pointer",
                   }}
                 >
                   <td style={{ padding: "14px 16px" }}>{row.nhiNumber}</td>
-                  <td style={{ padding: "14px 16px" }}>{row.patientName}</td>
+
+                  <td style={{ padding: "14px 16px" }}>
+                    {row.patientName}
+                  </td>
+
                   <td style={{ padding: "14px 16px" }}>{row.date}</td>
-                  <td style={{ padding: "14px 16px" }}>{row.versionNumber}</td>
+
+                  <td style={{ padding: "14px 16px" }}>
+                    {row.versionNumber}
+                  </td>
+
                   <td
                     style={{
                       padding: "14px 16px",
                       color: getStatusColor(row.status),
-                      fontWeight: 600,
+                      fontWeight: 400,
                     }}
                   >
                     {row.status}
