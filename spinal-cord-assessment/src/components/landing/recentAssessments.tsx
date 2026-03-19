@@ -78,7 +78,7 @@ export default function RecentAssessments() {
           "assessment_id, assessment_date, status, current_version, PATIENTpatient_id"
         )
         .order("assessment_date", { ascending: false })
-        .limit(8);
+        .limit(50);
 
       if (assessmentError) {
         setError(`Assessment query failed: ${assessmentError.message}`);
@@ -151,6 +151,24 @@ export default function RecentAssessments() {
     fetchRecentAssessments();
   }, []);
 
+  const headerCellStyle: React.CSSProperties = {
+    padding: "14px 12px",
+    minHeight: "48px",
+    fontWeight: 600,
+    position: "sticky",
+    top: 0,
+    backgroundColor: "#FFFFFF",
+    zIndex: 2,
+    textAlign: "left",
+    borderBottom: "1px solid #D6D6D6",
+  };
+
+  const bodyCellStyle: React.CSSProperties = {
+    padding: "14px 12px",
+    minHeight: "48px",
+    verticalAlign: "middle",
+  };
+
   return (
     <div
       style={{
@@ -158,16 +176,19 @@ export default function RecentAssessments() {
         border: "1px solid #D6D6D6",
         padding: "18px",
         color: "#15284C",
-        height: "460px", // 👈 makes it tall again
+        height: "100%",
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden",
+        minHeight: 0,
       }}
     >
       <h2
         style={{
           fontSize: "20px",
           fontWeight: 600,
-          margin: "0 0 16px 0",
+          margin: "0 0 14px 0",
+          flexShrink: 0,
         }}
       >
         Recent Assessments
@@ -175,70 +196,47 @@ export default function RecentAssessments() {
 
       <div
         style={{
+          flex: 1,
+          minHeight: 0,
           overflowY: "auto",
-          flex: 1, // 👈 fills remaining space
+          overflowX: "auto",
         }}
       >
         <table
           style={{
             width: "100%",
-            borderCollapse: "collapse",
+            borderCollapse: "separate",
+            borderSpacing: 0,
             fontSize: "14px",
             color: "#15284C",
           }}
         >
           <thead>
-            <tr
-              style={{
-                borderBottom: "1px solid #D6D6D6",
-                textAlign: "left",
-              }}
-            >
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>NHI Number</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Patient Name</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Date</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Version Number</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Status</th>
+            <tr>
+              <th style={headerCellStyle}>NHI Number</th>
+              <th style={headerCellStyle}>Patient Name</th>
+              <th style={headerCellStyle}>Date</th>
+              <th style={headerCellStyle}>Version Number</th>
+              <th style={headerCellStyle}>Status</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   Loading...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "red",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
                   {error}
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   No recent assessments to display.
                 </td>
               </tr>
@@ -254,17 +252,17 @@ export default function RecentAssessments() {
                     e.currentTarget.style.backgroundColor = "transparent";
                   }}
                   style={{
-                    borderBottom: "1px solid #E5E7EB",
                     cursor: "pointer",
                   }}
                 >
-                  <td style={{ padding: "14px 10px" }}>{row.nhiNumber}</td>
-                  <td style={{ padding: "14px 10px" }}>{row.patientName}</td>
-                  <td style={{ padding: "14px 10px" }}>{row.date}</td>
-                  <td style={{ padding: "14px 10px" }}>{row.versionNumber}</td>
+                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
+                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
+                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
+                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.versionNumber}</td>
                   <td
                     style={{
-                      padding: "14px 10px",
+                      ...bodyCellStyle,
+                      borderBottom: "1px solid #E5E7EB",
                       color: getStatusColor(row.status),
                     }}
                   >

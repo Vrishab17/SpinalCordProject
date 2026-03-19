@@ -8,28 +8,34 @@ export default function LandingPage() {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
         backgroundColor: "#F6F4EC",
       }}
     >
-      {/* 🔥 FULL WIDTH HEADER */}
       <Header />
 
-      {/* 🔒 CONSTRAINED CONTENT */}
       <div
         style={{
+          flex: 1,
+          overflow: "hidden",
           maxWidth: "1300px",
+          width: "100%",
           margin: "0 auto",
           padding: "32px 24px",
+          display: "flex",
+          flexDirection: "column",
+          boxSizing: "border-box",
         }}
       >
-        {/* TITLE + BUTTONS */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "28px",
+            marginBottom: "20px",
+            flexShrink: 0,
           }}
         >
           <h1
@@ -46,30 +52,43 @@ export default function LandingPage() {
           <Buttons />
         </div>
 
-        {/* MAIN GRID */}
         <div
           style={{
+            flex: 1,
             display: "grid",
             gridTemplateColumns: "2fr 1fr",
-            gap: "28px",
-            alignItems: "start",
+            gap: "20px",
+            overflow: "hidden",
+            minHeight: 0,
           }}
         >
-          {/* LEFT */}
-          <div>
+          <div
+            style={{
+              height: "100%",
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
             <RecentAssessments />
           </div>
 
-          {/* RIGHT */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               gap: "20px",
+              height: "100%",
+              minHeight: 0,
+              overflow: "hidden",
             }}
           >
-            <UpcomingReviews />
-            <Drafts />
+            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+              <UpcomingReviews />
+            </div>
+
+            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+              <Drafts />
+            </div>
           </div>
         </div>
       </div>

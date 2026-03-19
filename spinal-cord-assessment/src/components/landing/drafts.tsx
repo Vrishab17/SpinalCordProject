@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export type DraftStatus = "OPEN" | "DRAFT" | "FINALIZED";
 
 export type DraftAssessment = {
   id: string;
+  assessmentId: number;
+  patientId: number;
   nhi: string;
   patientName: string;
   dateLastEditedISO: string;
@@ -13,53 +17,40 @@ export type DraftAssessment = {
   status: DraftStatus;
 };
 
-const STORAGE_KEY = "spinal_cord_assessment_drafts_v1";
+type DraftAssessmentRow = {
+  draft_id: number;
+  ASSESSMENTassessment_id: number;
+  last_saved_at: string | null;
+  is_current_draft: string | null;
+};
 
-const seedDrafts: DraftAssessment[] = [
-  {
-    id: "draft-aca31fm",
-    nhi: "ACA31FM",
-    patientName: "Sarah Collins",
-    dateLastEditedISO: "2026-03-12T09:10:00.000Z",
-    versionNumber: 1,
-    status: "OPEN",
-  },
-  {
-    id: "draft-bgj06as",
-    nhi: "BGJ06AS",
-    patientName: "Noah Mitchell",
-    dateLastEditedISO: "2026-02-22T14:40:00.000Z",
-    versionNumber: 1,
-    status: "OPEN",
-  },
-  {
-    id: "draft-cqy36ab",
-    nhi: "CQY36AB",
-    patientName: "Daniel Walker",
-    dateLastEditedISO: "2026-02-21T08:20:00.000Z",
-    versionNumber: 3,
-    status: "OPEN",
-  },
-  {
-    id: "draft-kaq92yg",
-    nhi: "KAQ92YG",
-    patientName: "Lauren Hayes",
-    dateLastEditedISO: "2026-02-20T13:15:00.000Z",
-    versionNumber: 1,
-    status: "DRAFT",
-  },
-  {
-    id: "draft-bhd21se",
-    nhi: "BHD21SE",
-    patientName: "Michael Turner",
-    dateLastEditedISO: "2026-01-28T11:05:00.000Z",
-    versionNumber: 2,
-    status: "OPEN",
-  },
-];
+type AssessmentRow = {
+  assessment_id: number;
+  PATIENTpatient_id: number;
+  current_version: number;
+  status: string;
+};
+
+type PatientRow = {
+  patient_id: number;
+  nhi_number: string;
+};
+
+type PatientNameRow = {
+  PATIENTpatient_id: number;
+  given_name: string;
+  family_name: string;
+};
 
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-NZ").format(new Date(iso));
+}
+
+function normalizeStatus(status: string): DraftStatus {
+  const upper = status.toUpperCase();
+  if (upper === "OPEN") return "OPEN";
+  if (upper === "FINALIZED" || upper === "FINALISED") return "FINALIZED";
+  return "DRAFT";
 }
 
 function labelStatus(status: DraftStatus) {
@@ -75,41 +66,134 @@ function labelStatus(status: DraftStatus) {
 }
 
 export default function Drafts() {
-  const [drafts, setDrafts] = useState<DraftAssessment[]>(seedDrafts);
-  const [openDraftId, setOpenDraftId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const [drafts, setDrafts] = useState<DraftAssessment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
+    async function fetchDrafts() {
+      setLoading(true);
+      setError(null);
 
-      const parsed = JSON.parse(raw) as DraftAssessment[];
-      if (!Array.isArray(parsed)) return;
+      const { data: draftData, error: draftError } = await supabase
+        .from("Draft Assessment")
+        .select("draft_id, ASSESSMENTassessment_id, last_saved_at, is_current_draft")
+        .eq("is_current_draft", "true");
 
-      setDrafts(parsed);
-    } catch {
-      setDrafts(seedDrafts);
+      if (draftError) {
+        setError(`Draft query failed: ${draftError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      const draftRows = (draftData ?? []) as DraftAssessmentRow[];
+
+      if (draftRows.length === 0) {
+        setDrafts([]);
+        setLoading(false);
+        return;
+      }
+
+      const assessmentIds = [...new Set(draftRows.map((draft) => draft.ASSESSMENTassessment_id))];
+
+      const { data: assessmentData, error: assessmentError } = await supabase
+        .from("Assessment")
+        .select("assessment_id, PATIENTpatient_id, current_version, status")
+        .in("assessment_id", assessmentIds);
+
+      if (assessmentError) {
+        setError(`Assessment query failed: ${assessmentError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      const assessments = (assessmentData ?? []) as AssessmentRow[];
+
+      const patientIds = [...new Set(assessments.map((assessment) => assessment.PATIENTpatient_id))];
+
+      const { data: patientData } = await supabase
+        .from("Patient")
+        .select("patient_id, nhi_number")
+        .in("patient_id", patientIds);
+
+      const { data: patientNameData } = await supabase
+        .from("Patient Name")
+        .select("PATIENTpatient_id, given_name, family_name")
+        .in("PATIENTpatient_id", patientIds);
+
+      const patientMap = new Map<number, PatientRow>();
+      (patientData ?? []).forEach((p: PatientRow) => {
+        patientMap.set(p.patient_id, p);
+      });
+
+      const nameMap = new Map<number, PatientNameRow>();
+      (patientNameData ?? []).forEach((n: PatientNameRow) => {
+        nameMap.set(n.PATIENTpatient_id, n);
+      });
+
+      const mappedDrafts: DraftAssessment[] = draftRows
+        .map((draft) => {
+          const assessment = assessments.find(
+            (a) => a.assessment_id === draft.ASSESSMENTassessment_id
+          );
+
+          if (!assessment) return null;
+
+          const patient = patientMap.get(assessment.PATIENTpatient_id);
+          const name = nameMap.get(assessment.PATIENTpatient_id);
+
+          return {
+            id: String(draft.draft_id),
+            assessmentId: assessment.assessment_id,
+            patientId: assessment.PATIENTpatient_id,
+            nhi: patient?.nhi_number ?? "N/A",
+            patientName: name
+              ? `${name.given_name} ${name.family_name}`
+              : `Patient #${assessment.PATIENTpatient_id}`,
+            dateLastEditedISO: draft.last_saved_at ?? new Date().toISOString(),
+            versionNumber: assessment.current_version ?? 1,
+            status: normalizeStatus(assessment.status ?? "DRAFT"),
+          };
+        })
+        .filter((draft): draft is DraftAssessment => draft !== null);
+
+      setDrafts(mappedDrafts);
+      setLoading(false);
     }
-  }, []);
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
-    } catch {}
-  }, [drafts]);
+    fetchDrafts();
+  }, []);
 
   const sortedDrafts = useMemo(() => {
     return [...drafts].sort(
-      (a, b) =>
-        new Date(b.dateLastEditedISO).getTime() -
-        new Date(a.dateLastEditedISO).getTime()
+      (a, b) => new Date(b.dateLastEditedISO).getTime() - new Date(a.dateLastEditedISO).getTime()
     );
   }, [drafts]);
 
-  const selectedDraft =
-    openDraftId !== null
-      ? sortedDrafts.find((draft) => draft.id === openDraftId) ?? null
-      : null;
+  function openDraft(patientId: number) {
+    router.push(`/history/${patientId}`);
+  }
+
+  const headerCellStyle: React.CSSProperties = {
+    padding: "14px 12px",
+    minHeight: "48px",
+    textAlign: "left",
+    fontWeight: 600,
+    position: "sticky",
+    top: 0,
+    backgroundColor: "#FFFFFF",
+    zIndex: 2,
+    borderBottom: "1px solid #D6D6D6",
+  };
+
+  const bodyCellStyle: React.CSSProperties = {
+    padding: "14px 12px",
+    minHeight: "48px",
+    verticalAlign: "middle",
+    borderBottom: "1px solid #E5E7EB",
+  };
 
   return (
     <div
@@ -119,63 +203,66 @@ export default function Drafts() {
         padding: "18px",
         width: "100%",
         color: "#15284C",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        minHeight: 0,
       }}
     >
-      <div
+      <h2
         style={{
+          fontSize: "20px",
+          fontWeight: 600,
           marginBottom: "14px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          flexShrink: 0,
         }}
       >
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: 600,
-            margin: 0,
-          }}
-        >
-          Pending Drafts
-        </h2>
-      </div>
+        Pending Drafts
+      </h2>
 
-      <div style={{ overflowX: "auto" }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          overflowX: "auto",
+        }}
+      >
         <table
           style={{
             width: "100%",
-            borderCollapse: "collapse",
+            borderCollapse: "separate",
+            borderSpacing: 0,
             fontSize: "14px",
-            color: "#15284C",
           }}
         >
           <thead>
-            <tr
-              style={{
-                borderBottom: "1px solid #D6D6D6",
-                textAlign: "left",
-              }}
-            >
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>NHI</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Patient Name</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Date</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Version</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Status</th>
-              <th style={{ padding: "12px 10px", fontWeight: 600 }}>Open</th>
+            <tr>
+              <th style={headerCellStyle}>NHI</th>
+              <th style={headerCellStyle}>Patient Name</th>
+              <th style={headerCellStyle}>Date</th>
+              <th style={headerCellStyle}>Version</th>
+              <th style={headerCellStyle}>Status</th>
             </tr>
           </thead>
 
           <tbody>
-            {sortedDrafts.length === 0 ? (
+            {loading ? (
               <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    padding: "24px 12px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
+                  Loading...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
+                  {error}
+                </td>
+              </tr>
+            ) : sortedDrafts.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
                   No drafts yet
                 </td>
               </tr>
@@ -183,86 +270,28 @@ export default function Drafts() {
               sortedDrafts.map((draft) => (
                 <tr
                   key={draft.id}
+                  onClick={() => openDraft(draft.patientId)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#F8FAFC";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
                   style={{
-                    borderBottom: "1px solid #E5E7EB",
+                    cursor: "pointer",
                   }}
                 >
-                  <td style={{ padding: "14px 10px" }}>{draft.nhi}</td>
-                  <td style={{ padding: "14px 10px" }}>{draft.patientName}</td>
-                  <td style={{ padding: "14px 10px" }}>
-                    {formatDate(draft.dateLastEditedISO)}
-                  </td>
-                  <td style={{ padding: "14px 10px" }}>v{draft.versionNumber}</td>
-                  <td style={{ padding: "14px 10px" }}>{labelStatus(draft.status)}</td>
-                  <td style={{ padding: "14px 10px" }}>
-                    <button
-                      type="button"
-                      onClick={() => setOpenDraftId(draft.id)}
-                      aria-label={`Open draft ${draft.nhi}`}
-                      style={{
-                        border: "1px solid #D6D6D6",
-                        backgroundColor: "#F3F4F6",
-                        color: "#15284C",
-                        padding: "6px 12px",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Open
-                    </button>
-                  </td>
+                  <td style={bodyCellStyle}>{draft.nhi}</td>
+                  <td style={bodyCellStyle}>{draft.patientName}</td>
+                  <td style={bodyCellStyle}>{formatDate(draft.dateLastEditedISO)}</td>
+                  <td style={bodyCellStyle}>v{draft.versionNumber}</td>
+                  <td style={bodyCellStyle}>{labelStatus(draft.status)}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
-
-      {selectedDraft ? (
-        <div
-          style={{
-            marginTop: "16px",
-            border: "1px solid #E5E7EB",
-            backgroundColor: "#F8FAFC",
-            padding: "14px",
-            color: "#15284C",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "start",
-              justifyContent: "space-between",
-              gap: "16px",
-            }}
-          >
-            <div>
-              <div style={{ marginBottom: "6px", fontWeight: 400 }}>
-                Selected draft: {selectedDraft.patientName} ({selectedDraft.nhi})
-              </div>
-              <div style={{ color: "#6B7280", fontSize: "14px", fontWeight: 400 }}>
-                Version v{selectedDraft.versionNumber} • Last edited{" "}
-                {formatDate(selectedDraft.dateLastEditedISO)}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setOpenDraftId(null)}
-              style={{
-                border: "1px solid #D6D6D6",
-                backgroundColor: "#FFFFFF",
-                color: "#15284C",
-                padding: "6px 12px",
-                fontSize: "12px",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
