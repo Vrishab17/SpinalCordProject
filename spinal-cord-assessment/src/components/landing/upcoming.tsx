@@ -1,13 +1,162 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+
+type AssessmentRow = {
+  assessment_id: number;
+  PATIENTpatient_id: number;
+  review_date: string;
+};
+
+type PatientRow = {
+  patient_id: number;
+  nhi_number: string;
+};
+
+type PatientNameRow = {
+  PATIENTpatient_id: number;
+  given_name: string;
+  family_name: string;
+};
+
+type UpcomingReviewDisplay = {
+  id: number;
+  patientId: number;
+  nhi: string;
+  patientName: string;
+  date: string;
+  isToday: boolean;
+};
+
+function formatReviewDate(dateString: string) {
+  const reviewDate = new Date(dateString);
+  const today = new Date();
+
+  const reviewOnly = new Date(
+    reviewDate.getFullYear(),
+    reviewDate.getMonth(),
+    reviewDate.getDate()
+  );
+
+  const todayOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const isToday = reviewOnly.getTime() === todayOnly.getTime();
+
+  if (isToday) {
+    return { formatted: "Today", isToday: true };
+  }
+
+  const day = String(reviewDate.getDate()).padStart(2, "0");
+  const month = String(reviewDate.getMonth() + 1).padStart(2, "0");
+  const year = reviewDate.getFullYear();
+
+  return {
+    formatted: `${day}/${month}/${year}`,
+    isToday: false,
+  };
+}
+
 export default function UpcomingReviews() {
-  const reviews = [
-    { nhi: "BHD21SE", name: "Michael Turner", date: "Today", isToday: true },
-    { nhi: "ABF24TH", name: "Ethan Hughes", date: "30/03/2026", isToday: false },
-    { nhi: "KAQ92YG", name: "Lauren Hayes", date: "09/04/2026", isToday: false },
-    { nhi: "CQY36AB", name: "Daniel Walker", date: "15/04/2026", isToday: false },
-    { nhi: "ACA31FM", name: "Sarah Collins", date: "22/04/2026", isToday: false },
-  ];
+  const router = useRouter();
+
+  const [rows, setRows] = useState<UpcomingReviewDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchUpcomingReviews() {
+      setLoading(true);
+      setError(null);
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const todayString = `${yyyy}-${mm}-${dd}`;
+
+      const { data: assessmentData, error: assessmentError } = await supabase
+        .from("Assessment")
+        .select("assessment_id, PATIENTpatient_id, review_date")
+        .gte("review_date", todayString)
+        .order("review_date", { ascending: true })
+        .limit(50);
+
+      if (assessmentError) {
+        setError(`Upcoming reviews query failed: ${assessmentError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      const assessments = (assessmentData ?? []) as AssessmentRow[];
+
+      if (assessments.length === 0) {
+        setRows([]);
+        setLoading(false);
+        return;
+      }
+
+      const patientIds = [...new Set(assessments.map((a) => a.PATIENTpatient_id))];
+
+      const { data: patientData, error: patientError } = await supabase
+        .from("Patient")
+        .select("patient_id, nhi_number")
+        .in("patient_id", patientIds);
+
+      if (patientError) {
+        setError(`Patient query failed: ${patientError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      const { data: patientNameData, error: patientNameError } = await supabase
+        .from("Patient Name")
+        .select("PATIENTpatient_id, given_name, family_name")
+        .in("PATIENTpatient_id", patientIds);
+
+      if (patientNameError) {
+        setError(`Patient Name query failed: ${patientNameError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      const patients = (patientData ?? []) as PatientRow[];
+      const patientNames = (patientNameData ?? []) as PatientNameRow[];
+
+      const patientMap = new Map<number, PatientRow>();
+      patients.forEach((p) => patientMap.set(p.patient_id, p));
+
+      const nameMap = new Map<number, PatientNameRow>();
+      patientNames.forEach((n) => nameMap.set(n.PATIENTpatient_id, n));
+
+      const mappedRows: UpcomingReviewDisplay[] = assessments.map((assessment) => {
+        const patient = patientMap.get(assessment.PATIENTpatient_id);
+        const name = nameMap.get(assessment.PATIENTpatient_id);
+        const reviewDate = formatReviewDate(assessment.review_date);
+
+        return {
+          id: assessment.assessment_id,
+          patientId: assessment.PATIENTpatient_id,
+          nhi: patient?.nhi_number ?? "N/A",
+          patientName: name
+            ? `${name.given_name} ${name.family_name}`
+            : `Patient #${assessment.PATIENTpatient_id}`,
+          date: reviewDate.formatted,
+          isToday: reviewDate.isToday,
+        };
+      });
+
+      setRows(mappedRows);
+      setLoading(false);
+    }
+
+    fetchUpcomingReviews();
+  }, []);
 
   const headerCellStyle: React.CSSProperties = {
     padding: "14px 12px",
@@ -79,24 +228,69 @@ export default function UpcomingReviews() {
           </thead>
 
           <tbody>
-            {reviews.length === 0 ? (
+            {loading ? (
               <tr>
-                <td colSpan={3} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "#6B7280",
+                  }}
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "red",
+                  }}
+                >
+                  {error}
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "#6B7280",
+                  }}
+                >
                   No upcoming reviews
                 </td>
               </tr>
             ) : (
-              reviews.map((review, index) => (
-                <tr key={`${review.nhi}-${index}`}>
-                  <td style={bodyCellStyle}>{review.nhi}</td>
-                  <td style={bodyCellStyle}>{review.name}</td>
+              rows.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={() => router.push(`/history/${row.patientId}`)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#F8FAFC";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                  style={{
+                    cursor: "pointer",
+                  }}
+                >
+                  <td style={bodyCellStyle}>{row.nhi}</td>
+                  <td style={bodyCellStyle}>{row.patientName}</td>
                   <td
                     style={{
                       ...bodyCellStyle,
-                      color: review.isToday ? "#C0392B" : "#15284C",
+                      color: row.isToday ? "#C0392B" : "#15284C",
                     }}
                   >
-                    {review.date}
+                    {row.date}
                   </td>
                 </tr>
               ))
