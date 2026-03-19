@@ -21,7 +21,7 @@ export default function Header() {
         return;
       }
 
-      // 🔑 Adjust table/column names if needed
+      // Adjust table/column names if needed
       const { data, error } = await supabase
         .from("Staff") // or GP table
         .select("title, given_name, family_name")
