@@ -19,6 +19,7 @@ export default function NewPatientPage() {
           boxSizing: "border-box",
         }}
       >
+        <h1
           style={{
             fontSize: "40px",
             fontWeight: 700,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import PersonalDetailsSection from "./PersonalDetailsSection";
 import InjuryInformationSection from "./InjuryInformationSection";
 import NewPatientActions from "./NewPatientActions";
@@ -34,6 +35,7 @@ const initialFormData: NewPatientFormData = {
 };
 
 export default function NewPatientForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<NewPatientFormData>(initialFormData);
 
   const handleChange = (
@@ -52,7 +54,8 @@ export default function NewPatientForm() {
   };
 
   const handleReview = () => {
-    console.log("Review & Confirm clicked", formData);
+    const encoded = encodeURIComponent(JSON.stringify(formData));
+    router.push(`/patients/confirm?data=${encoded}`);
   };
 
   return (
