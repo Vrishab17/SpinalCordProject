@@ -1,4 +1,10 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function Buttons() {
+  const router = useRouter();
+
   return (
     <div style={{ display: "flex", gap: "12px" }}>
       <button
@@ -16,6 +22,7 @@ export default function Buttons() {
       </button>
 
       <button
+        onClick={() => router.push("/patients/new")}
         style={{
           padding: "12px 18px",
           backgroundColor: "#2D3E5E",
