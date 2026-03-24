@@ -3,39 +3,47 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-type GP = {
-  title: string;
-  given_name: string;
-  family_name: string;
-};
-
 export default function Header() {
   const [gpName, setGpName] = useState("Loading...");
 
   useEffect(() => {
     async function fetchGP() {
-      const { data: userData } = await supabase.auth.getUser();
+      const username = localStorage.getItem("loggedInUser");
 
-      if (!userData?.user) {
+      if (!username) {
         setGpName("Unknown User");
         return;
       }
 
-      // Adjust table/column names if needed
-      const { data, error } = await supabase
-        .from("Staff") // or GP table
-        .select("title, given_name, family_name")
-        .eq("user_id", userData.user.id)
+      // STEP 1: Get staff_id from Staff Credentials
+      const { data: credData, error: credError } = await supabase
+        .from("Staff Credentials")
+        .select("STAFFstaff_id")
+        .eq("username", username)
         .single();
 
-      if (error || !data) {
+      if (credError || !credData) {
+        console.log("Credential error:", credError);
         setGpName("Unknown User");
         return;
       }
 
-      const gp = data as GP;
+      const staffId = credData.STAFFstaff_id;
 
-      const formatted = `${gp.title} ${gp.given_name[0]}. ${gp.family_name}`;
+      // STEP 2: Get name from Staff Name
+      const { data: nameData, error: nameError } = await supabase
+        .from("Staff Name")
+        .select("prefix, given_name, family_name")
+        .eq("STAFFstaff_id", staffId)
+        .single();
+
+      if (nameError || !nameData) {
+        console.log("Name error:", nameError);
+        setGpName("Unknown User");
+        return;
+      }
+
+      const formatted = `${nameData.prefix} ${nameData.given_name} ${nameData.family_name}`;
       setGpName(formatted);
     }
 

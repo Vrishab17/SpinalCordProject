@@ -17,12 +17,21 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+<<<<<<< Updated upstream
  // 🔍 Get staff_id as well
 const { data, error } = await supabase
   .from("Staff Credentials")
   .select("username, password_hash, staff_id")
   .eq("username", username)
   .maybeSingle();
+=======
+    // 🔐 Query Staff Credentials
+    const { data, error } = await supabase
+      .from("Staff Credentials")
+      .select("username, password_hash")
+      .eq("username", username)
+      .maybeSingle();
+>>>>>>> Stashed changes
 
     if (error) {
       setError("Login failed: " + error.message);
@@ -42,6 +51,7 @@ const { data, error } = await supabase
       setLoading(false);
       return;
     }
+<<<<<<< Updated upstream
 // 🔍 Get staff name immediately
 const { data: nameData } = await supabase
   .from("Staff Name")
@@ -71,6 +81,14 @@ localStorage.setItem(
 );
 
 router.push("/");
+=======
+
+    // ✅ Store logged-in user
+    localStorage.setItem("loggedInUser", username);
+
+    // ✅ Redirect to home page
+    router.push("/");
+>>>>>>> Stashed changes
   }
 
   return (
