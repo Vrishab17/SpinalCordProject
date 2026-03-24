@@ -17,21 +17,12 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-<<<<<<< Updated upstream
- // 🔍 Get staff_id as well
+ // Get staff_id as well
 const { data, error } = await supabase
   .from("Staff Credentials")
   .select("username, password_hash, staff_id")
   .eq("username", username)
   .maybeSingle();
-=======
-    // 🔐 Query Staff Credentials
-    const { data, error } = await supabase
-      .from("Staff Credentials")
-      .select("username, password_hash")
-      .eq("username", username)
-      .maybeSingle();
->>>>>>> Stashed changes
 
     if (error) {
       setError("Login failed: " + error.message);
@@ -45,21 +36,20 @@ const { data, error } = await supabase
       return;
     }
 
-    // ⚠️ If you're hashing passwords, replace this later
+    // If you're hashing passwords, replace this later
     if (data.password_hash !== password) {
       setError("Invalid username or password");
       setLoading(false);
       return;
     }
-<<<<<<< Updated upstream
-// 🔍 Get staff name immediately
+// Get staff name immediately
 const { data: nameData } = await supabase
   .from("Staff Name")
   .select("prefix, given_name, preferred_name, family_name")
-  .eq("STAFFstaff_id", data.staff_id) // ⚠️ check this column name
+  .eq("STAFFstaff_id", data.staff_id) 
   .maybeSingle();
 
-// 🧠 Build name
+// Build name
 const firstName =
   nameData?.preferred_name || nameData?.given_name || "";
 
@@ -71,7 +61,7 @@ const fullName = [
   .filter(Boolean)
   .join(" ");
 
-// ✅ Store EVERYTHING
+// Store EVERYTHING
 localStorage.setItem(
   "staffInfo",
   JSON.stringify({
@@ -81,14 +71,6 @@ localStorage.setItem(
 );
 
 router.push("/");
-=======
-
-    // ✅ Store logged-in user
-    localStorage.setItem("loggedInUser", username);
-
-    // ✅ Redirect to home page
-    router.push("/");
->>>>>>> Stashed changes
   }
 
   return (
