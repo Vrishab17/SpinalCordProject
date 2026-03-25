@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { formatReviewDate } from "@/lib/displayFormatters";
 
 type AssessmentRow = {
   assessment_id: number;
@@ -29,38 +30,6 @@ type UpcomingReviewDisplay = {
   date: string;
   isToday: boolean;
 };
-
-function formatReviewDate(dateString: string) {
-  const reviewDate = new Date(dateString);
-  const today = new Date();
-
-  const reviewOnly = new Date(
-    reviewDate.getFullYear(),
-    reviewDate.getMonth(),
-    reviewDate.getDate()
-  );
-
-  const todayOnly = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-
-  const isToday = reviewOnly.getTime() === todayOnly.getTime();
-
-  if (isToday) {
-    return { formatted: "Today", isToday: true };
-  }
-
-  const day = String(reviewDate.getDate()).padStart(2, "0");
-  const month = String(reviewDate.getMonth() + 1).padStart(2, "0");
-  const year = reviewDate.getFullYear();
-
-  return {
-    formatted: `${day}/${month}/${year}`,
-    isToday: false,
-  };
-}
 
 export default function UpcomingReviews() {
   const router = useRouter();

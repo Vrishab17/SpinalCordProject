@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest --config ../jest.config.cjs",
+    "test:watch": "jest --config ../jest.config.cjs --watch"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  compactAddress,
+  formatDateNZ,
+} from "@/lib/displayFormatters";
 
 type Props = {
   params: Promise<{
@@ -44,35 +48,6 @@ type AssessmentRow = {
   ais?: string | null;
   clinician_name?: string | null;
 };
-
-// -------------------- HELPERS --------------------
-
-function formatDate(dateString: string | null | undefined): string {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-
-  return date.toLocaleDateString("en-NZ", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
-function compactAddress(address: PatientAddressRow | null): string {
-  if (!address) return "N/A";
-
-  const parts = [
-    address.line1,
-    address.line2,
-    address.suburb,
-    address.city,
-    address.postal_code,
-    address.country,
-  ].filter(Boolean);
-
-  return parts.length ? parts.join(", ") : "N/A";
-}
 
 // -------------------- PAGE --------------------
 
@@ -180,7 +155,7 @@ export default async function Page({ params }: Props) {
           <p>NHI: {patient.nhi_number ?? "N/A"}</p>
 
           <div style={{ marginTop: 20, display: "grid", gap: 10 }}>
-            <div><strong>Date of Birth:</strong> {formatDate(dob)}</div>
+            <div><strong>Date of Birth:</strong> {formatDateNZ(dob)}</div>
             <div><strong>Gender:</strong> {gender}</div>
             <div><strong>Citizenship:</strong> {citizenship}</div>
             <div><strong>Place of Birth:</strong> {birthplace}</div>
@@ -242,7 +217,7 @@ export default async function Page({ params }: Props) {
                 alignItems: "center",
               }}
             >
-              <div>{formatDate(a.assessment_date)}</div>
+              <div>{formatDateNZ(a.assessment_date)}</div>
               <div>{a.clinician_name ?? "Unassigned"}</div>
               <div>Grade {a.ais_grade ?? a.ais ?? "N/A"}</div>
               <div>{a.status ?? "Unknown"}</div>

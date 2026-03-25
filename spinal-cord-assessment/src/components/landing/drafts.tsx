@@ -3,8 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  formatDraftDateIso,
+  labelDraftStatus,
+  normalizeDraftStatus,
+  type DraftStatus,
+} from "@/lib/displayFormatters";
 
-export type DraftStatus = "OPEN" | "DRAFT" | "FINALIZED";
+export type { DraftStatus };
 
 export type DraftAssessment = {
   id: string;
@@ -41,29 +47,6 @@ type PatientNameRow = {
   given_name: string;
   family_name: string;
 };
-
-function formatDate(iso: string) {
-  return new Intl.DateTimeFormat("en-NZ").format(new Date(iso));
-}
-
-function normalizeStatus(status: string): DraftStatus {
-  const upper = status.toUpperCase();
-  if (upper === "OPEN") return "OPEN";
-  if (upper === "FINALIZED" || upper === "FINALISED") return "FINALIZED";
-  return "DRAFT";
-}
-
-function labelStatus(status: DraftStatus) {
-  switch (status) {
-    case "OPEN":
-      return "Open";
-    case "FINALIZED":
-      return "Finalized";
-    case "DRAFT":
-    default:
-      return "Draft";
-  }
-}
 
 export default function Drafts() {
   const router = useRouter();
@@ -154,7 +137,7 @@ export default function Drafts() {
               : `Patient #${assessment.PATIENTpatient_id}`,
             dateLastEditedISO: draft.last_saved_at ?? new Date().toISOString(),
             versionNumber: assessment.current_version ?? 1,
-            status: normalizeStatus(assessment.status ?? "DRAFT"),
+            status: normalizeDraftStatus(assessment.status ?? "DRAFT"),
           };
         })
         .filter((draft): draft is DraftAssessment => draft !== null);
@@ -283,9 +266,9 @@ export default function Drafts() {
                 >
                   <td style={bodyCellStyle}>{draft.nhi}</td>
                   <td style={bodyCellStyle}>{draft.patientName}</td>
-                  <td style={bodyCellStyle}>{formatDate(draft.dateLastEditedISO)}</td>
+                  <td style={bodyCellStyle}>{formatDraftDateIso(draft.dateLastEditedISO)}</td>
                   <td style={bodyCellStyle}>v{draft.versionNumber}</td>
-                  <td style={bodyCellStyle}>{labelStatus(draft.status)}</td>
+                  <td style={bodyCellStyle}>{labelDraftStatus(draft.status)}</td>
                 </tr>
               ))
             )}
