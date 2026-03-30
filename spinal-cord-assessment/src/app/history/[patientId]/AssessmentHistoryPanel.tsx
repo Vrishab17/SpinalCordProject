@@ -56,6 +56,8 @@ function displayStatus(status: string | null | undefined): string {
 
 type Props = {
   assessments: AssessmentDisplay[];
+  patientName: string;
+  nhiNumber: string;
 };
 
 export default function AssessmentHistoryPanel({ assessments }: Props) {

@@ -1,5 +1,5 @@
-
 import Link from "next/link";
+import Header from "@/components/layout/Header";
 import { supabase } from "@/lib/supabaseClient";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
 import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
@@ -40,7 +40,7 @@ type AssessmentRow = {
   assessment_id: number;
   assessment_date: string | null;
   status: string | null;
-  STAFFstaff_id: number;
+  STAFFstaff_id: number | null;
 };
 
 type ExamRow = {
@@ -48,7 +48,6 @@ type ExamRow = {
   ASSESSMENTassessment_id: number;
 };
 
-/** Row from `Classification Result`; UI prints `als_grade` as GRADE X. */
 type ClassificationResultRow = {
   EXAMexam_id: number;
   als_grade: string | null;
@@ -61,7 +60,6 @@ type StaffNameRow = {
   family_name: string | null;
 };
 
-/** Keep selects narrow — less data over the wire and faster PostgREST work. */
 const SEL = {
   patient:
     "patient_id,nhi_number,date_of_birth,gender,nz_citizenship_status,place_of_birth,ethnicity",
@@ -75,16 +73,13 @@ const SEL = {
   staff_name: "STAFFstaff_id,prefix,given_name,family_name",
 } as const;
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Design tokens (matched to landing page / globals.css) ───────────────────
 
-const NAVY         = "#15284C";
-const TEAL_LOGO    = "#1FA199";
-const TEAL_BORDER  = "#2D9CDB";
-const TABLE_BORDER = "#15284C";
-const BG           = "#EDE8DF";
-const LABEL_COL    = "#6B7A96";
-const OPEN_BG      = "#D9DDE3";
-const HEADER_MUTED = "#CBD5E1";
+const NAVY       = "#15284C";
+const BORDER     = "#D6D6D6";
+const BG         = "#F6F4EC";
+const BTN_PRIMARY = "#2D3E5E";
+const LABEL_COL  = "#6B7A96";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -123,43 +118,6 @@ function formatClinicianFromStaffName(sn: StaffNameRow | undefined): string {
   return `${prefix} ${initial} ${fam}`.replace(/\s+/g, " ").trim();
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function Navbar() {
-  return (
-    <nav style={{
-      backgroundColor: NAVY,
-      padding: "0 40px",
-      height: 72,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      flexShrink: 0,
-    }}>
-      <div>
-        <div style={{ color: "#fff", fontWeight: 700, fontSize: 22, lineHeight: 1.2 }}>
-          Health New Zealand
-        </div>
-        <div style={{ color: TEAL_LOGO, fontWeight: 600, fontSize: 15 }}>Te Whatu Ora</div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, color: HEADER_MUTED }}>
-        <span style={{ fontSize: 15 }}>Dr. J. Doe</span>
-        <div style={{
-          width: 40, height: 40,
-          borderRadius: "50%",
-          border: `2px solid ${HEADER_MUTED}`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={HEADER_MUTED} strokeWidth="2">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function Page({ params }: Props) {
@@ -188,8 +146,8 @@ export default async function Page({ params }: Props) {
 
     if (patientRes.error || !patientRes.data) {
       return (
-        <div style={{ minHeight: "100vh", backgroundColor: BG, fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
-          <Navbar />
+        <div style={{ minHeight: "100vh", backgroundColor: BG }}>
+          <Header />
           <div style={{ padding: "40px", fontSize: 15, color: patientRes.error ? "#DC2626" : NAVY }}>
             {patientRes.error
               ? `Failed to load patient: ${patientRes.error.message}`
@@ -213,8 +171,8 @@ export default async function Page({ params }: Props) {
 
     if (patientError || !patientData) {
       return (
-        <div style={{ minHeight: "100vh", backgroundColor: BG, fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
-          <Navbar />
+        <div style={{ minHeight: "100vh", backgroundColor: BG }}>
+          <Header />
           <div style={{ padding: "40px", fontSize: 15, color: patientError ? "#DC2626" : NAVY }}>
             {patientError
               ? `Failed to load patient: ${patientError.message}`
@@ -244,7 +202,9 @@ export default async function Page({ params }: Props) {
   }
 
   // ── Staff names (Assessment.STAFFstaff_id → Staff Name) ──
-  const staffIds = [...new Set(assessments.map((a) => a.STAFFstaff_id))];
+  const staffIds = [...new Set(
+    assessments.map((a) => a.STAFFstaff_id).filter((id): id is number => id != null)
+  )];
   const staffNameById = new Map<number, StaffNameRow>();
 
   if (staffIds.length > 0) {
@@ -261,7 +221,6 @@ export default async function Page({ params }: Props) {
 
   // ── AIS grade: Assessment → Exam → Classification Result (als_grade) ──
   const assessmentIds = assessments.map((a) => a.assessment_id);
-  /** assessment_id → ALS grade from Classification Result */
   const alsGradeByAssessmentId = new Map<number, string | null>();
 
   if (assessmentIds.length > 0) {
@@ -328,12 +287,13 @@ export default async function Page({ params }: Props) {
     },
   ];
 
-  // ── Flat assessment display list (passed to Client Component) ──
   const assessmentDisplay: AssessmentDisplay[] = assessments.map((a) => ({
     assessment_id:   a.assessment_id,
     assessment_date: a.assessment_date,
     status:          a.status,
-    clinicianName:   formatClinicianFromStaffName(staffNameById.get(a.STAFFstaff_id)),
+    clinicianName:   formatClinicianFromStaffName(
+      a.STAFFstaff_id != null ? staffNameById.get(a.STAFFstaff_id) : undefined
+    ),
     alsGrade:        alsGradeByAssessmentId.get(a.assessment_id) ?? null,
   }));
 
@@ -343,14 +303,12 @@ export default async function Page({ params }: Props) {
     <div style={{
       minHeight: "100vh",
       backgroundColor: BG,
-      fontFamily: "'Segoe UI', system-ui, sans-serif",
       color: NAVY,
       display: "flex",
       flexDirection: "column",
     }}>
-      <Navbar />
+      <Header />
 
-      {/* ~1/3 + ~2/3 columns (mockup) */}
       <div style={{
         padding: "24px 40px 40px",
         display: "grid",
@@ -371,9 +329,8 @@ export default async function Page({ params }: Props) {
             Patient Details
           </p>
 
-          {/* Patient card */}
           <div style={{
-            border: `2px solid ${TEAL_BORDER}`,
+            border: `1px solid ${BORDER}`,
             backgroundColor: "#FFFFFF",
             padding: "20px 22px 24px",
           }}>
@@ -399,16 +356,14 @@ export default async function Page({ params }: Props) {
             </div>
           </div>
 
-          {/* Spacer */}
           <div style={{ flex: 1, minHeight: 80 }} />
 
-          {/* + New Assessment */}
           <Link href={`/assessment/new?patientId=${patient.patient_id}`} style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 10,
-            backgroundColor: NAVY,
+            backgroundColor: BTN_PRIMARY,
             color: "#FFFFFF",
             fontWeight: 600,
             fontSize: 15,
@@ -420,7 +375,6 @@ export default async function Page({ params }: Props) {
             New Assessment
           </Link>
 
-          {/* ← Back */}
           <Link href="/" style={{
             display: "flex",
             alignItems: "center",
@@ -433,7 +387,7 @@ export default async function Page({ params }: Props) {
             fontSize: 15,
             padding: "13px 24px",
             textDecoration: "none",
-            border: `1px solid ${TABLE_BORDER}`,
+            border: `1px solid ${BORDER}`,
           }}>
             ← Back
           </Link>
@@ -445,7 +399,11 @@ export default async function Page({ params }: Props) {
             Failed to load assessments: {assessmentRes.error.message}
           </div>
         ) : (
-          <AssessmentHistoryPanel assessments={assessmentDisplay} />
+          <AssessmentHistoryPanel
+            assessments={assessmentDisplay}
+            patientName={fullName}
+            nhiNumber={patient.nhi_number ?? "N/A"}
+          />
         )}
 
       </div>
