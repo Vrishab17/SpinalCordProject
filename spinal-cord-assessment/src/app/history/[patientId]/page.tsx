@@ -1,5 +1,7 @@
 
 import Link from "next/link";
+import Header from "@/components/layout/Header";
+import AssessmentHistoryClient from "@/components/history/AssessmentHistory";
 import { supabase } from "@/lib/supabaseClient";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
 import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
@@ -7,7 +9,13 @@ import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Props = {
+<<<<<<< Updated upstream
   params: Promise<{ patientId: string }>;
+=======
+  params: Promise<{
+    patientId: string;
+  }>;
+>>>>>>> Stashed changes
 };
 
 type PatientRow = {
@@ -38,9 +46,23 @@ type PatientAddressRow = {
 
 type AssessmentRow = {
   assessment_id: number;
+  PATIENTpatient_id: number;
+  STAFFstaff_id: number | null;
   assessment_date: string | null;
   status: string | null;
+<<<<<<< Updated upstream
   STAFFstaff_id: number;
+=======
+  current_version: number | null;
+  injury_date: string | null;
+};
+
+type StaffNameRow = {
+  name_id: number;
+  STAFFstaff_id: number;
+  family_name: string | null;
+  given_name: string | null;
+  prefix: string | null;
 };
 
 type ExamRow = {
@@ -48,6 +70,18 @@ type ExamRow = {
   ASSESSMENTassessment_id: number;
 };
 
+type ClassificationRow = {
+  EXAMexam_id: number;
+  ais_grade: string | null;
+>>>>>>> Stashed changes
+};
+
+type ExamRow = {
+  exam_id: number;
+  ASSESSMENTassessment_id: number;
+};
+
+<<<<<<< Updated upstream
 /** Row from `Classification Result`; UI prints `als_grade` as GRADE X. */
 type ClassificationResultRow = {
   EXAMexam_id: number;
@@ -104,6 +138,40 @@ function calculateAge(dob: string | null | undefined): string {
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   return `${age} Years`;
+=======
+function formatDate(dateString: string | null | undefined): string {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString("en-NZ", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function calculateAge(dateOfBirth: string | null): string {
+  if (!dateOfBirth) return "N/A";
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) return "N/A";
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return `${age} Years`;
+}
+
+function formatClinicianName(staffName: StaffNameRow | undefined): string {
+  if (!staffName) return "Unassigned";
+  const prefix = staffName.prefix?.trim() ? `${staffName.prefix.trim()}.` : "";
+  const initial = staffName.given_name?.trim()
+    ? ` ${staffName.given_name.trim()[0]}.`
+    : "";
+  const family = staffName.family_name?.trim() ?? "";
+  return `${prefix}${initial} ${family}`.trim() || "Unassigned";
+>>>>>>> Stashed changes
 }
 
 function displayStatus(status: string | null | undefined): string {
@@ -164,10 +232,10 @@ function Navbar() {
 
 export default async function Page({ params }: Props) {
   const { patientId } = await params;
-
   const numericId = Number(patientId);
   const isNumeric = Number.isInteger(numericId) && !Number.isNaN(numericId);
 
+<<<<<<< Updated upstream
   let patient: PatientRow;
   let name: PatientNameRow | null;
   let address: PatientAddressRow | null;
@@ -257,6 +325,46 @@ export default async function Page({ params }: Props) {
       const r = row as StaffNameRow;
       staffNameById.set(r.STAFFstaff_id, r);
     });
+=======
+  const { data: patientData, error: patientError } = await (isNumeric
+    ? supabase
+        .from("Patient")
+        .select("*")
+        .eq("patient_id", numericId)
+        .maybeSingle()
+    : supabase
+        .from("Patient")
+        .select("*")
+        .eq("nhi_number", patientId)
+        .maybeSingle());
+
+  if (patientError) {
+    return (
+      <div>
+        <Header />
+        <div style={{ padding: 40 }}>
+          <h2>Patient History</h2>
+          <p style={{ color: "red" }}>
+            Failed to load patient: {patientError.message}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!patientData) {
+    return (
+      <div>
+        <Header />
+        <div style={{ padding: 40 }}>
+          <h2>Patient History</h2>
+          <p>
+            No patient found for: <strong>{patientId}</strong>
+          </p>
+        </div>
+      </div>
+    );
+>>>>>>> Stashed changes
   }
 
   // ── AIS grade: Assessment → Exam → Classification Result (als_grade) ──
@@ -264,11 +372,22 @@ export default async function Page({ params }: Props) {
   /** assessment_id → ALS grade from Classification Result */
   const alsGradeByAssessmentId = new Map<number, string | null>();
 
+<<<<<<< Updated upstream
   if (assessmentIds.length > 0) {
     const { data: examRows } = await supabase
       .from("Exam")
       .select(SEL.exam)
       .in("ASSESSMENTassessment_id", assessmentIds);
+=======
+  // Fetch related data in parallel
+  const [nameRes, addressRes, assessmentRes] = await Promise.all([
+    supabase
+      .from("Patient Name")
+      .select("*")
+      .eq("PATIENTpatient_id", patient.patient_id)
+      .limit(1)
+      .maybeSingle(),
+>>>>>>> Stashed changes
 
     const bestExamByAssessment = new Map<number, number>();
     for (const row of examRows ?? []) {
@@ -292,6 +411,7 @@ export default async function Page({ params }: Props) {
         alsByExam.set(cr.EXAMexam_id, cr.als_grade);
       }
 
+<<<<<<< Updated upstream
       for (const [assessmentId, examId] of bestExamByAssessment) {
         alsGradeByAssessmentId.set(assessmentId, alsByExam.get(examId) ?? null);
       }
@@ -302,6 +422,95 @@ export default async function Page({ params }: Props) {
   const fullName = name && (name.family_name || name.given_name)
     ? `${name.family_name ?? ""}${name.family_name && name.given_name ? ", " : ""}${name.given_name ?? ""}`
     : "Unknown";
+=======
+  // Fetch clinician names for all assessments
+  const staffIds = [
+    ...new Set(
+      assessments.map((a) => a.STAFFstaff_id).filter(Boolean) as number[]
+    ),
+  ];
+  const staffNameMap = new Map<number, StaffNameRow>();
+
+  if (staffIds.length > 0) {
+    const { data: staffNames } = await supabase
+      .from("Staff Name")
+      .select("*")
+      .in("STAFFstaff_id", staffIds);
+    if (staffNames) {
+      for (const sn of staffNames as StaffNameRow[]) {
+        staffNameMap.set(sn.STAFFstaff_id, sn);
+      }
+    }
+  }
+
+  // Fetch AIS grades: Assessment -> Exam -> Classification Result
+  const assessmentIds = assessments.map((a) => a.assessment_id);
+  const aisGradeMap = new Map<number, string>();
+
+  if (assessmentIds.length > 0) {
+    const { data: exams } = await supabase
+      .from("Exam")
+      .select("exam_id, ASSESSMENTassessment_id")
+      .in("ASSESSMENTassessment_id", assessmentIds);
+
+    if (exams && exams.length > 0) {
+      const examRows = exams as ExamRow[];
+      const examIds = examRows.map((e) => e.exam_id);
+
+      const { data: classifications } = await supabase
+        .from("Classification Result")
+        .select("EXAMexam_id, ais_grade")
+        .in("EXAMexam_id", examIds);
+
+      if (classifications) {
+        const classRows = classifications as ClassificationRow[];
+        const examToAis = new Map<number, string>();
+        for (const c of classRows) {
+          if (c.ais_grade) examToAis.set(c.EXAMexam_id, c.ais_grade.trim());
+        }
+        for (const e of examRows) {
+          const grade = examToAis.get(e.exam_id);
+          if (grade) aisGradeMap.set(e.ASSESSMENTassessment_id, grade);
+        }
+      }
+    }
+  }
+
+  // Build enriched assessments for the client component
+  const enrichedAssessments = assessments.map((a) => ({
+    assessment_id: a.assessment_id,
+    assessment_date: a.assessment_date,
+    status: a.status,
+    clinician_name: formatClinicianName(
+      a.STAFFstaff_id ? staffNameMap.get(a.STAFFstaff_id) : undefined
+    ),
+    ais_grade: aisGradeMap.get(a.assessment_id) ?? "N/A",
+  }));
+
+  // Derived patient fields
+  const fullName =
+    name && (name.family_name || name.given_name)
+      ? `${name.family_name ?? ""}${
+          name.family_name && name.given_name ? ", " : ""
+        }${name.given_name ?? ""}`
+      : "Unknown";
+
+  const age = calculateAge(patient.date_of_birth);
+  const gender = patient.gender ?? "Unknown";
+  const citizenship = patient.nz_citizenship_status ?? "Unknown";
+  const birthplace = patient.place_of_birth ?? "Unknown";
+
+  const addressLines = addressData
+    ? [
+        addressData.line1,
+        addressData.line2,
+        addressData.suburb,
+        addressData.city,
+        addressData.country,
+        addressData.postal_code?.toString(),
+      ].filter(Boolean)
+    : [];
+>>>>>>> Stashed changes
 
   const addressLines: string[] = address
     ? [address.line1, address.line2, address.suburb, address.city, address.country,
@@ -340,6 +549,7 @@ export default async function Page({ params }: Props) {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
+<<<<<<< Updated upstream
     <div style={{
       minHeight: "100vh",
       backgroundColor: BG,
@@ -437,6 +647,138 @@ export default async function Page({ params }: Props) {
           }}>
             ← Back
           </Link>
+=======
+    <div>
+      <Header />
+
+      <div style={{ display: "flex", gap: 40, padding: "30px 40px" }}>
+        {/* LEFT PANEL */}
+        <div style={{ width: 370, flexShrink: 0 }}>
+          <h2
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: "#33476D",
+              marginBottom: 12,
+            }}
+          >
+            Patient Details
+          </h2>
+
+          <div
+            style={{
+              border: "2px solid #2f3e5c",
+              padding: 24,
+              background: "white",
+            }}
+          >
+            <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 4px 0" }}>
+              {fullName}
+            </h1>
+            <p
+              style={{
+                fontSize: 14,
+                color: "#555",
+                margin: "0 0 20px 0",
+                fontWeight: 600,
+              }}
+            >
+              NHI: {patient.nhi_number ?? "N/A"}
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr",
+                gap: "8px 16px",
+                fontSize: 14,
+              }}
+            >
+              <div style={{ fontWeight: 500 }}>Date of Birth</div>
+              <div style={{ textAlign: "right" }}>
+                {formatDate(patient.date_of_birth)}
+              </div>
+
+              <div style={{ fontWeight: 500 }}>Age</div>
+              <div style={{ textAlign: "right" }}>{age}</div>
+
+              <div style={{ fontWeight: 500 }}>Gender</div>
+              <div style={{ textAlign: "right" }}>{gender}</div>
+
+              <div style={{ fontWeight: 500 }}>Citizenship</div>
+              <div style={{ textAlign: "right" }}>{citizenship}</div>
+
+              <div style={{ fontWeight: 500 }}>Place of Birth</div>
+              <div style={{ textAlign: "right" }}>{birthplace}</div>
+
+              <div style={{ fontWeight: 500 }}>Address</div>
+              <div style={{ textAlign: "right" }}>
+                {addressLines.length > 0
+                  ? addressLines.map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < addressLines.length - 1 && <br />}
+                      </span>
+                    ))
+                  : "N/A"}
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            <Link
+              href={`/assessment?patientId=${patient.patient_id}`}
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "14px 0",
+                background: "#2A7D5F",
+                color: "white",
+                fontSize: 16,
+                fontWeight: 600,
+                borderRadius: 4,
+                textDecoration: "none",
+                border: "none",
+              }}
+            >
+              + New Assessment
+            </Link>
+
+            <Link
+              href="/"
+              style={{
+                display: "block",
+                textAlign: "center",
+                padding: "14px 0",
+                background: "white",
+                color: "#2f3e5c",
+                fontSize: 16,
+                fontWeight: 500,
+                borderRadius: 4,
+                textDecoration: "none",
+                border: "2px solid #2f3e5c",
+              }}
+            >
+              &larr; Back
+            </Link>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <AssessmentHistoryClient
+            assessments={enrichedAssessments}
+            hasError={!!assessmentRes.error}
+            errorMessage={assessmentRes.error?.message}
+          />
+>>>>>>> Stashed changes
         </div>
 
         {/* ════ RIGHT PANEL ════ */}
