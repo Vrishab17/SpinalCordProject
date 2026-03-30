@@ -51,10 +51,33 @@ type AssessmentRow = {
   assessment_date: string | null;
   status: string | null;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   STAFFstaff_id: number;
 =======
   current_version: number | null;
   injury_date: string | null;
+=======
+  current_version: number | null;
+  injury_date: string | null;
+};
+
+type StaffNameRow = {
+  name_id: number;
+  STAFFstaff_id: number;
+  family_name: string | null;
+  given_name: string | null;
+  prefix: string | null;
+};
+
+type ExamRow = {
+  exam_id: number;
+  ASSESSMENTassessment_id: number;
+};
+
+type ClassificationRow = {
+  EXAMexam_id: number;
+  ais_grade: string | null;
+>>>>>>> Stashed changes
 };
 
 type StaffNameRow = {
@@ -161,6 +184,19 @@ function calculateAge(dateOfBirth: string | null): string {
     age--;
   }
   return `${age} Years`;
+<<<<<<< Updated upstream
+=======
+}
+
+function formatClinicianName(staffName: StaffNameRow | undefined): string {
+  if (!staffName) return "Unassigned";
+  const prefix = staffName.prefix?.trim() ? `${staffName.prefix.trim()}.` : "";
+  const initial = staffName.given_name?.trim()
+    ? ` ${staffName.given_name.trim()[0]}.`
+    : "";
+  const family = staffName.family_name?.trim() ?? "";
+  return `${prefix}${initial} ${family}`.trim() || "Unassigned";
+>>>>>>> Stashed changes
 }
 
 function formatClinicianName(staffName: StaffNameRow | undefined): string {
@@ -235,6 +271,7 @@ export default async function Page({ params }: Props) {
   const numericId = Number(patientId);
   const isNumeric = Number.isInteger(numericId) && !Number.isNaN(numericId);
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
   let patient: PatientRow;
   let name: PatientNameRow | null;
@@ -326,6 +363,8 @@ export default async function Page({ params }: Props) {
       staffNameById.set(r.STAFFstaff_id, r);
     });
 =======
+=======
+>>>>>>> Stashed changes
   const { data: patientData, error: patientError } = await (isNumeric
     ? supabase
         .from("Patient")
@@ -373,12 +412,15 @@ export default async function Page({ params }: Props) {
   const alsGradeByAssessmentId = new Map<number, string | null>();
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   if (assessmentIds.length > 0) {
     const { data: examRows } = await supabase
       .from("Exam")
       .select(SEL.exam)
       .in("ASSESSMENTassessment_id", assessmentIds);
 =======
+=======
+>>>>>>> Stashed changes
   // Fetch related data in parallel
   const [nameRes, addressRes, assessmentRes] = await Promise.all([
     supabase
@@ -453,6 +495,39 @@ export default async function Page({ params }: Props) {
       .select("exam_id, ASSESSMENTassessment_id")
       .in("ASSESSMENTassessment_id", assessmentIds);
 
+<<<<<<< Updated upstream
+=======
+  // Fetch clinician names for all assessments
+  const staffIds = [
+    ...new Set(
+      assessments.map((a) => a.STAFFstaff_id).filter(Boolean) as number[]
+    ),
+  ];
+  const staffNameMap = new Map<number, StaffNameRow>();
+
+  if (staffIds.length > 0) {
+    const { data: staffNames } = await supabase
+      .from("Staff Name")
+      .select("*")
+      .in("STAFFstaff_id", staffIds);
+    if (staffNames) {
+      for (const sn of staffNames as StaffNameRow[]) {
+        staffNameMap.set(sn.STAFFstaff_id, sn);
+      }
+    }
+  }
+
+  // Fetch AIS grades: Assessment -> Exam -> Classification Result
+  const assessmentIds = assessments.map((a) => a.assessment_id);
+  const aisGradeMap = new Map<number, string>();
+
+  if (assessmentIds.length > 0) {
+    const { data: exams } = await supabase
+      .from("Exam")
+      .select("exam_id, ASSESSMENTassessment_id")
+      .in("ASSESSMENTassessment_id", assessmentIds);
+
+>>>>>>> Stashed changes
     if (exams && exams.length > 0) {
       const examRows = exams as ExamRow[];
       const examIds = examRows.map((e) => e.exam_id);
@@ -499,6 +574,20 @@ export default async function Page({ params }: Props) {
   const gender = patient.gender ?? "Unknown";
   const citizenship = patient.nz_citizenship_status ?? "Unknown";
   const birthplace = patient.place_of_birth ?? "Unknown";
+<<<<<<< Updated upstream
+=======
+
+  const addressLines = addressData
+    ? [
+        addressData.line1,
+        addressData.line2,
+        addressData.suburb,
+        addressData.city,
+        addressData.country,
+        addressData.postal_code?.toString(),
+      ].filter(Boolean)
+    : [];
+>>>>>>> Stashed changes
 
   const addressLines = addressData
     ? [
@@ -549,6 +638,7 @@ export default async function Page({ params }: Props) {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     <div style={{
       minHeight: "100vh",
@@ -651,6 +741,11 @@ export default async function Page({ params }: Props) {
     <div>
       <Header />
 
+=======
+    <div>
+      <Header />
+
+>>>>>>> Stashed changes
       <div style={{ display: "flex", gap: 40, padding: "30px 40px" }}>
         {/* LEFT PANEL */}
         <div style={{ width: 370, flexShrink: 0 }}>
@@ -769,6 +864,18 @@ export default async function Page({ params }: Props) {
               &larr; Back
             </Link>
           </div>
+<<<<<<< Updated upstream
+=======
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <AssessmentHistoryClient
+            assessments={enrichedAssessments}
+            hasError={!!assessmentRes.error}
+            errorMessage={assessmentRes.error?.message}
+          />
+>>>>>>> Stashed changes
         </div>
 
         {/* RIGHT PANEL */}
