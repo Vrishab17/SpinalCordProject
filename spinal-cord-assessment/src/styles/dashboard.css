@@ -81,6 +81,24 @@
   box-shadow: 0 0 0 3px rgba(45, 62, 94, 0.12);
 }
 
+/* ── Header logo (home link) ──────────────────────────────────────────── */
+
+.header-logo {
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  transition: background-color 0.15s ease;
+}
+
+.header-logo:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.header-logo:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 2px;
+}
+
 /* ── Profile dropdown ─────────────────────────────────────────────────── */
 
 .profile-trigger {
@@ -153,6 +171,186 @@
 
 .dashboard-card {
   border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ── NHI number monospace for readability ─────────────────────────────── */
+
+.nhi-cell {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+
+/* ── Skeleton loading rows ────────────────────────────────────────────── */
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.skeleton-row td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.skeleton-bar {
+  height: 14px;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-bar-short {
+  width: 60%;
+}
+
+.skeleton-bar-medium {
+  width: 80%;
+}
+
+.skeleton-bar-full {
+  width: 100%;
+}
+
+/* ── Status icon + label ──────────────────────────────────────────────── */
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-indicator-finalised {
+  color: #059669;
+}
+
+.status-indicator-draft {
+  color: #D97706;
+}
+
+.status-indicator-in-progress {
+  color: #2563EB;
+}
+
+.status-indicator-default {
+  color: #6B7280;
+}
+
+/* ── Truncated cell text with ellipsis ────────────────────────────────── */
+
+.truncate-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Sortable column headers ──────────────────────────────────────────── */
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.sortable-header:hover {
+  color: #2D3E5E;
+}
+
+.sort-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+  vertical-align: middle;
+  opacity: 0.5;
+}
+
+.sort-arrow-active {
+  opacity: 1;
+}
+
+/* ── Search modal overlay ─────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  animation: modal-fade-in 0.15s ease;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 560px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-content:focus {
+  outline: none;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  color: #6B7280;
+  gap: 12px;
+}
+
+.empty-state-icon {
+  color: #D1D5DB;
+}
+
+.empty-state-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.empty-state-cta {
+  margin-top: 4px;
+  padding: 8px 18px;
+  background-color: #2D3E5E;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.empty-state-cta:hover {
+  opacity: 0.9;
+}
+
+.empty-state-cta:focus-visible {
+  outline: 2px solid #2D3E5E;
+  outline-offset: 2px;
 }
 
 /* ── Responsive layout ────────────────────────────────────────────────── */

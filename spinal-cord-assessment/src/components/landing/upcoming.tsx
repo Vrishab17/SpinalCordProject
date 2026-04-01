@@ -62,6 +62,23 @@ function formatReviewDate(dateString: string) {
   };
 }
 
+function SkeletonRows({ count }: { count: number }) {
+  const widths = ["skeleton-bar-short", "skeleton-bar-full", "skeleton-bar-short"];
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <tr key={i} className="skeleton-row">
+          {widths.map((w, j) => (
+            <td key={j}>
+              <div className={`skeleton-bar ${w}`} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+}
+
 export default function UpcomingReviews() {
   const router = useRouter();
 
@@ -207,9 +224,24 @@ export default function UpcomingReviews() {
           fontWeight: 600,
           marginBottom: "14px",
           flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
         }}
       >
         Upcoming Reviews
+        {!loading && rows.length > 0 && (
+          <span style={{
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#15284C",
+            backgroundColor: "#E8EDF4",
+            borderRadius: "10px",
+            padding: "1px 8px",
+          }}>
+            {rows.length}
+          </span>
+        )}
       </h2>
 
       <div
@@ -238,18 +270,7 @@ export default function UpcomingReviews() {
 
           <tbody>
             {loading ? (
-              <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
-                  Loading...
-                </td>
-              </tr>
+              <SkeletonRows count={3} />
             ) : error ? (
               <tr>
                 <td
@@ -265,15 +286,18 @@ export default function UpcomingReviews() {
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={3}
-                  style={{
-                    padding: "24px",
-                    textAlign: "center",
-                    color: "#6B7280",
-                  }}
-                >
-                  No upcoming reviews
+                <td colSpan={3}>
+                  <div className="empty-state">
+                    <svg className="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <div className="empty-state-text">
+                      No upcoming reviews scheduled
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -287,8 +311,13 @@ export default function UpcomingReviews() {
                   onClick={() => router.push(`/history/${row.patientId}`)}
                   onKeyDown={(e) => handleRowKeyDown(e, row.patientId)}
                 >
-                  <td style={bodyCellStyle}>{row.nhi}</td>
-                  <td style={bodyCellStyle}>{row.patientName}</td>
+                  <td className="nhi-cell" style={bodyCellStyle}>{row.nhi}</td>
+                  <td
+                    style={{ ...bodyCellStyle, maxWidth: "140px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    title={row.patientName}
+                  >
+                    {row.patientName}
+                  </td>
                   <td style={bodyCellStyle}>
                     {row.isToday ? (
                       <span

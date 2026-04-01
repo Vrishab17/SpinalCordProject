@@ -81,6 +81,23 @@ function labelStatus(status: DraftStatus) {
   }
 }
 
+function SkeletonRows({ count, cols }: { count: number; cols: number }) {
+  const widths = ["skeleton-bar-short", "skeleton-bar-full", "skeleton-bar-short", "skeleton-bar-short", "skeleton-bar-short"];
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <tr key={i} className="skeleton-row">
+          {Array.from({ length: cols }).map((_, j) => (
+            <td key={j}>
+              <div className={`skeleton-bar ${widths[j] ?? "skeleton-bar-medium"}`} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+}
+
 export default function Drafts() {
   const router = useRouter();
 
@@ -244,9 +261,24 @@ export default function Drafts() {
           fontWeight: 600,
           marginBottom: "14px",
           flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
         }}
       >
         Pending Drafts
+        {!loading && drafts.length > 0 && (
+          <span style={{
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#92400E",
+            backgroundColor: "#FEF3E2",
+            borderRadius: "10px",
+            padding: "1px 8px",
+          }}>
+            {drafts.length}
+          </span>
+        )}
       </h2>
 
       <div
@@ -277,11 +309,7 @@ export default function Drafts() {
 
           <tbody>
             {loading ? (
-              <tr>
-                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center" }}>
-                  Loading...
-                </td>
-              </tr>
+              <SkeletonRows count={3} cols={colSpan} />
             ) : error ? (
               <tr>
                 <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center", color: "red" }}>
@@ -290,8 +318,16 @@ export default function Drafts() {
               </tr>
             ) : sortedDrafts.length === 0 ? (
               <tr>
-                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center" }}>
-                  No drafts yet
+                <td colSpan={colSpan}>
+                  <div className="empty-state">
+                    <svg className="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    <div className="empty-state-text">
+                      No pending drafts
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -305,8 +341,13 @@ export default function Drafts() {
                   onClick={() => router.push(`/history/${draft.patientId}`)}
                   onKeyDown={(e) => handleRowKeyDown(e, draft.patientId)}
                 >
-                  <td style={bodyCellStyle}>{draft.nhi}</td>
-                  <td style={bodyCellStyle}>{draft.patientName}</td>
+                  <td className="nhi-cell" style={bodyCellStyle}>{draft.nhi}</td>
+                  <td
+                    style={{ ...bodyCellStyle, maxWidth: "140px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    title={draft.patientName}
+                  >
+                    {draft.patientName}
+                  </td>
                   <td style={bodyCellStyle}>{relativeTime(draft.dateLastEditedISO)}</td>
                   <td style={bodyCellStyle}>{labelStatus(draft.status)}</td>
                   <td style={{ ...bodyCellStyle, textAlign: "right" }}>

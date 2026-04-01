@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
 type GP = {
@@ -97,7 +98,12 @@ export default function Header() {
         width: "100%",
       }}
     >
-      <div>
+      <Link
+        href="/"
+        className="header-logo"
+        aria-label="Go to Assessment Dashboard"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
         <div
           style={{
             fontSize: "28px",
@@ -117,7 +123,7 @@ export default function Header() {
         >
           Te Whatu Ora
         </div>
-      </div>
+      </Link>
 
       <div ref={dropdownRef} style={{ position: "relative" }}>
         <button

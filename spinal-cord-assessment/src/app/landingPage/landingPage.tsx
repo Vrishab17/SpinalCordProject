@@ -97,11 +97,11 @@ export default function LandingPage() {
               overflow: "hidden",
             }}
           >
-            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <div style={{ flex: "0 1 auto", maxHeight: "50%", minHeight: 0, overflow: "hidden" }}>
               <UpcomingReviews />
             </div>
 
-            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <div style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden" }}>
               <Drafts />
             </div>
           </div>
