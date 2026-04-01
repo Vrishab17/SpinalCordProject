@@ -3,10 +3,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+<<<<<<< Updated upstream
+=======
+type StaffName = {
+  prefix: string | null;
+  given_name: string | null;
+  preferred_name: string | null;
+  family_name: string | null;
+};
+
+>>>>>>> Stashed changes
 export default function Header() {
-  const [gpName, setGpName] = useState("Loading...");
+  const [staffName, setStaffName] = useState("Loading...");
 
   useEffect(() => {
+<<<<<<< Updated upstream
     async function fetchGP() {
       const username = localStorage.getItem("loggedInUser");
 
@@ -45,9 +56,52 @@ export default function Header() {
 
       const formatted = `${nameData.prefix} ${nameData.given_name} ${nameData.family_name}`;
       setGpName(formatted);
+=======
+    async function fetchStaff() {
+      const username = localStorage.getItem("loggedInUser");
+
+      if (!username) {
+        setStaffName("Unknown User");
+        return;
+      }
+
+      // 🔍 Get staff_id from credentials table
+      const { data: credData, error: credError } = await supabase
+        .from("Staff Credentials")
+        .select("staff_id")
+        .eq("username", username)
+        .maybeSingle();
+
+      if (credError || !credData) {
+        setStaffName("Unknown User");
+        return;
+      }
+
+      // 🔍 Get name from Staff Name table
+      const { data, error } = await supabase
+        .from("Staff Name")
+        .select("prefix, given_name, preferred_name, family_name")
+        .eq("STAFFstaff_id", credData.staff_id)
+        .maybeSingle();
+
+      if (error || !data) {
+        setStaffName("Unknown User");
+        return;
+      }
+
+      const staff = data as StaffName;
+
+      // 🎯 Use preferred name if available
+      const firstName =
+        staff.preferred_name || staff.given_name || "";
+
+      const formatted = `${staff.prefix ?? ""} ${firstName} ${staff.family_name ?? ""}`.trim();
+
+      setStaffName(formatted);
+>>>>>>> Stashed changes
     }
 
-    fetchGP();
+    fetchStaff();
   }, []);
 
   return (
@@ -64,16 +118,9 @@ export default function Header() {
     >
       {/* LEFT */}
       <div>
-        <div
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            marginBottom: "4px",
-          }}
-        >
+        <div style={{ fontSize: "28px", fontWeight: 700 }}>
           Health New Zealand
         </div>
-
         <div
           style={{
             fontSize: "20px",
@@ -86,13 +133,7 @@ export default function Header() {
       </div>
 
       {/* RIGHT */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "14px",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
         <span
           style={{
             fontSize: "18px",
@@ -100,7 +141,7 @@ export default function Header() {
             color: "#AEB9D3",
           }}
         >
-          {gpName}
+          {staffName}
         </span>
 
         {/* Profile icon */}
