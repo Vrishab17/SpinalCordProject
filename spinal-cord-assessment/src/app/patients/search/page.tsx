@@ -205,11 +205,23 @@ function LoadingSkeleton() {
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  function handleCopy() {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API may be unavailable in insecure contexts
+    }
   }
 
   return (
@@ -270,6 +282,12 @@ export default function PatientSearchPage() {
     setResult(null);
     setErrorMsg(null);
     setSearchTimeMs(null);
+
+    if (!supabase) {
+      setErrorMsg("Database connection is not configured.");
+      setLoading(false);
+      return;
+    }
 
     const nhiTrimmed = nhiInput.trim();
     const t0 = performance.now();

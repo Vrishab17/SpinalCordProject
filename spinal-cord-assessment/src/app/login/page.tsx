@@ -12,7 +12,8 @@ export default function LoginPage() {
     if (hasValidStaffSession()) {
       router.replace("/");
     }
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: redirect-if-logged-in runs once
+  }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,14 +25,19 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    // Get staff_id as well
-    const { data, error } = await supabase
+    if (!supabase) {
+      setError("Database connection is not configured.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error: queryError } = await supabase
       .from("Staff Credentials")
       .select("username, password_hash, STAFFstaff_id")
       .eq("username", username)
       .maybeSingle();
 
-    if (error) {
+    if (queryError) {
       setError("Invalid username or password. Please try again.");
       setLoading(false);
       return;
@@ -43,18 +49,23 @@ export default function LoginPage() {
       return;
     }
 
+    // TODO: Replace with server-side bcrypt comparison — plaintext comparison
+    // is insecure and only acceptable during prototyping.
     if (data.password_hash !== password) {
       setError("Invalid username or password");
       setLoading(false);
       return;
     }
 
-    // Get staff name immediately
-    const { data: nameData } = await supabase
+    const { data: nameData, error: nameError } = await supabase
       .from("Staff Name")
       .select("prefix, given_name, preferred_name, family_name")
       .eq("STAFFstaff_id", data.STAFFstaff_id)
       .maybeSingle();
+
+    if (nameError) {
+      console.error("Staff name lookup failed:", nameError.message);
+    }
 
     const firstName =
       nameData?.preferred_name || nameData?.given_name || "";
@@ -67,7 +78,6 @@ export default function LoginPage() {
       .filter(Boolean)
       .join(" ");
 
-    // Store EVERYTHING
     localStorage.setItem(
       "staffInfo",
       JSON.stringify({
@@ -81,7 +91,7 @@ export default function LoginPage() {
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      
+
       {/* LEFT PANEL */}
       <div
         style={{
@@ -95,14 +105,14 @@ export default function LoginPage() {
           position: "relative",
         }}
       >
-<div style={{ position: "absolute", top: 20, left: 20 }}>
-  <div style={{ fontWeight: 700, fontSize: 30 }}>
-    Health New Zealand
-  </div>
-  <div style={{ color: "#6EC1E4", fontSize: 20 }}>
-    Te Whatu Ora
-  </div>
-</div>
+        <div style={{ position: "absolute", top: 20, left: 20 }}>
+          <div style={{ fontWeight: 700, fontSize: 30 }}>
+            Health New Zealand
+          </div>
+          <div style={{ color: "#6EC1E4", fontSize: 20 }}>
+            Te Whatu Ora
+          </div>
+        </div>
 
         <h1
           style={{
@@ -138,8 +148,11 @@ export default function LoginPage() {
           }}
         >
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>STAFF USERNAME</label>
+            <label htmlFor="staff-username" style={{ fontSize: 13, fontWeight: 500 }}>
+              STAFF USERNAME
+            </label>
             <input
+              id="staff-username"
               type="text"
               placeholder="jdoe"
               value={username}
@@ -148,19 +161,22 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-  width: "100%",
-  padding: "14px",
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+                width: "100%",
+                padding: "14px",
+                border: "1px solid #ccc",
+                fontSize: "16px",
+                borderRadius: "6px",
+              }}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>PASSWORD</label>
+            <label htmlFor="staff-password" style={{ fontSize: 13, fontWeight: 500 }}>
+              PASSWORD
+            </label>
             <input
+              id="staff-password"
               type="password"
               value={password}
               onChange={(e) => {
@@ -168,18 +184,19 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-  width: "100%",
-  padding: "14px", // was 10px
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+                width: "100%",
+                padding: "14px",
+                border: "1px solid #ccc",
+                fontSize: "16px",
+                borderRadius: "6px",
+              }}
               required
             />
           </div>
 
           {error && (
             <div
+              role="alert"
               style={{
                 backgroundColor: "#FEE2E2",
                 color: "#991B1B",
@@ -197,14 +214,14 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-  backgroundColor: "#2F3E5C",
-  color: "white",
-  padding: "14px", // was 12px
-  border: "none",
-  cursor: "pointer",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+              backgroundColor: "#2F3E5C",
+              color: "white",
+              padding: "14px",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "16px",
+              borderRadius: "6px",
+            }}
           >
             {loading ? "Logging in..." : "Log In"}
           </button>

@@ -106,6 +106,9 @@ export default function Header() {
       <div ref={dropdownRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: "14px" }}>
         {/* Name */}
         <span
+          role="button"
+          aria-expanded={menuOpen}
+          aria-haspopup="true"
           style={{
             fontSize: "18px",
             color: "#AEB9D3",

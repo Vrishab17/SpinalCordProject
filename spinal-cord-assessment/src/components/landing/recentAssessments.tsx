@@ -125,6 +125,12 @@ export default function RecentAssessments() {
 
   useEffect(() => {
     async function fetchRecentAssessments() {
+      if (!supabase) {
+        setError("Supabase is not configured.");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 

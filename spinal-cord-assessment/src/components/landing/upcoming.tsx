@@ -88,6 +88,12 @@ export default function UpcomingReviews() {
 
   useEffect(() => {
     async function fetchUpcomingReviews() {
+      if (!supabase) {
+        setError("Supabase is not configured.");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 

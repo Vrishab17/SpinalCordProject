@@ -107,6 +107,12 @@ export default function Drafts() {
 
   useEffect(() => {
     async function fetchDrafts() {
+      if (!supabase) {
+        setError("Supabase is not configured.");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 

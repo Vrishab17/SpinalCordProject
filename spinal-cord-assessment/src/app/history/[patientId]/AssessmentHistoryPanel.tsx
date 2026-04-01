@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { formatDate, displayStatus } from "@/lib/formatters";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,22 +37,6 @@ const NAVY         = "#15284C";
 const TABLE_BORDER = "#15284C";
 const OPEN_BG      = "#D9DDE3";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(ds: string | null | undefined): string {
-  if (!ds) return "N/A";
-  const d = new Date(ds);
-  if (Number.isNaN(d.getTime())) return ds;
-  return d.toLocaleDateString("en-NZ", { day: "2-digit", month: "long", year: "numeric" });
-}
-
-function displayStatus(status: string | null | undefined): string {
-  if (!status) return "Unknown";
-  const u = status.toUpperCase();
-  if (u === "FINALISED" || u === "FINALIZED") return "FINAL";
-  return u;
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -60,7 +45,7 @@ type Props = {
   nhiNumber: string;
 };
 
-export default function AssessmentHistoryPanel({ assessments }: Props) {
+export default function AssessmentHistoryPanel({ assessments, patientName, nhiNumber }: Props) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [open, setOpen] = useState(false);
@@ -133,7 +118,14 @@ export default function AssessmentHistoryPanel({ assessments }: Props) {
         flexWrap: "wrap",
         gap: 12,
       }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: NAVY }}>Assessment History</h2>
+        <div>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: NAVY }}>Assessment History</h2>
+          {nhiNumber && (
+            <span style={{ fontSize: 13, color: "#6B7A96", marginTop: 2, display: "block" }}>
+              {patientName !== "Unknown" ? patientName : ""}{patientName !== "Unknown" && nhiNumber ? " · " : ""}NHI: {nhiNumber}
+            </span>
+          )}
+        </div>
 
         <div style={{ display: "flex", gap: 10 }}>
 
@@ -141,6 +133,8 @@ export default function AssessmentHistoryPanel({ assessments }: Props) {
           <div ref={dropdownRef} style={{ position: "relative" }}>
             <button
               onClick={handleOpen}
+              aria-expanded={open}
+              aria-haspopup="true"
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "8px 18px",
@@ -465,4 +459,3 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
     </span>
   );
 }
-
