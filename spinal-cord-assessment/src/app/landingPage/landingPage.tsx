@@ -8,7 +8,7 @@ export default function LandingPage() {
   return (
     <main
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#F6F4EC",
@@ -19,7 +19,7 @@ export default function LandingPage() {
       <div
         style={{
           flex: 1,
-          overflow: "hidden",
+          overflow: "auto",
           maxWidth: "1300px",
           width: "100%",
           margin: "0 auto",
@@ -30,6 +30,7 @@ export default function LandingPage() {
         }}
       >
         <div
+          className="dashboard-header-row"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -38,25 +39,38 @@ export default function LandingPage() {
             flexShrink: 0,
           }}
         >
-          <h1
-            style={{
-              fontSize: "40px",
-              fontWeight: 700,
-              margin: 0,
-              color: "#15284C",
-            }}
-          >
-            ISNCSCI / ASRU
-          </h1>
+          <div>
+            <h1
+              style={{
+                fontSize: "32px",
+                fontWeight: 700,
+                margin: 0,
+                color: "#15284C",
+              }}
+            >
+              Assessment Dashboard
+            </h1>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: 400,
+                margin: "4px 0 0",
+                color: "#6B7280",
+              }}
+            >
+              ISNCSCI / ASRU
+            </p>
+          </div>
 
           <Buttons />
         </div>
 
         <div
+          className="dashboard-grid"
           style={{
             flex: 1,
             display: "grid",
-            gridTemplateColumns: "2fr 1fr",
+            gridTemplateColumns: "5fr 3fr",
             gap: "20px",
             overflow: "hidden",
             minHeight: 0,
@@ -73,6 +87,7 @@ export default function LandingPage() {
           </div>
 
           <div
+            className="dashboard-sidebar"
             style={{
               display: "flex",
               flexDirection: "column",
