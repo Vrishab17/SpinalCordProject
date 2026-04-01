@@ -177,11 +177,20 @@ export default function UpcomingReviews() {
     borderBottom: "1px solid #E5E7EB",
   };
 
+  function handleRowKeyDown(e: React.KeyboardEvent, patientId: number) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(`/history/${patientId}`);
+    }
+  }
+
   return (
     <div
+      className="dashboard-card"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
+        borderRadius: "8px",
         padding: "18px",
         width: "100%",
         color: "#15284C",
@@ -221,9 +230,9 @@ export default function UpcomingReviews() {
         >
           <thead>
             <tr>
-              <th style={headerCellStyle}>NHI</th>
-              <th style={headerCellStyle}>Patient Name</th>
-              <th style={headerCellStyle}>Date</th>
+              <th scope="col" style={headerCellStyle}>NHI</th>
+              <th scope="col" style={headerCellStyle}>Patient Name</th>
+              <th scope="col" style={headerCellStyle}>Date</th>
             </tr>
           </thead>
 
@@ -271,26 +280,33 @@ export default function UpcomingReviews() {
               rows.map((row) => (
                 <tr
                   key={row.id}
+                  className="clickable-row"
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`View patient ${row.patientName}`}
                   onClick={() => router.push(`/history/${row.patientId}`)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#F8FAFC";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  style={{
-                    cursor: "pointer",
-                  }}
+                  onKeyDown={(e) => handleRowKeyDown(e, row.patientId)}
                 >
                   <td style={bodyCellStyle}>{row.nhi}</td>
                   <td style={bodyCellStyle}>{row.patientName}</td>
-                  <td
-                    style={{
-                      ...bodyCellStyle,
-                      color: row.isToday ? "#C0392B" : "#15284C",
-                    }}
-                  >
-                    {row.date}
+                  <td style={bodyCellStyle}>
+                    {row.isToday ? (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "2px 10px",
+                          borderRadius: "12px",
+                          backgroundColor: "#15284C",
+                          color: "#FFFFFF",
+                          fontWeight: 600,
+                          fontSize: "13px",
+                        }}
+                      >
+                        Today
+                      </span>
+                    ) : (
+                      row.date
+                    )}
                   </td>
                 </tr>
               ))

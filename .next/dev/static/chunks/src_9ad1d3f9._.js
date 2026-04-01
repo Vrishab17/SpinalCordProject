@@ -26,6 +26,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/compiler-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/supabaseClient.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
@@ -33,20 +34,32 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 function Header() {
     _s();
-    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(12);
-    if ($[0] !== "48072be32b4c900a17e9a8d4d46e6cc6bdc9ea02f4b530b6a0124d1c1d51011c") {
-        for(let $i = 0; $i < 12; $i += 1){
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(33);
+    if ($[0] !== "5f4e298360c98bb3fd956e73c3bb03e9716bf0321134d17eb562da72b3063b21") {
+        for(let $i = 0; $i < 33; $i += 1){
             $[$i] = Symbol.for("react.memo_cache_sentinel");
         }
-        $[0] = "48072be32b4c900a17e9a8d4d46e6cc6bdc9ea02f4b530b6a0124d1c1d51011c";
+        $[0] = "5f4e298360c98bb3fd956e73c3bb03e9716bf0321134d17eb562da72b3063b21";
     }
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const [gpName, setGpName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("Loading...");
+    const [menuOpen, setMenuOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const dropdownRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     let t0;
-    let t1;
     if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
-        t0 = ({
+        t0 = [];
+        $[1] = t0;
+    } else {
+        t0 = $[1];
+    }
+    const menuItemsRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(t0);
+    let t1;
+    let t2;
+    if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
+        t1 = ({
             "Header[useEffect()]": ()=>{
                 const fetchGP = async function fetchGP() {
                     const { data: userData } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].auth.getUser();
@@ -66,20 +79,104 @@ function Header() {
                 fetchGP();
             }
         })["Header[useEffect()]"];
-        t1 = [];
-        $[1] = t0;
+        t2 = [];
         $[2] = t1;
+        $[3] = t2;
     } else {
-        t0 = $[1];
         t1 = $[2];
+        t2 = $[3];
     }
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t0, t1);
-    let t2;
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t1, t2);
     let t3;
     let t4;
+    if ($[4] !== menuOpen) {
+        t3 = ({
+            "Header[useEffect()]": ()=>{
+                const handleClickOutside = function handleClickOutside(e) {
+                    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                        setMenuOpen(false);
+                    }
+                };
+                if (menuOpen) {
+                    document.addEventListener("mousedown", handleClickOutside);
+                }
+                return ()=>document.removeEventListener("mousedown", handleClickOutside);
+            }
+        })["Header[useEffect()]"];
+        t4 = [
+            menuOpen
+        ];
+        $[4] = menuOpen;
+        $[5] = t3;
+        $[6] = t4;
+    } else {
+        t3 = $[5];
+        t4 = $[6];
+    }
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t3, t4);
     let t5;
-    if ($[3] === Symbol.for("react.memo_cache_sentinel")) {
-        t2 = {
+    let t6;
+    if ($[7] !== menuOpen) {
+        t5 = ({
+            "Header[useEffect()]": ()=>{
+                if (menuOpen) {
+                    menuItemsRef.current[0]?.focus();
+                }
+            }
+        })["Header[useEffect()]"];
+        t6 = [
+            menuOpen
+        ];
+        $[7] = menuOpen;
+        $[8] = t5;
+        $[9] = t6;
+    } else {
+        t5 = $[8];
+        t6 = $[9];
+    }
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t5, t6);
+    let t7;
+    if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+        t7 = function handleMenuKeyDown(e_0) {
+            const items = menuItemsRef.current.filter(Boolean);
+            const currentIdx = items.indexOf(document.activeElement);
+            if (e_0.key === "ArrowDown") {
+                e_0.preventDefault();
+                const next = currentIdx < items.length - 1 ? currentIdx + 1 : 0;
+                items[next]?.focus();
+            } else {
+                if (e_0.key === "ArrowUp") {
+                    e_0.preventDefault();
+                    const prev = currentIdx > 0 ? currentIdx - 1 : items.length - 1;
+                    items[prev]?.focus();
+                } else {
+                    if (e_0.key === "Escape") {
+                        setMenuOpen(false);
+                    }
+                }
+            }
+        };
+        $[10] = t7;
+    } else {
+        t7 = $[10];
+    }
+    const handleMenuKeyDown = t7;
+    let t8;
+    if ($[11] !== router) {
+        t8 = async function handleSignOut() {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].auth.signOut();
+            router.push("/");
+        };
+        $[11] = router;
+        $[12] = t8;
+    } else {
+        t8 = $[12];
+    }
+    const handleSignOut = t8;
+    let t10;
+    let t9;
+    if ($[13] === Symbol.for("react.memo_cache_sentinel")) {
+        t9 = {
             backgroundColor: "#33476D",
             color: "#FFFFFF",
             padding: "20px 24px",
@@ -88,7 +185,7 @@ function Header() {
             alignItems: "center",
             width: "100%"
         };
-        t3 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     style: {
@@ -99,8 +196,8 @@ function Header() {
                     children: "Health New Zealand"
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 70,
-                    columnNumber: 15
+                    lineNumber: 162,
+                    columnNumber: 16
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     style: {
@@ -111,59 +208,72 @@ function Header() {
                     children: "Te Whatu Ora"
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 74,
+                    lineNumber: 166,
                     columnNumber: 34
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 70,
-            columnNumber: 10
+            lineNumber: 162,
+            columnNumber: 11
         }, this);
-        t4 = {
-            display: "flex",
-            alignItems: "center",
-            gap: "14px"
+        $[13] = t10;
+        $[14] = t9;
+    } else {
+        t10 = $[13];
+        t9 = $[14];
+    }
+    let t11;
+    if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
+        t11 = {
+            position: "relative"
         };
-        t5 = {
+        $[15] = t11;
+    } else {
+        t11 = $[15];
+    }
+    let t12;
+    let t13;
+    if ($[16] === Symbol.for("react.memo_cache_sentinel")) {
+        t12 = ({
+            "Header[<button>.onClick]": ()=>setMenuOpen(_HeaderButtonOnClickSetMenuOpen)
+        })["Header[<button>.onClick]"];
+        t13 = {
             fontSize: "18px",
             fontWeight: 400,
             color: "#AEB9D3"
         };
-        $[3] = t2;
-        $[4] = t3;
-        $[5] = t4;
-        $[6] = t5;
+        $[16] = t12;
+        $[17] = t13;
     } else {
-        t2 = $[3];
-        t3 = $[4];
-        t4 = $[5];
-        t5 = $[6];
+        t12 = $[16];
+        t13 = $[17];
     }
-    let t6;
-    if ($[7] !== gpName) {
-        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-            style: t5,
+    let t14;
+    if ($[18] !== gpName) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+            style: t13,
             children: gpName
         }, void 0, false, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 101,
-            columnNumber: 10
+            lineNumber: 205,
+            columnNumber: 11
         }, this);
-        $[7] = gpName;
-        $[8] = t6;
+        $[18] = gpName;
+        $[19] = t14;
     } else {
-        t6 = $[8];
+        t14 = $[19];
     }
-    let t7;
-    if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
-        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+    let t15;
+    if ($[20] === Symbol.for("react.memo_cache_sentinel")) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             style: {
                 width: "58px",
                 height: "58px",
                 borderRadius: "50%",
                 border: "4px solid #7E90BA",
-                position: "relative"
+                position: "relative",
+                flexShrink: 0
             },
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -179,7 +289,7 @@ function Header() {
                     }
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 115,
+                    lineNumber: 220,
                     columnNumber: 8
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -195,51 +305,189 @@ function Header() {
                     }
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 124,
+                    lineNumber: 229,
                     columnNumber: 12
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 109,
-            columnNumber: 10
+            lineNumber: 213,
+            columnNumber: 11
         }, this);
-        $[9] = t7;
+        $[20] = t15;
     } else {
-        t7 = $[9];
+        t15 = $[20];
     }
-    let t8;
-    if ($[10] !== t6) {
-        t8 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
-            style: t2,
+    const t16 = menuOpen ? "18 15 12 9 6 15" : "6 9 12 15 18 9";
+    let t17;
+    if ($[21] !== t16) {
+        t17 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+            width: "14",
+            height: "14",
+            viewBox: "0 0 24 24",
+            fill: "none",
+            stroke: "#AEB9D3",
+            strokeWidth: "2.5",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("polyline", {
+                points: t16
+            }, void 0, false, {
+                fileName: "[project]/src/components/layout/Header.tsx",
+                lineNumber: 246,
+                columnNumber: 151
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/components/layout/Header.tsx",
+            lineNumber: 246,
+            columnNumber: 11
+        }, this);
+        $[21] = t16;
+        $[22] = t17;
+    } else {
+        t17 = $[22];
+    }
+    let t18;
+    if ($[23] !== menuOpen || $[24] !== t14 || $[25] !== t17) {
+        t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+            className: "profile-trigger",
+            "aria-haspopup": "menu",
+            "aria-expanded": menuOpen,
+            "aria-label": "User menu",
+            onClick: t12,
             children: [
-                t3,
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    style: t4,
-                    children: [
-                        t6,
-                        t7
-                    ]
-                }, void 0, true, {
+                t14,
+                t15,
+                t17
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/layout/Header.tsx",
+            lineNumber: 254,
+            columnNumber: 11
+        }, this);
+        $[23] = menuOpen;
+        $[24] = t14;
+        $[25] = t17;
+        $[26] = t18;
+    } else {
+        t18 = $[26];
+    }
+    let t19;
+    if ($[27] !== handleSignOut || $[28] !== menuOpen) {
+        t19 = menuOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "profile-menu",
+            role: "menu",
+            onKeyDown: handleMenuKeyDown,
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    className: "profile-menu-item",
+                    role: "menuitem",
+                    tabIndex: -1,
+                    ref: {
+                        "Header[<button>.ref]": (el)=>{
+                            menuItemsRef.current[0] = el;
+                        }
+                    }["Header[<button>.ref]"],
+                    children: "Profile"
+                }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 140,
-                    columnNumber: 33
+                    lineNumber: 264,
+                    columnNumber: 95
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    className: "profile-menu-item",
+                    role: "menuitem",
+                    tabIndex: -1,
+                    ref: {
+                        "Header[<button>.ref]": (el_0)=>{
+                            menuItemsRef.current[1] = el_0;
+                        }
+                    }["Header[<button>.ref]"],
+                    children: "Settings"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/layout/Header.tsx",
+                    lineNumber: 268,
+                    columnNumber: 50
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("hr", {
+                    className: "profile-menu-divider"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/layout/Header.tsx",
+                    lineNumber: 272,
+                    columnNumber: 51
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    className: "profile-menu-item",
+                    role: "menuitem",
+                    tabIndex: -1,
+                    ref: {
+                        "Header[<button>.ref]": (el_1)=>{
+                            menuItemsRef.current[2] = el_1;
+                        }
+                    }["Header[<button>.ref]"],
+                    onClick: handleSignOut,
+                    style: {
+                        color: "#B91C1C"
+                    },
+                    children: "Sign out"
+                }, void 0, false, {
+                    fileName: "[project]/src/components/layout/Header.tsx",
+                    lineNumber: 272,
+                    columnNumber: 90
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 140,
-            columnNumber: 10
+            lineNumber: 264,
+            columnNumber: 23
         }, this);
-        $[10] = t6;
-        $[11] = t8;
+        $[27] = handleSignOut;
+        $[28] = menuOpen;
+        $[29] = t19;
     } else {
-        t8 = $[11];
+        t19 = $[29];
     }
-    return t8;
+    let t20;
+    if ($[30] !== t18 || $[31] !== t19) {
+        t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+            style: t9,
+            children: [
+                t10,
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    ref: dropdownRef,
+                    style: t11,
+                    children: [
+                        t18,
+                        t19
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/components/layout/Header.tsx",
+                    lineNumber: 287,
+                    columnNumber: 35
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/layout/Header.tsx",
+            lineNumber: 287,
+            columnNumber: 11
+        }, this);
+        $[30] = t18;
+        $[31] = t19;
+        $[32] = t20;
+    } else {
+        t20 = $[32];
+    }
+    return t20;
 }
-_s(Header, "ZejtZthNteuVfew5HFP2blgX3NM=");
+_s(Header, "zKTE0zEN9xejl2KTEyEGqpv7erI=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
+    ];
+});
 _c = Header;
+function _HeaderButtonOnClickSetMenuOpen(v) {
+    return !v;
+}
 var _c;
 __turbopack_context__.k.register(_c, "Header");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
@@ -289,12 +537,12 @@ function getStatusColor(status) {
 }
 function RecentAssessments() {
     _s();
-    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(33);
-    if ($[0] !== "15ed4784153d5c65cbd2302055b25d732c971a9f8c8a3330ec81d7df787367b2") {
-        for(let $i = 0; $i < 33; $i += 1){
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(59);
+    if ($[0] !== "84b720f69668b41783ea697e2f48fea2511763f0f8bb70546c5ca79ca8f4d36e") {
+        for(let $i = 0; $i < 59; $i += 1){
             $[$i] = Symbol.for("react.memo_cache_sentinel");
         }
-        $[0] = "15ed4784153d5c65cbd2302055b25d732c971a9f8c8a3330ec81d7df787367b2";
+        $[0] = "84b720f69668b41783ea697e2f48fea2511763f0f8bb70546c5ca79ca8f4d36e";
     }
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     let t0;
@@ -307,6 +555,7 @@ function RecentAssessments() {
     const [rows, setRows] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(t0);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [searchTerm, setSearchTerm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     let t1;
     let t2;
     if ($[2] === Symbol.for("react.memo_cache_sentinel")) {
@@ -384,8 +633,29 @@ function RecentAssessments() {
     }
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])(t1, t2);
     let t3;
-    if ($[4] === Symbol.for("react.memo_cache_sentinel")) {
-        t3 = {
+    bb0: {
+        if (!searchTerm.trim()) {
+            t3 = rows;
+            break bb0;
+        }
+        let t4;
+        if ($[4] !== rows || $[5] !== searchTerm) {
+            const term = searchTerm.toLowerCase();
+            t4 = rows.filter({
+                "RecentAssessments[rows.filter()]": (r)=>r.nhiNumber.toLowerCase().includes(term) || r.patientName.toLowerCase().includes(term)
+            }["RecentAssessments[rows.filter()]"]);
+            $[4] = rows;
+            $[5] = searchTerm;
+            $[6] = t4;
+        } else {
+            t4 = $[6];
+        }
+        t3 = t4;
+    }
+    const filteredRows = t3;
+    let t4;
+    if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
+        t4 = {
             padding: "14px 12px",
             minHeight: "48px",
             fontWeight: 600,
@@ -396,27 +666,62 @@ function RecentAssessments() {
             textAlign: "left",
             borderBottom: "1px solid #D6D6D6"
         };
-        $[4] = t3;
+        $[7] = t4;
     } else {
-        t3 = $[4];
+        t4 = $[7];
     }
-    const headerCellStyle = t3;
-    let t4;
+    const headerCellStyle = t4;
+    let t10;
+    let t11;
+    let t12;
     let t5;
     let t6;
     let t7;
     let t8;
     let t9;
-    if ($[5] !== error || $[6] !== loading || $[7] !== router || $[8] !== rows) {
+    if ($[8] !== error || $[9] !== filteredRows || $[10] !== loading || $[11] !== router || $[12] !== searchTerm) {
         const bodyCellStyle = {
             padding: "14px 12px",
             minHeight: "48px",
             verticalAlign: "middle"
         };
-        if ($[15] === Symbol.for("react.memo_cache_sentinel")) {
-            t8 = {
+        let t13;
+        if ($[21] !== router) {
+            t13 = function handleRowKeyDown(e, patientId) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(`/history/${patientId}`);
+                }
+            };
+            $[21] = router;
+            $[22] = t13;
+        } else {
+            t13 = $[22];
+        }
+        const handleRowKeyDown = t13;
+        let t14;
+        if ($[23] !== router) {
+            t14 = function handleActionClick(e_0, row) {
+                e_0.stopPropagation();
+                if (row.status.toUpperCase() === "DRAFT") {
+                    router.push(`/assessment?assessmentId=${row.id}`);
+                } else {
+                    router.push(`/history/${row.patientId}`);
+                }
+            };
+            $[23] = router;
+            $[24] = t14;
+        } else {
+            t14 = $[24];
+        }
+        const handleActionClick = t14;
+        t9 = "dashboard-card";
+        let t15;
+        if ($[25] === Symbol.for("react.memo_cache_sentinel")) {
+            t10 = {
                 backgroundColor: "#FFFFFF",
                 border: "1px solid #D6D6D6",
+                borderRadius: "8px",
                 padding: "18px",
                 color: "#15284C",
                 height: "100%",
@@ -425,7 +730,7 @@ function RecentAssessments() {
                 overflow: "hidden",
                 minHeight: 0
             };
-            t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+            t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                 style: {
                     fontSize: "20px",
                     fontWeight: 600,
@@ -435,91 +740,263 @@ function RecentAssessments() {
                 children: "Recent Assessments"
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                lineNumber: 198,
-                columnNumber: 12
+                lineNumber: 255,
+                columnNumber: 13
             }, this);
-            t7 = {
+            t15 = {
+                position: "relative",
+                marginBottom: "14px",
+                flexShrink: 0
+            };
+            $[25] = t10;
+            $[26] = t11;
+            $[27] = t15;
+        } else {
+            t10 = $[25];
+            t11 = $[26];
+            t15 = $[27];
+        }
+        let t16;
+        if ($[28] === Symbol.for("react.memo_cache_sentinel")) {
+            t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                width: "16",
+                height: "16",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "#9CA3AF",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                style: {
+                    position: "absolute",
+                    left: "12px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    pointerEvents: "none"
+                },
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
+                        cx: "11",
+                        cy: "11",
+                        r: "8"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                        lineNumber: 282,
+                        columnNumber: 10
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("line", {
+                        x1: "21",
+                        y1: "21",
+                        x2: "16.65",
+                        y2: "16.65"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                        lineNumber: 282,
+                        columnNumber: 42
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 276,
+                columnNumber: 13
+            }, this);
+            $[28] = t16;
+        } else {
+            t16 = $[28];
+        }
+        let t17;
+        if ($[29] === Symbol.for("react.memo_cache_sentinel")) {
+            t17 = ({
+                "RecentAssessments[<input>.onChange]": (e_1)=>setSearchTerm(e_1.target.value)
+            })["RecentAssessments[<input>.onChange]"];
+            $[29] = t17;
+        } else {
+            t17 = $[29];
+        }
+        let t18;
+        let t19;
+        if ($[30] !== searchTerm) {
+            t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                type: "text",
+                className: "search-input",
+                placeholder: "Search by NHI or name...",
+                "aria-label": "Search patients",
+                value: searchTerm,
+                onChange: t17
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 299,
+                columnNumber: 13
+            }, this);
+            t19 = searchTerm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                onClick: {
+                    "RecentAssessments[<button>.onClick]": ()=>setSearchTerm("")
+                }["RecentAssessments[<button>.onClick]"],
+                "aria-label": "Clear search",
+                className: "btn",
+                style: {
+                    position: "absolute",
+                    right: "8px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    padding: "4px",
+                    fontSize: "18px",
+                    lineHeight: 1,
+                    color: "#6B7280"
+                },
+                children: "×"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 300,
+                columnNumber: 27
+            }, this);
+            $[30] = searchTerm;
+            $[31] = t18;
+            $[32] = t19;
+        } else {
+            t18 = $[31];
+            t19 = $[32];
+        }
+        if ($[33] !== t18 || $[34] !== t19) {
+            t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: t15,
+                children: [
+                    t16,
+                    t18,
+                    t19
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 322,
+                columnNumber: 13
+            }, this);
+            $[33] = t18;
+            $[34] = t19;
+            $[35] = t12;
+        } else {
+            t12 = $[35];
+        }
+        let t20;
+        let t21;
+        let t22;
+        let t23;
+        let t24;
+        if ($[36] === Symbol.for("react.memo_cache_sentinel")) {
+            t8 = {
                 flex: 1,
                 minHeight: 0,
                 overflowY: "auto",
                 overflowX: "auto"
             };
-            t5 = {
+            t6 = {
                 width: "100%",
                 borderCollapse: "separate",
                 borderSpacing: 0,
                 fontSize: "14px",
                 color: "#15284C"
             };
-            t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+            t20 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                scope: "col",
+                style: headerCellStyle,
+                children: "NHI Number"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 348,
+                columnNumber: 13
+            }, this);
+            t21 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                scope: "col",
+                style: headerCellStyle,
+                children: "Patient Name"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 349,
+                columnNumber: 13
+            }, this);
+            t22 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                scope: "col",
+                style: headerCellStyle,
+                children: "Date"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 350,
+                columnNumber: 13
+            }, this);
+            t23 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                scope: "col",
+                style: headerCellStyle,
+                children: "Version"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 351,
+                columnNumber: 13
+            }, this);
+            t24 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                scope: "col",
+                style: headerCellStyle,
+                children: "Status"
+            }, void 0, false, {
+                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                lineNumber: 352,
+                columnNumber: 13
+            }, this);
+            $[36] = t20;
+            $[37] = t21;
+            $[38] = t22;
+            $[39] = t23;
+            $[40] = t24;
+            $[41] = t6;
+            $[42] = t8;
+        } else {
+            t20 = $[36];
+            t21 = $[37];
+            t22 = $[38];
+            t23 = $[39];
+            t24 = $[40];
+            t6 = $[41];
+            t8 = $[42];
+        }
+        if ($[43] === Symbol.for("react.memo_cache_sentinel")) {
+            t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                     children: [
+                        t20,
+                        t21,
+                        t22,
+                        t23,
+                        t24,
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                            style: headerCellStyle,
-                            children: "NHI Number"
+                            scope: "col",
+                            style: {
+                                ...headerCellStyle,
+                                textAlign: "right"
+                            },
+                            children: "Action"
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 217,
-                            columnNumber: 23
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                            style: headerCellStyle,
-                            children: "Patient Name"
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 217,
-                            columnNumber: 66
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                            style: headerCellStyle,
-                            children: "Date"
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 217,
-                            columnNumber: 111
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                            style: headerCellStyle,
-                            children: "Version Number"
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 217,
-                            columnNumber: 148
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                            style: headerCellStyle,
-                            children: "Status"
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 217,
-                            columnNumber: 195
+                            lineNumber: 370,
+                            columnNumber: 48
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                    lineNumber: 217,
+                    lineNumber: 370,
                     columnNumber: 19
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                lineNumber: 217,
+                lineNumber: 370,
                 columnNumber: 12
             }, this);
-            $[15] = t5;
-            $[16] = t6;
-            $[17] = t7;
-            $[18] = t8;
-            $[19] = t9;
+            $[43] = t7;
         } else {
-            t5 = $[15];
-            t6 = $[16];
-            t7 = $[17];
-            t8 = $[18];
-            t9 = $[19];
+            t7 = $[43];
         }
-        t4 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+        t5 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                colSpan: 5,
+                colSpan: 6,
                 style: {
                     padding: "24px",
                     textAlign: "center",
@@ -528,16 +1005,16 @@ function RecentAssessments() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                lineNumber: 230,
+                lineNumber: 378,
                 columnNumber: 24
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 230,
+            lineNumber: 378,
             columnNumber: 20
         }, this) : error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                colSpan: 5,
+                colSpan: 6,
                 style: {
                     padding: "24px",
                     textAlign: "center",
@@ -546,207 +1023,238 @@ function RecentAssessments() {
                 children: error
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                lineNumber: 234,
+                lineNumber: 382,
                 columnNumber: 45
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 234,
+            lineNumber: 382,
             columnNumber: 41
-        }, this) : rows.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+        }, this) : filteredRows.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                colSpan: 5,
+                colSpan: 6,
                 style: {
                     padding: "24px",
                     textAlign: "center",
                     color: "#6B7280"
                 },
-                children: "No recent assessments to display."
+                children: searchTerm ? "No patients match your search." : "No recent assessments to display."
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                lineNumber: 238,
-                columnNumber: 54
+                lineNumber: 386,
+                columnNumber: 62
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 238,
-            columnNumber: 50
-        }, this) : rows.map({
-            "RecentAssessments[rows.map()]": (row)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+            lineNumber: 386,
+            columnNumber: 58
+        }, this) : filteredRows.map({
+            "RecentAssessments[filteredRows.map()]": (row_0)=>{
+                const isDraft = row_0.status.toUpperCase() === "DRAFT";
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                    className: "clickable-row",
+                    role: "link",
+                    tabIndex: 0,
+                    "aria-label": `View patient ${row_0.patientName}`,
                     onClick: {
-                        "RecentAssessments[rows.map() > <tr>.onClick]": ()=>router.push(`/history/${row.patientId}`)
-                    }["RecentAssessments[rows.map() > <tr>.onClick]"],
-                    onMouseEnter: _RecentAssessmentsRowsMapTrOnMouseEnter,
-                    onMouseLeave: _RecentAssessmentsRowsMapTrOnMouseLeave,
-                    style: {
-                        cursor: "pointer"
-                    },
+                        "RecentAssessments[filteredRows.map() > <tr>.onClick]": ()=>router.push(`/history/${row_0.patientId}`)
+                    }["RecentAssessments[filteredRows.map() > <tr>.onClick]"],
+                    onKeyDown: {
+                        "RecentAssessments[filteredRows.map() > <tr>.onKeyDown]": (e_2)=>handleRowKeyDown(e_2, row_0.patientId)
+                    }["RecentAssessments[filteredRows.map() > <tr>.onKeyDown]"],
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: {
                                 ...bodyCellStyle,
                                 borderBottom: "1px solid #E5E7EB"
                             },
-                            children: row.nhiNumber
+                            children: row_0.nhiNumber
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 247,
-                            columnNumber: 10
+                            lineNumber: 397,
+                            columnNumber: 70
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: {
                                 ...bodyCellStyle,
                                 borderBottom: "1px solid #E5E7EB"
                             },
-                            children: row.patientName
+                            children: row_0.patientName
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 250,
-                            columnNumber: 32
+                            lineNumber: 400,
+                            columnNumber: 36
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: {
                                 ...bodyCellStyle,
                                 borderBottom: "1px solid #E5E7EB"
                             },
-                            children: row.date
+                            children: row_0.date
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 253,
-                            columnNumber: 34
+                            lineNumber: 403,
+                            columnNumber: 38
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: {
                                 ...bodyCellStyle,
                                 borderBottom: "1px solid #E5E7EB"
                             },
-                            children: row.versionNumber
+                            children: row_0.versionNumber
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 256,
-                            columnNumber: 27
+                            lineNumber: 406,
+                            columnNumber: 31
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: {
                                 ...bodyCellStyle,
                                 borderBottom: "1px solid #E5E7EB",
-                                color: getStatusColor(row.status)
+                                color: getStatusColor(row_0.status)
                             },
-                            children: row.status
+                            children: row_0.status
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                            lineNumber: 259,
-                            columnNumber: 36
+                            lineNumber: 409,
+                            columnNumber: 40
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                            style: {
+                                ...bodyCellStyle,
+                                borderBottom: "1px solid #E5E7EB",
+                                textAlign: "right"
+                            },
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                className: "row-action-btn",
+                                onClick: {
+                                    "RecentAssessments[filteredRows.map() > <button>.onClick]": (e_3)=>handleActionClick(e_3, row_0)
+                                }["RecentAssessments[filteredRows.map() > <button>.onClick]"],
+                                "aria-label": isDraft ? `Continue draft for ${row_0.patientName}` : `View ${row_0.patientName}`,
+                                children: isDraft ? "Continue Draft" : "View"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                                lineNumber: 417,
+                                columnNumber: 14
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/recentAssessments.tsx",
+                            lineNumber: 413,
+                            columnNumber: 33
                         }, this)
                     ]
-                }, row.id, true, {
+                }, row_0.id, true, {
                     fileName: "[project]/src/components/landing/recentAssessments.tsx",
-                    lineNumber: 243,
-                    columnNumber: 47
-                }, this)
-        }["RecentAssessments[rows.map()]"]);
-        $[5] = error;
-        $[6] = loading;
-        $[7] = router;
-        $[8] = rows;
-        $[9] = t4;
-        $[10] = t5;
-        $[11] = t6;
-        $[12] = t7;
-        $[13] = t8;
-        $[14] = t9;
+                    lineNumber: 393,
+                    columnNumber: 16
+                }, this);
+            }
+        }["RecentAssessments[filteredRows.map()]"]);
+        $[8] = error;
+        $[9] = filteredRows;
+        $[10] = loading;
+        $[11] = router;
+        $[12] = searchTerm;
+        $[13] = t10;
+        $[14] = t11;
+        $[15] = t12;
+        $[16] = t5;
+        $[17] = t6;
+        $[18] = t7;
+        $[19] = t8;
+        $[20] = t9;
     } else {
-        t4 = $[9];
-        t5 = $[10];
-        t6 = $[11];
-        t7 = $[12];
-        t8 = $[13];
-        t9 = $[14];
-    }
-    let t10;
-    if ($[20] !== t4) {
-        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
-            children: t4
-        }, void 0, false, {
-            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 285,
-            columnNumber: 11
-        }, this);
-        $[20] = t4;
-        $[21] = t10;
-    } else {
-        t10 = $[21];
-    }
-    let t11;
-    if ($[22] !== t10 || $[23] !== t5 || $[24] !== t6) {
-        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
-            style: t5,
-            children: [
-                t6,
-                t10
-            ]
-        }, void 0, true, {
-            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 293,
-            columnNumber: 11
-        }, this);
-        $[22] = t10;
-        $[23] = t5;
-        $[24] = t6;
-        $[25] = t11;
-    } else {
-        t11 = $[25];
-    }
-    let t12;
-    if ($[26] !== t11 || $[27] !== t7) {
-        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            style: t7,
-            children: t11
-        }, void 0, false, {
-            fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 303,
-            columnNumber: 11
-        }, this);
-        $[26] = t11;
-        $[27] = t7;
-        $[28] = t12;
-    } else {
-        t12 = $[28];
+        t10 = $[13];
+        t11 = $[14];
+        t12 = $[15];
+        t5 = $[16];
+        t6 = $[17];
+        t7 = $[18];
+        t8 = $[19];
+        t9 = $[20];
     }
     let t13;
-    if ($[29] !== t12 || $[30] !== t8 || $[31] !== t9) {
-        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            style: t8,
+    if ($[44] !== t5) {
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
+            children: t5
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/recentAssessments.tsx",
+            lineNumber: 447,
+            columnNumber: 11
+        }, this);
+        $[44] = t5;
+        $[45] = t13;
+    } else {
+        t13 = $[45];
+    }
+    let t14;
+    if ($[46] !== t13 || $[47] !== t6 || $[48] !== t7) {
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
+            style: t6,
             children: [
-                t9,
-                t12
+                t7,
+                t13
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/landing/recentAssessments.tsx",
-            lineNumber: 312,
+            lineNumber: 455,
             columnNumber: 11
         }, this);
-        $[29] = t12;
-        $[30] = t8;
-        $[31] = t9;
-        $[32] = t13;
+        $[46] = t13;
+        $[47] = t6;
+        $[48] = t7;
+        $[49] = t14;
     } else {
-        t13 = $[32];
+        t14 = $[49];
     }
-    return t13;
+    let t15;
+    if ($[50] !== t14 || $[51] !== t8) {
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            style: t8,
+            children: t14
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/recentAssessments.tsx",
+            lineNumber: 465,
+            columnNumber: 11
+        }, this);
+        $[50] = t14;
+        $[51] = t8;
+        $[52] = t15;
+    } else {
+        t15 = $[52];
+    }
+    let t16;
+    if ($[53] !== t10 || $[54] !== t11 || $[55] !== t12 || $[56] !== t15 || $[57] !== t9) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: t9,
+            style: t10,
+            children: [
+                t11,
+                t12,
+                t15
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/components/landing/recentAssessments.tsx",
+            lineNumber: 474,
+            columnNumber: 11
+        }, this);
+        $[53] = t10;
+        $[54] = t11;
+        $[55] = t12;
+        $[56] = t15;
+        $[57] = t9;
+        $[58] = t16;
+    } else {
+        t16 = $[58];
+    }
+    return t16;
 }
-_s(RecentAssessments, "4tC+Quxr/AlKD6gLKe2Hl1dIvoI=", false, function() {
+_s(RecentAssessments, "vTkOmYGzmo17I74aupskX5kfPwo=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];
 });
 _c = RecentAssessments;
-function _RecentAssessmentsRowsMapTrOnMouseLeave(e_0) {
-    e_0.currentTarget.style.backgroundColor = "transparent";
-}
-function _RecentAssessmentsRowsMapTrOnMouseEnter(e) {
-    e.currentTarget.style.backgroundColor = "#F8FAFC";
-}
 function _RecentAssessmentsUseEffectFetchRecentAssessmentsAssessmentsMap(a) {
     return a.PATIENTpatient_id;
 }
@@ -797,12 +1305,12 @@ function formatReviewDate(dateString) {
 }
 function UpcomingReviews() {
     _s();
-    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(18);
-    if ($[0] !== "a92f4da3ac8358bd43d560ba7cb60684b84de5b7fa4a44faf7ca73eb3ef86a5a") {
-        for(let $i = 0; $i < 18; $i += 1){
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(21);
+    if ($[0] !== "94704c7f81ac0c66dbaef9ac70e31a8545b194e833bc158cc079395f6bb4212f") {
+        for(let $i = 0; $i < 21; $i += 1){
             $[$i] = Symbol.for("react.memo_cache_sentinel");
         }
-        $[0] = "a92f4da3ac8358bd43d560ba7cb60684b84de5b7fa4a44faf7ca73eb3ef86a5a";
+        $[0] = "94704c7f81ac0c66dbaef9ac70e31a8545b194e833bc158cc079395f6bb4212f";
     }
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     let t0;
@@ -928,14 +1436,29 @@ function UpcomingReviews() {
     }
     const bodyCellStyle = t4;
     let t5;
+    if ($[6] !== router) {
+        t5 = function handleRowKeyDown(e, patientId) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                router.push(`/history/${patientId}`);
+            }
+        };
+        $[6] = router;
+        $[7] = t5;
+    } else {
+        t5 = $[7];
+    }
+    const handleRowKeyDown = t5;
+    let t10;
     let t6;
     let t7;
     let t8;
     let t9;
-    if ($[6] === Symbol.for("react.memo_cache_sentinel")) {
-        t5 = {
+    if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
+        t6 = {
             backgroundColor: "#FFFFFF",
             border: "1px solid #D6D6D6",
+            borderRadius: "8px",
             padding: "18px",
             width: "100%",
             color: "#15284C",
@@ -945,7 +1468,7 @@ function UpcomingReviews() {
             overflow: "hidden",
             minHeight: 0
         };
-        t6 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+        t7 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
             style: {
                 fontSize: "20px",
                 fontWeight: 600,
@@ -955,74 +1478,77 @@ function UpcomingReviews() {
             children: "Upcoming Reviews"
         }, void 0, false, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 205,
+            lineNumber: 220,
             columnNumber: 10
         }, this);
-        t7 = {
+        t8 = {
             flex: 1,
             minHeight: 0,
             overflowY: "auto",
             overflowX: "auto"
         };
-        t8 = {
+        t9 = {
             width: "100%",
             borderCollapse: "separate",
             borderSpacing: 0,
             fontSize: "14px"
         };
-        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+        t10 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                        scope: "col",
                         style: headerCellStyle,
                         children: "NHI"
                     }, void 0, false, {
                         fileName: "[project]/src/components/landing/upcoming.tsx",
-                        lineNumber: 223,
-                        columnNumber: 21
+                        lineNumber: 238,
+                        columnNumber: 22
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                        scope: "col",
                         style: headerCellStyle,
                         children: "Patient Name"
                     }, void 0, false, {
                         fileName: "[project]/src/components/landing/upcoming.tsx",
-                        lineNumber: 223,
-                        columnNumber: 57
+                        lineNumber: 238,
+                        columnNumber: 70
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                        scope: "col",
                         style: headerCellStyle,
                         children: "Date"
                     }, void 0, false, {
                         fileName: "[project]/src/components/landing/upcoming.tsx",
-                        lineNumber: 223,
-                        columnNumber: 102
+                        lineNumber: 238,
+                        columnNumber: 127
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/landing/upcoming.tsx",
-                lineNumber: 223,
-                columnNumber: 17
+                lineNumber: 238,
+                columnNumber: 18
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 223,
-            columnNumber: 10
+            lineNumber: 238,
+            columnNumber: 11
         }, this);
-        $[6] = t5;
-        $[7] = t6;
-        $[8] = t7;
-        $[9] = t8;
-        $[10] = t9;
+        $[8] = t10;
+        $[9] = t6;
+        $[10] = t7;
+        $[11] = t8;
+        $[12] = t9;
     } else {
-        t5 = $[6];
-        t6 = $[7];
-        t7 = $[8];
-        t8 = $[9];
-        t9 = $[10];
+        t10 = $[8];
+        t6 = $[9];
+        t7 = $[10];
+        t8 = $[11];
+        t9 = $[12];
     }
-    let t10;
-    if ($[11] !== error || $[12] !== loading || $[13] !== router || $[14] !== rows) {
-        t10 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+    let t11;
+    if ($[13] !== error || $[14] !== handleRowKeyDown || $[15] !== loading || $[16] !== router || $[17] !== rows) {
+        t11 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                 colSpan: 3,
                 style: {
@@ -1033,12 +1559,12 @@ function UpcomingReviews() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/upcoming.tsx",
-                lineNumber: 238,
+                lineNumber: 253,
                 columnNumber: 25
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 238,
+            lineNumber: 253,
             columnNumber: 21
         }, this) : error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1051,12 +1577,12 @@ function UpcomingReviews() {
                 children: error
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/upcoming.tsx",
-                lineNumber: 242,
+                lineNumber: 257,
                 columnNumber: 45
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 242,
+            lineNumber: 257,
             columnNumber: 41
         }, this) : rows.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1069,108 +1595,124 @@ function UpcomingReviews() {
                 children: "No upcoming reviews"
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/upcoming.tsx",
-                lineNumber: 246,
+                lineNumber: 261,
                 columnNumber: 54
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 246,
+            lineNumber: 261,
             columnNumber: 50
         }, this) : rows.map({
             "UpcomingReviews[rows.map()]": (row)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                    className: "clickable-row",
+                    role: "link",
+                    tabIndex: 0,
+                    "aria-label": `View patient ${row.patientName}`,
                     onClick: {
                         "UpcomingReviews[rows.map() > <tr>.onClick]": ()=>router.push(`/history/${row.patientId}`)
                     }["UpcomingReviews[rows.map() > <tr>.onClick]"],
-                    onMouseEnter: _UpcomingReviewsRowsMapTrOnMouseEnter,
-                    onMouseLeave: _UpcomingReviewsRowsMapTrOnMouseLeave,
-                    style: {
-                        cursor: "pointer"
-                    },
+                    onKeyDown: {
+                        "UpcomingReviews[rows.map() > <tr>.onKeyDown]": (e_0)=>handleRowKeyDown(e_0, row.patientId)
+                    }["UpcomingReviews[rows.map() > <tr>.onKeyDown]"],
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
                             children: row.nhi
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/upcoming.tsx",
-                            lineNumber: 255,
-                            columnNumber: 10
+                            lineNumber: 270,
+                            columnNumber: 58
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
                             children: row.patientName
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/upcoming.tsx",
-                            lineNumber: 255,
-                            columnNumber: 50
+                            lineNumber: 270,
+                            columnNumber: 98
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                            style: {
-                                ...bodyCellStyle,
-                                color: row.isToday ? "#C0392B" : "#15284C"
-                            },
-                            children: row.date
+                            style: bodyCellStyle,
+                            children: row.isToday ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                style: {
+                                    display: "inline-block",
+                                    padding: "2px 10px",
+                                    borderRadius: "12px",
+                                    backgroundColor: "#15284C",
+                                    color: "#FFFFFF",
+                                    fontWeight: 600,
+                                    fontSize: "13px"
+                                },
+                                children: "Today"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/upcoming.tsx",
+                                lineNumber: 270,
+                                columnNumber: 187
+                            }, this) : row.date
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/upcoming.tsx",
-                            lineNumber: 255,
-                            columnNumber: 98
+                            lineNumber: 270,
+                            columnNumber: 146
                         }, this)
                     ]
                 }, row.id, true, {
                     fileName: "[project]/src/components/landing/upcoming.tsx",
-                    lineNumber: 251,
+                    lineNumber: 266,
                     columnNumber: 45
                 }, this)
         }["UpcomingReviews[rows.map()]"]);
-        $[11] = error;
-        $[12] = loading;
-        $[13] = router;
-        $[14] = rows;
-        $[15] = t10;
+        $[13] = error;
+        $[14] = handleRowKeyDown;
+        $[15] = loading;
+        $[16] = router;
+        $[17] = rows;
+        $[18] = t11;
     } else {
-        t10 = $[15];
+        t11 = $[18];
     }
-    let t11;
-    if ($[16] !== t10) {
-        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            style: t5,
+    let t12;
+    if ($[19] !== t11) {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "dashboard-card",
+            style: t6,
             children: [
-                t6,
+                t7,
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    style: t7,
+                    style: t8,
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
-                        style: t8,
+                        style: t9,
                         children: [
-                            t9,
+                            t10,
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
-                                children: t10
+                                children: t11
                             }, void 0, false, {
                                 fileName: "[project]/src/components/landing/upcoming.tsx",
-                                lineNumber: 270,
-                                columnNumber: 69
+                                lineNumber: 291,
+                                columnNumber: 97
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/landing/upcoming.tsx",
-                        lineNumber: 270,
-                        columnNumber: 47
+                        lineNumber: 291,
+                        columnNumber: 74
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/landing/upcoming.tsx",
-                    lineNumber: 270,
-                    columnNumber: 31
+                    lineNumber: 291,
+                    columnNumber: 58
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/landing/upcoming.tsx",
-            lineNumber: 270,
+            lineNumber: 291,
             columnNumber: 11
         }, this);
-        $[16] = t10;
-        $[17] = t11;
+        $[19] = t11;
+        $[20] = t12;
     } else {
-        t11 = $[17];
+        t12 = $[20];
     }
-    return t11;
+    return t12;
 }
 _s(UpcomingReviews, "4tC+Quxr/AlKD6gLKe2Hl1dIvoI=", false, function() {
     return [
@@ -1178,12 +1720,6 @@ _s(UpcomingReviews, "4tC+Quxr/AlKD6gLKe2Hl1dIvoI=", false, function() {
     ];
 });
 _c = UpcomingReviews;
-function _UpcomingReviewsRowsMapTrOnMouseLeave(e_0) {
-    e_0.currentTarget.style.backgroundColor = "transparent";
-}
-function _UpcomingReviewsRowsMapTrOnMouseEnter(e) {
-    e.currentTarget.style.backgroundColor = "#F8FAFC";
-}
 function _UpcomingReviewsUseEffectFetchUpcomingReviewsAssessmentsMap(a) {
     return a.PATIENTpatient_id;
 }
@@ -1212,7 +1748,18 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-function formatDate(iso) {
+function relativeTime(iso) {
+    const now = Date.now();
+    const then = new Date(iso).getTime();
+    const diffMs = now - then;
+    if (diffMs < 0) return "just now";
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
     return new Intl.DateTimeFormat("en-NZ").format(new Date(iso));
 }
 function normalizeStatus(status) {
@@ -1234,12 +1781,12 @@ function labelStatus(status) {
 }
 function Drafts() {
     _s();
-    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(22);
-    if ($[0] !== "a87f6af7d3a4e8f95fe4973d8a5967681c4dfb8f41eb5bcacbcd487b53ecc047") {
-        for(let $i = 0; $i < 22; $i += 1){
+    const $ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$compiler$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["c"])(30);
+    if ($[0] !== "ce8e18997d2fdb0a1b76c1369ebf3b3f6117f3f49040984ec39c81b5d41e3b77") {
+        for(let $i = 0; $i < 30; $i += 1){
             $[$i] = Symbol.for("react.memo_cache_sentinel");
         }
-        $[0] = "a87f6af7d3a4e8f95fe4973d8a5967681c4dfb8f41eb5bcacbcd487b53ecc047";
+        $[0] = "ce8e18997d2fdb0a1b76c1369ebf3b3f6117f3f49040984ec39c81b5d41e3b77";
     }
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     let t0;
@@ -1348,18 +1895,33 @@ function Drafts() {
     const sortedDrafts = t3;
     let t4;
     if ($[6] !== router) {
-        t4 = function openDraft(patientId) {
-            router.push(`/history/${patientId}`);
+        t4 = function handleRowKeyDown(e, patientId) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                router.push(`/history/${patientId}`);
+            }
         };
         $[6] = router;
         $[7] = t4;
     } else {
         t4 = $[7];
     }
-    const openDraft = t4;
+    const handleRowKeyDown = t4;
     let t5;
-    if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
-        t5 = {
+    if ($[8] !== router) {
+        t5 = function handleContinueClick(e_0, assessmentId) {
+            e_0.stopPropagation();
+            router.push(`/assessment?assessmentId=${assessmentId}`);
+        };
+        $[8] = router;
+        $[9] = t5;
+    } else {
+        t5 = $[9];
+    }
+    const handleContinueClick = t5;
+    let t6;
+    if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
+        t6 = {
             padding: "14px 12px",
             minHeight: "48px",
             textAlign: "left",
@@ -1370,33 +1932,37 @@ function Drafts() {
             zIndex: 2,
             borderBottom: "1px solid #D6D6D6"
         };
-        $[8] = t5;
+        $[10] = t6;
     } else {
-        t5 = $[8];
+        t6 = $[10];
     }
-    const headerCellStyle = t5;
-    let t6;
-    if ($[9] === Symbol.for("react.memo_cache_sentinel")) {
-        t6 = {
+    const headerCellStyle = t6;
+    let t7;
+    if ($[11] === Symbol.for("react.memo_cache_sentinel")) {
+        t7 = {
             padding: "14px 12px",
             minHeight: "48px",
             verticalAlign: "middle",
             borderBottom: "1px solid #E5E7EB"
         };
-        $[9] = t6;
+        $[11] = t7;
     } else {
-        t6 = $[9];
+        t7 = $[11];
     }
-    const bodyCellStyle = t6;
+    const bodyCellStyle = t7;
     let t10;
     let t11;
-    let t7;
+    let t12;
+    let t13;
+    let t14;
+    let t15;
     let t8;
     let t9;
-    if ($[10] === Symbol.for("react.memo_cache_sentinel")) {
-        t7 = {
+    if ($[12] === Symbol.for("react.memo_cache_sentinel")) {
+        t8 = {
             backgroundColor: "#FFFFFF",
             border: "1px solid #D6D6D6",
+            borderRadius: "8px",
             padding: "18px",
             width: "100%",
             color: "#15284C",
@@ -1406,7 +1972,7 @@ function Drafts() {
             overflow: "hidden",
             minHeight: 0
         };
-        t8 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+        t9 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
             style: {
                 fontSize: "20px",
                 fontWeight: 600,
@@ -1416,90 +1982,114 @@ function Drafts() {
             children: "Pending Drafts"
         }, void 0, false, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 236,
+            lineNumber: 266,
             columnNumber: 10
         }, this);
-        t9 = {
+        t10 = {
             flex: 1,
             minHeight: 0,
             overflowY: "auto",
             overflowX: "auto"
         };
-        t10 = {
+        t11 = {
             width: "100%",
             borderCollapse: "separate",
             borderSpacing: 0,
             fontSize: "14px"
         };
-        t11 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+        t12 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+            scope: "col",
+            style: headerCellStyle,
+            children: "NHI"
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/drafts.tsx",
+            lineNumber: 284,
+            columnNumber: 11
+        }, this);
+        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+            scope: "col",
+            style: headerCellStyle,
+            children: "Patient Name"
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/drafts.tsx",
+            lineNumber: 285,
+            columnNumber: 11
+        }, this);
+        t14 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+            scope: "col",
+            style: headerCellStyle,
+            children: "Last Edited"
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/drafts.tsx",
+            lineNumber: 286,
+            columnNumber: 11
+        }, this);
+        t15 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+            scope: "col",
+            style: headerCellStyle,
+            children: "Status"
+        }, void 0, false, {
+            fileName: "[project]/src/components/landing/drafts.tsx",
+            lineNumber: 287,
+            columnNumber: 11
+        }, this);
+        $[12] = t10;
+        $[13] = t11;
+        $[14] = t12;
+        $[15] = t13;
+        $[16] = t14;
+        $[17] = t15;
+        $[18] = t8;
+        $[19] = t9;
+    } else {
+        t10 = $[12];
+        t11 = $[13];
+        t12 = $[14];
+        t13 = $[15];
+        t14 = $[16];
+        t15 = $[17];
+        t8 = $[18];
+        t9 = $[19];
+    }
+    let t16;
+    if ($[20] === Symbol.for("react.memo_cache_sentinel")) {
+        t16 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                 children: [
+                    t12,
+                    t13,
+                    t14,
+                    t15,
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                        style: headerCellStyle,
-                        children: "NHI"
+                        scope: "col",
+                        style: {
+                            ...headerCellStyle,
+                            textAlign: "right"
+                        },
+                        children: "Action"
                     }, void 0, false, {
                         fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 254,
-                        columnNumber: 22
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                        style: headerCellStyle,
-                        children: "Patient Name"
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 254,
-                        columnNumber: 58
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                        style: headerCellStyle,
-                        children: "Date"
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 254,
-                        columnNumber: 103
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                        style: headerCellStyle,
-                        children: "Version"
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 254,
-                        columnNumber: 140
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                        style: headerCellStyle,
-                        children: "Status"
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 254,
-                        columnNumber: 180
+                        lineNumber: 308,
+                        columnNumber: 42
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/landing/drafts.tsx",
-                lineNumber: 254,
+                lineNumber: 308,
                 columnNumber: 18
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 254,
+            lineNumber: 308,
             columnNumber: 11
         }, this);
-        $[10] = t10;
-        $[11] = t11;
-        $[12] = t7;
-        $[13] = t8;
-        $[14] = t9;
+        $[20] = t16;
     } else {
-        t10 = $[10];
-        t11 = $[11];
-        t7 = $[12];
-        t8 = $[13];
-        t9 = $[14];
+        t16 = $[20];
     }
-    let t12;
-    if ($[15] !== error || $[16] !== loading || $[17] !== openDraft || $[18] !== sortedDrafts) {
-        t12 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+    let t17;
+    if ($[21] !== error || $[22] !== handleContinueClick || $[23] !== handleRowKeyDown || $[24] !== loading || $[25] !== router || $[26] !== sortedDrafts) {
+        t17 = loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                 colSpan: 5,
                 style: {
@@ -1509,12 +2099,12 @@ function Drafts() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/drafts.tsx",
-                lineNumber: 269,
+                lineNumber: 318,
                 columnNumber: 25
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 269,
+            lineNumber: 318,
             columnNumber: 21
         }, this) : error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1527,12 +2117,12 @@ function Drafts() {
                 children: error
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/drafts.tsx",
-                lineNumber: 272,
+                lineNumber: 321,
                 columnNumber: 45
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 272,
+            lineNumber: 321,
             columnNumber: 41
         }, this) : sortedDrafts.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1544,124 +2134,140 @@ function Drafts() {
                 children: "No drafts yet"
             }, void 0, false, {
                 fileName: "[project]/src/components/landing/drafts.tsx",
-                lineNumber: 276,
+                lineNumber: 325,
                 columnNumber: 62
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 276,
+            lineNumber: 325,
             columnNumber: 58
         }, this) : sortedDrafts.map({
             "Drafts[sortedDrafts.map()]": (draft_2)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                    className: "clickable-row",
+                    role: "link",
+                    tabIndex: 0,
+                    "aria-label": `View patient ${draft_2.patientName}`,
                     onClick: {
-                        "Drafts[sortedDrafts.map() > <tr>.onClick]": ()=>openDraft(draft_2.patientId)
+                        "Drafts[sortedDrafts.map() > <tr>.onClick]": ()=>router.push(`/history/${draft_2.patientId}`)
                     }["Drafts[sortedDrafts.map() > <tr>.onClick]"],
-                    onMouseEnter: _DraftsSortedDraftsMapTrOnMouseEnter,
-                    onMouseLeave: _DraftsSortedDraftsMapTrOnMouseLeave,
-                    style: {
-                        cursor: "pointer"
-                    },
+                    onKeyDown: {
+                        "Drafts[sortedDrafts.map() > <tr>.onKeyDown]": (e_1)=>handleRowKeyDown(e_1, draft_2.patientId)
+                    }["Drafts[sortedDrafts.map() > <tr>.onKeyDown]"],
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
                             children: draft_2.nhi
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/drafts.tsx",
-                            lineNumber: 284,
-                            columnNumber: 10
+                            lineNumber: 333,
+                            columnNumber: 57
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
                             children: draft_2.patientName
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/drafts.tsx",
-                            lineNumber: 284,
-                            columnNumber: 54
+                            lineNumber: 333,
+                            columnNumber: 101
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
-                            children: formatDate(draft_2.dateLastEditedISO)
+                            children: relativeTime(draft_2.dateLastEditedISO)
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/drafts.tsx",
-                            lineNumber: 284,
-                            columnNumber: 106
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                            style: bodyCellStyle,
-                            children: [
-                                "v",
-                                draft_2.versionNumber
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/components/landing/drafts.tsx",
-                            lineNumber: 284,
-                            columnNumber: 176
+                            lineNumber: 333,
+                            columnNumber: 153
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                             style: bodyCellStyle,
                             children: labelStatus(draft_2.status)
                         }, void 0, false, {
                             fileName: "[project]/src/components/landing/drafts.tsx",
-                            lineNumber: 284,
-                            columnNumber: 231
+                            lineNumber: 333,
+                            columnNumber: 225
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                            style: {
+                                ...bodyCellStyle,
+                                textAlign: "right"
+                            },
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                className: "row-action-btn",
+                                onClick: {
+                                    "Drafts[sortedDrafts.map() > <button>.onClick]": (e_2)=>handleContinueClick(e_2, draft_2.assessmentId)
+                                }["Drafts[sortedDrafts.map() > <button>.onClick]"],
+                                "aria-label": `Continue draft for ${draft_2.patientName}`,
+                                children: "Continue"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/landing/drafts.tsx",
+                                lineNumber: 336,
+                                columnNumber: 12
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/landing/drafts.tsx",
+                            lineNumber: 333,
+                            columnNumber: 285
                         }, this)
                     ]
                 }, draft_2.id, true, {
                     fileName: "[project]/src/components/landing/drafts.tsx",
-                    lineNumber: 280,
+                    lineNumber: 329,
                     columnNumber: 48
                 }, this)
         }["Drafts[sortedDrafts.map()]"]);
-        $[15] = error;
-        $[16] = loading;
-        $[17] = openDraft;
-        $[18] = sortedDrafts;
-        $[19] = t12;
+        $[21] = error;
+        $[22] = handleContinueClick;
+        $[23] = handleRowKeyDown;
+        $[24] = loading;
+        $[25] = router;
+        $[26] = sortedDrafts;
+        $[27] = t17;
     } else {
-        t12 = $[19];
+        t17 = $[27];
     }
-    let t13;
-    if ($[20] !== t12) {
-        t13 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            style: t7,
+    let t18;
+    if ($[28] !== t17) {
+        t18 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "dashboard-card",
+            style: t8,
             children: [
-                t8,
+                t9,
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    style: t9,
+                    style: t10,
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
-                        style: t10,
+                        style: t11,
                         children: [
-                            t11,
+                            t16,
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
-                                children: t12
+                                children: t17
                             }, void 0, false, {
                                 fileName: "[project]/src/components/landing/drafts.tsx",
-                                lineNumber: 296,
-                                columnNumber: 71
+                                lineNumber: 352,
+                                columnNumber: 99
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/landing/drafts.tsx",
-                        lineNumber: 296,
-                        columnNumber: 47
+                        lineNumber: 352,
+                        columnNumber: 75
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/landing/drafts.tsx",
-                    lineNumber: 296,
-                    columnNumber: 31
+                    lineNumber: 352,
+                    columnNumber: 58
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/landing/drafts.tsx",
-            lineNumber: 296,
+            lineNumber: 352,
             columnNumber: 11
         }, this);
-        $[20] = t12;
-        $[21] = t13;
+        $[28] = t17;
+        $[29] = t18;
     } else {
-        t13 = $[21];
+        t18 = $[29];
     }
-    return t13;
+    return t18;
 }
 _s(Drafts, "0Lt1Ya575xL+9grTaCCiUYKcCCk=", false, function() {
     return [
@@ -1669,12 +2275,6 @@ _s(Drafts, "0Lt1Ya575xL+9grTaCCiUYKcCCk=", false, function() {
     ];
 });
 _c = Drafts;
-function _DraftsSortedDraftsMapTrOnMouseLeave(e_0) {
-    e_0.currentTarget.style.backgroundColor = "transparent";
-}
-function _DraftsSortedDraftsMapTrOnMouseEnter(e) {
-    e.currentTarget.style.backgroundColor = "#F8FAFC";
-}
 function _DraftsAnonymous(a_0, b) {
     return new Date(b.dateLastEditedISO).getTime() - new Date(a_0.dateLastEditedISO).getTime();
 }

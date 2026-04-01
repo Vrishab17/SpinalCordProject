@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -66,6 +66,7 @@ export default function RecentAssessments() {
   const [rows, setRows] = useState<RecentAssessmentDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchRecentAssessments() {
@@ -151,6 +152,16 @@ export default function RecentAssessments() {
     fetchRecentAssessments();
   }, []);
 
+  const filteredRows = useMemo(() => {
+    if (!searchTerm.trim()) return rows;
+    const term = searchTerm.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.nhiNumber.toLowerCase().includes(term) ||
+        r.patientName.toLowerCase().includes(term)
+    );
+  }, [rows, searchTerm]);
+
   const headerCellStyle: React.CSSProperties = {
     padding: "14px 12px",
     minHeight: "48px",
@@ -169,11 +180,31 @@ export default function RecentAssessments() {
     verticalAlign: "middle",
   };
 
+  const colSpan = 6;
+
+  function handleRowKeyDown(e: React.KeyboardEvent, patientId: number) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(`/history/${patientId}`);
+    }
+  }
+
+  function handleActionClick(e: React.MouseEvent, row: RecentAssessmentDisplay) {
+    e.stopPropagation();
+    if (row.status.toUpperCase() === "DRAFT") {
+      router.push(`/assessment?assessmentId=${row.id}`);
+    } else {
+      router.push(`/history/${row.patientId}`);
+    }
+  }
+
   return (
     <div
+      className="dashboard-card"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
+        borderRadius: "8px",
         padding: "18px",
         color: "#15284C",
         height: "100%",
@@ -194,6 +225,52 @@ export default function RecentAssessments() {
         Recent Assessments
       </h2>
 
+      <div style={{ position: "relative", marginBottom: "14px", flexShrink: 0 }}>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#9CA3AF"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search by NHI or name..."
+          aria-label="Search patients"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm("")}
+            aria-label="Clear search"
+            className="btn"
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              padding: "4px",
+              fontSize: "18px",
+              lineHeight: 1,
+              color: "#6B7280",
+            }}
+          >
+            &times;
+          </button>
+        )}
+      </div>
+
       <div
         style={{
           flex: 1,
@@ -213,63 +290,72 @@ export default function RecentAssessments() {
         >
           <thead>
             <tr>
-              <th style={headerCellStyle}>NHI Number</th>
-              <th style={headerCellStyle}>Patient Name</th>
-              <th style={headerCellStyle}>Date</th>
-              <th style={headerCellStyle}>Version Number</th>
-              <th style={headerCellStyle}>Status</th>
+              <th scope="col" style={headerCellStyle}>NHI Number</th>
+              <th scope="col" style={headerCellStyle}>Patient Name</th>
+              <th scope="col" style={headerCellStyle}>Date</th>
+              <th scope="col" style={headerCellStyle}>Version</th>
+              <th scope="col" style={headerCellStyle}>Status</th>
+              <th scope="col" style={{ ...headerCellStyle, textAlign: "right" }}>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   Loading...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center", color: "red" }}>
                   {error}
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            ) : filteredRows.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
-                  No recent assessments to display.
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                  {searchTerm ? "No patients match your search." : "No recent assessments to display."}
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
-                <tr
-                  key={row.id}
-                  onClick={() => router.push(`/history/${row.patientId}`)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#F8FAFC";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  style={{
-                    cursor: "pointer",
-                  }}
-                >
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.versionNumber}</td>
-                  <td
-                    style={{
-                      ...bodyCellStyle,
-                      borderBottom: "1px solid #E5E7EB",
-                      color: getStatusColor(row.status),
-                    }}
+              filteredRows.map((row) => {
+                const isDraft = row.status.toUpperCase() === "DRAFT";
+                return (
+                  <tr
+                    key={row.id}
+                    className="clickable-row"
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`View patient ${row.patientName}`}
+                    onClick={() => router.push(`/history/${row.patientId}`)}
+                    onKeyDown={(e) => handleRowKeyDown(e, row.patientId)}
                   >
-                    {row.status}
-                  </td>
-                </tr>
-              ))
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.versionNumber}</td>
+                    <td
+                      style={{
+                        ...bodyCellStyle,
+                        borderBottom: "1px solid #E5E7EB",
+                        color: getStatusColor(row.status),
+                      }}
+                    >
+                      {row.status}
+                    </td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB", textAlign: "right" }}>
+                      <button
+                        className="row-action-btn"
+                        onClick={(e) => handleActionClick(e, row)}
+                        aria-label={isDraft ? `Continue draft for ${row.patientName}` : `View ${row.patientName}`}
+                      >
+                        {isDraft ? "Continue Draft" : "View"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

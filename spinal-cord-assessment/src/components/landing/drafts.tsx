@@ -42,7 +42,23 @@ type PatientNameRow = {
   family_name: string;
 };
 
-function formatDate(iso: string) {
+function relativeTime(iso: string): string {
+  const now = Date.now();
+  const then = new Date(iso).getTime();
+  const diffMs = now - then;
+
+  if (diffMs < 0) return "just now";
+
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
   return new Intl.DateTimeFormat("en-NZ").format(new Date(iso));
 }
 
@@ -172,8 +188,16 @@ export default function Drafts() {
     );
   }, [drafts]);
 
-  function openDraft(patientId: number) {
-    router.push(`/history/${patientId}`);
+  function handleRowKeyDown(e: React.KeyboardEvent, patientId: number) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(`/history/${patientId}`);
+    }
+  }
+
+  function handleContinueClick(e: React.MouseEvent, assessmentId: number) {
+    e.stopPropagation();
+    router.push(`/assessment?assessmentId=${assessmentId}`);
   }
 
   const headerCellStyle: React.CSSProperties = {
@@ -195,11 +219,15 @@ export default function Drafts() {
     borderBottom: "1px solid #E5E7EB",
   };
 
+  const colSpan = 5;
+
   return (
     <div
+      className="dashboard-card"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
+        borderRadius: "8px",
         padding: "18px",
         width: "100%",
         color: "#15284C",
@@ -239,30 +267,30 @@ export default function Drafts() {
         >
           <thead>
             <tr>
-              <th style={headerCellStyle}>NHI</th>
-              <th style={headerCellStyle}>Patient Name</th>
-              <th style={headerCellStyle}>Date</th>
-              <th style={headerCellStyle}>Version</th>
-              <th style={headerCellStyle}>Status</th>
+              <th scope="col" style={headerCellStyle}>NHI</th>
+              <th scope="col" style={headerCellStyle}>Patient Name</th>
+              <th scope="col" style={headerCellStyle}>Last Edited</th>
+              <th scope="col" style={headerCellStyle}>Status</th>
+              <th scope="col" style={{ ...headerCellStyle, textAlign: "right" }}>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center" }}>
                   Loading...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center", color: "red" }}>
                   {error}
                 </td>
               </tr>
             ) : sortedDrafts.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
+                <td colSpan={colSpan} style={{ padding: "24px", textAlign: "center" }}>
                   No drafts yet
                 </td>
               </tr>
@@ -270,22 +298,26 @@ export default function Drafts() {
               sortedDrafts.map((draft) => (
                 <tr
                   key={draft.id}
-                  onClick={() => openDraft(draft.patientId)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#F8FAFC";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  style={{
-                    cursor: "pointer",
-                  }}
+                  className="clickable-row"
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`View patient ${draft.patientName}`}
+                  onClick={() => router.push(`/history/${draft.patientId}`)}
+                  onKeyDown={(e) => handleRowKeyDown(e, draft.patientId)}
                 >
                   <td style={bodyCellStyle}>{draft.nhi}</td>
                   <td style={bodyCellStyle}>{draft.patientName}</td>
-                  <td style={bodyCellStyle}>{formatDate(draft.dateLastEditedISO)}</td>
-                  <td style={bodyCellStyle}>v{draft.versionNumber}</td>
+                  <td style={bodyCellStyle}>{relativeTime(draft.dateLastEditedISO)}</td>
                   <td style={bodyCellStyle}>{labelStatus(draft.status)}</td>
+                  <td style={{ ...bodyCellStyle, textAlign: "right" }}>
+                    <button
+                      className="row-action-btn"
+                      onClick={(e) => handleContinueClick(e, draft.assessmentId)}
+                      aria-label={`Continue draft for ${draft.patientName}`}
+                    >
+                      Continue
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
