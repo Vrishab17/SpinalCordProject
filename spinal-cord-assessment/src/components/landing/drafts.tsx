@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export type DraftStatus = "OPEN" | "DRAFT" | "FINALIZED";
 
@@ -107,6 +107,7 @@ export default function Drafts() {
 
   useEffect(() => {
     async function fetchDrafts() {
+      const supabase = getSupabaseBrowserClient();
       if (!supabase) {
         setError("Supabase is not configured.");
         setLoading(false);

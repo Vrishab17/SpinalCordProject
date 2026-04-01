@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type AssessmentRow = {
   assessment_id: number;
@@ -125,6 +125,7 @@ export default function RecentAssessments() {
 
   useEffect(() => {
     async function fetchRecentAssessments() {
+      const supabase = getSupabaseBrowserClient();
       if (!supabase) {
         setError("Supabase is not configured.");
         setLoading(false);

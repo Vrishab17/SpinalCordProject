@@ -2,20 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import { hasValidStaffSession } from "@/lib/staffSession";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { hasSupabaseAuthSession } from "@/lib/staffSession";
 
 export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (hasValidStaffSession()) {
-      router.replace("/");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: redirect-if-logged-in runs once
+    let cancelled = false;
+    (async () => {
+      if (await hasSupabaseAuthSession()) {
+        if (!cancelled) router.replace("/");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,74 +31,33 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    const supabase = getSupabaseBrowserClient();
     if (!supabase) {
       setError("Database connection is not configured.");
       setLoading(false);
       return;
     }
 
-    const { data, error: queryError } = await supabase
-      .from("Staff Credentials")
-      .select("username, password_hash, STAFFstaff_id")
-      .eq("username", username)
-      .maybeSingle();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
 
-    if (queryError) {
-      setError("Invalid username or password. Please try again.");
+    if (authError) {
+      setError(
+        authError.message.includes("Invalid login")
+          ? "Invalid email or password."
+          : authError.message
+      );
       setLoading(false);
       return;
     }
-
-    if (!data) {
-      setError("Invalid username or password");
-      setLoading(false);
-      return;
-    }
-
-    // TODO: Replace with server-side bcrypt comparison — plaintext comparison
-    // is insecure and only acceptable during prototyping.
-    if (data.password_hash !== password) {
-      setError("Invalid username or password");
-      setLoading(false);
-      return;
-    }
-
-    const { data: nameData, error: nameError } = await supabase
-      .from("Staff Name")
-      .select("prefix, given_name, preferred_name, family_name")
-      .eq("STAFFstaff_id", data.STAFFstaff_id)
-      .maybeSingle();
-
-    if (nameError) {
-      console.error("Staff name lookup failed:", nameError.message);
-    }
-
-    const firstName =
-      nameData?.preferred_name || nameData?.given_name || "";
-
-    const fullName = [
-      nameData?.prefix,
-      firstName,
-      nameData?.family_name,
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    localStorage.setItem(
-      "staffInfo",
-      JSON.stringify({
-        username,
-        fullName,
-      })
-    );
 
     router.push("/");
   }
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-
-      {/* LEFT PANEL */}
       <div
         style={{
           flex: 1,
@@ -106,12 +71,8 @@ export default function LoginPage() {
         }}
       >
         <div style={{ position: "absolute", top: 20, left: 20 }}>
-          <div style={{ fontWeight: 700, fontSize: 30 }}>
-            Health New Zealand
-          </div>
-          <div style={{ color: "#6EC1E4", fontSize: 20 }}>
-            Te Whatu Ora
-          </div>
+          <div style={{ fontWeight: 700, fontSize: 30 }}>Health New Zealand</div>
+          <div style={{ color: "#6EC1E4", fontSize: 20 }}>Te Whatu Ora</div>
         </div>
 
         <h1
@@ -128,7 +89,6 @@ export default function LoginPage() {
         </h1>
       </div>
 
-      {/* RIGHT PANEL */}
       <div
         style={{
           flex: 1,
@@ -147,17 +107,30 @@ export default function LoginPage() {
             gap: 24,
           }}
         >
+          <p
+            style={{
+              fontSize: 14,
+              color: "#5A6A85",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Sign in with the <strong>work email</strong> registered in Supabase Authentication.
+            Your account must exist under Authentication → Users in the Supabase dashboard.
+          </p>
+
           <div>
-            <label htmlFor="staff-username" style={{ fontSize: 13, fontWeight: 500 }}>
-              STAFF USERNAME
+            <label htmlFor="staff-email" style={{ fontSize: 13, fontWeight: 500 }}>
+              WORK EMAIL
             </label>
             <input
-              id="staff-username"
-              type="text"
-              placeholder="jdoe"
-              value={username}
+              id="staff-email"
+              type="email"
+              autoComplete="email"
+              placeholder="name@health.govt.nz"
+              value={email}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setEmail(e.target.value);
                 setError(null);
               }}
               style={{
@@ -178,6 +151,7 @@ export default function LoginPage() {
             <input
               id="staff-password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);

@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -205,7 +205,7 @@ function LoadingSkeleton() {
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     return () => {
@@ -283,6 +283,7 @@ export default function PatientSearchPage() {
     setErrorMsg(null);
     setSearchTimeMs(null);
 
+    const supabase = getSupabaseBrowserClient();
     if (!supabase) {
       setErrorMsg("Database connection is not configured.");
       setLoading(false);

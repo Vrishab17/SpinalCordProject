@@ -2,22 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hasValidStaffSession } from "@/lib/staffSession";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import LandingPage from "./landingPage/landingPage";
 
 export default function Page() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  // Run once on mount only. Including `router` in deps can re-fire the effect when the
-  // router object identity changes, causing repeated replace() → infinite refresh in dev.
   useEffect(() => {
-    if (!hasValidStaffSession()) {
-      router.replace("/login");
-      return;
-    }
-    setAuthed(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: session gate runs once
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        if (!cancelled) router.replace("/login");
+        return;
+      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (cancelled) return;
+      if (!session) {
+        router.replace("/login");
+        return;
+      }
+      setAuthed(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (authed !== true) {

@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { signOutSupabase } from "@/lib/staffSession";
+import { resolveStaffDisplayName } from "@/lib/staffDisplayName";
 
 export default function Header() {
   const router = useRouter();
@@ -11,22 +14,30 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Load staff name from localStorage
   useEffect(() => {
-    const staffInfo = localStorage.getItem("staffInfo");
-    if (!staffInfo) {
-      setStaffName("Unknown User");
-      return;
-    }
-    try {
-      const parsed = JSON.parse(staffInfo);
-      setStaffName(parsed.fullName || "Unknown User");
-    } catch {
-      setStaffName("Unknown User");
-    }
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        if (!cancelled) setStaffName("Not connected");
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (cancelled) return;
+      if (!user) {
+        setStaffName("Unknown User");
+        return;
+      }
+      const name = await resolveStaffDisplayName(supabase, user);
+      if (!cancelled) setStaffName(name);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -39,14 +50,12 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  // Focus first menu item when opening
   useEffect(() => {
     if (menuOpen) {
       menuItemsRef.current[0]?.focus();
     }
   }, [menuOpen]);
 
-  // Keyboard navigation in menu
   function handleMenuKeyDown(e: React.KeyboardEvent) {
     const items = menuItemsRef.current.filter(Boolean) as HTMLButtonElement[];
     const currentIdx = items.indexOf(document.activeElement as HTMLButtonElement);
@@ -64,9 +73,8 @@ export default function Header() {
     }
   }
 
-  // Sign out function
-  function handleSignOut() {
-    localStorage.removeItem("staffInfo");
+  async function handleSignOut() {
+    await signOutSupabase();
     router.push("/login");
   }
 
@@ -102,9 +110,7 @@ export default function Header() {
         </div>
       </Link>
 
-      {/* RIGHT */}
       <div ref={dropdownRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: "14px" }}>
-        {/* Name */}
         <span
           role="button"
           aria-expanded={menuOpen}
@@ -123,7 +129,6 @@ export default function Header() {
           {staffName}
         </span>
 
-        {/* Person Icon */}
         <div
           style={{
             width: "58px",
@@ -162,7 +167,6 @@ export default function Header() {
           />
         </div>
 
-        {/* Dropdown Menu */}
         {menuOpen && (
           <div
             className="profile-menu"
@@ -188,7 +192,13 @@ export default function Header() {
               className="profile-menu-item"
               role="menuitem"
               tabIndex={-1}
-              ref={(el) => { menuItemsRef.current[0] = el; }}
+              ref={(el) => {
+                menuItemsRef.current[0] = el;
+              }}
+              onClick={() => {
+                setMenuOpen(false);
+                router.push("/profile");
+              }}
               style={{ background: "none", border: "none", padding: "8px 16px", textAlign: "left", cursor: "pointer" }}
             >
               Profile
@@ -197,7 +207,9 @@ export default function Header() {
               className="profile-menu-item"
               role="menuitem"
               tabIndex={-1}
-              ref={(el) => { menuItemsRef.current[1] = el; }}
+              ref={(el) => {
+                menuItemsRef.current[1] = el;
+              }}
               style={{ background: "none", border: "none", padding: "8px 16px", textAlign: "left", cursor: "pointer" }}
             >
               Settings
@@ -207,9 +219,18 @@ export default function Header() {
               className="profile-menu-item"
               role="menuitem"
               tabIndex={-1}
-              ref={(el) => { menuItemsRef.current[2] = el; }}
+              ref={(el) => {
+                menuItemsRef.current[2] = el;
+              }}
               onClick={handleSignOut}
-              style={{ background: "none", border: "none", padding: "8px 16px", textAlign: "left", cursor: "pointer", color: "#B91C1C" }}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 16px",
+                textAlign: "left",
+                cursor: "pointer",
+                color: "#B91C1C",
+              }}
             >
               Sign out
             </button>

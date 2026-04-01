@@ -1,8 +1,19 @@
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  // Count rows without fetching data. Works even if empty.
-  // If RLS blocks anon reads, you'll get an error — that's still useful info.
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return Response.json(
+      {
+        ok: false,
+        where: "env",
+        message: "Supabase is not configured.",
+      },
+      { status: 500 }
+    );
+  }
+
   const { error, count } = await supabase
     .from("Patient")
     .select("*", { count: "exact", head: true });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatDate, calculateAge } from "@/lib/formatters";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
 import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
@@ -98,6 +98,8 @@ function formatClinicianFromStaffName(sn: StaffNameRow | undefined): string {
 
 export default async function Page({ params }: Props) {
   const { patientId } = await params;
+
+  const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     return (
