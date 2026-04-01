@@ -1,107 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 
-<<<<<<< Updated upstream
-=======
-type StaffName = {
-  prefix: string | null;
-  given_name: string | null;
-  preferred_name: string | null;
-  family_name: string | null;
-};
-
->>>>>>> Stashed changes
 export default function Header() {
   const [staffName, setStaffName] = useState("Loading...");
 
   useEffect(() => {
-<<<<<<< Updated upstream
-    async function fetchGP() {
-      const username = localStorage.getItem("loggedInUser");
+    const staffInfo = localStorage.getItem("staffInfo");
 
-      if (!username) {
-        setGpName("Unknown User");
-        return;
-      }
-
-      // STEP 1: Get staff_id from Staff Credentials
-      const { data: credData, error: credError } = await supabase
-        .from("Staff Credentials")
-        .select("STAFFstaff_id")
-        .eq("username", username)
-        .single();
-
-      if (credError || !credData) {
-        console.log("Credential error:", credError);
-        setGpName("Unknown User");
-        return;
-      }
-
-      const staffId = credData.STAFFstaff_id;
-
-      // STEP 2: Get name from Staff Name
-      const { data: nameData, error: nameError } = await supabase
-        .from("Staff Name")
-        .select("prefix, given_name, family_name")
-        .eq("STAFFstaff_id", staffId)
-        .single();
-
-      if (nameError || !nameData) {
-        console.log("Name error:", nameError);
-        setGpName("Unknown User");
-        return;
-      }
-
-      const formatted = `${nameData.prefix} ${nameData.given_name} ${nameData.family_name}`;
-      setGpName(formatted);
-=======
-    async function fetchStaff() {
-      const username = localStorage.getItem("loggedInUser");
-
-      if (!username) {
-        setStaffName("Unknown User");
-        return;
-      }
-
-      // 🔍 Get staff_id from credentials table
-      const { data: credData, error: credError } = await supabase
-        .from("Staff Credentials")
-        .select("staff_id")
-        .eq("username", username)
-        .maybeSingle();
-
-      if (credError || !credData) {
-        setStaffName("Unknown User");
-        return;
-      }
-
-      // 🔍 Get name from Staff Name table
-      const { data, error } = await supabase
-        .from("Staff Name")
-        .select("prefix, given_name, preferred_name, family_name")
-        .eq("STAFFstaff_id", credData.staff_id)
-        .maybeSingle();
-
-      if (error || !data) {
-        setStaffName("Unknown User");
-        return;
-      }
-
-      const staff = data as StaffName;
-
-      // 🎯 Use preferred name if available
-      const firstName =
-        staff.preferred_name || staff.given_name || "";
-
-      const formatted = `${staff.prefix ?? ""} ${firstName} ${staff.family_name ?? ""}`.trim();
-
-      setStaffName(formatted);
->>>>>>> Stashed changes
+    if (!staffInfo) {
+      setStaffName("Unknown User");
+      return;
     }
 
-    fetchStaff();
+    try {
+      const parsed = JSON.parse(staffInfo);
+      setStaffName(parsed.fullName || "Unknown User");
+    } catch {
+      setStaffName("Unknown User");
+    }
   }, []);
 
   return (
@@ -133,18 +50,24 @@ export default function Header() {
       </div>
 
       {/* RIGHT */}
-      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "14px",
+        }}
+      >
+        {/* Name */}
         <span
           style={{
             fontSize: "18px",
-            fontWeight: 400,
             color: "#AEB9D3",
           }}
         >
           {staffName}
         </span>
 
-        {/* Profile icon */}
+        {/* Person Icon */}
         <div
           style={{
             width: "58px",
@@ -154,6 +77,7 @@ export default function Header() {
             position: "relative",
           }}
         >
+          {/* Head */}
           <div
             style={{
               width: "16px",
@@ -166,6 +90,8 @@ export default function Header() {
               transform: "translateX(-50%)",
             }}
           />
+
+          {/* Body */}
           <div
             style={{
               width: "28px",

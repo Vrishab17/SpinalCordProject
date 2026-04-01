@@ -20,7 +20,7 @@ export default function LoginPage() {
     // Get staff_id as well
     const { data, error } = await supabase
       .from("Staff Credentials")
-      .select("username, password_hash, staff_id")
+      .select("username, password_hash, STAFFstaff_id")
       .eq("username", username)
       .maybeSingle();
 
@@ -46,7 +46,7 @@ export default function LoginPage() {
     const { data: nameData } = await supabase
       .from("Staff Name")
       .select("prefix, given_name, preferred_name, family_name")
-      .eq("STAFFstaff_id", data.staff_id)
+      .eq("STAFFstaff_id", data.STAFFstaff_id)
       .maybeSingle();
 
     const firstName =
@@ -88,10 +88,14 @@ export default function LoginPage() {
           position: "relative",
         }}
       >
-        <div style={{ position: "absolute", top: 40, left: 40 }}>
-          <div style={{ fontWeight: 600 }}>Health New Zealand</div>
-          <div style={{ color: "#6EC1E4" }}>Te Whatu Ora</div>
-        </div>
+<div style={{ position: "absolute", top: 20, left: 20 }}>
+  <div style={{ fontWeight: 700, fontSize: 30 }}>
+    Health New Zealand
+  </div>
+  <div style={{ color: "#6EC1E4", fontSize: 20 }}>
+    Te Whatu Ora
+  </div>
+</div>
 
         <h1
           style={{
@@ -101,7 +105,7 @@ export default function LoginPage() {
             fontWeight: 600,
           }}
         >
-          Spinal Cord Injury
+          ISNCSCI / ASRU
           <br />
           Assessment Portal
         </h1>
@@ -120,14 +124,14 @@ export default function LoginPage() {
         <form
           onSubmit={handleLogin}
           style={{
-            width: 350,
+            width: 420,
             display: "flex",
             flexDirection: "column",
-            gap: 20,
+            gap: 24,
           }}
         >
           <div>
-            <label style={{ fontSize: 12 }}>STAFF USERNAME</label>
+            <label style={{ fontSize: 13, fontWeight: 500 }}>STAFF USERNAME</label>
             <input
               type="text"
               placeholder="jdoe"
@@ -137,16 +141,18 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ccc",
-              }}
+  width: "100%",
+  padding: "14px",
+  border: "1px solid #ccc",
+  fontSize: "16px",
+  borderRadius: "6px",
+}}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 12 }}>PASSWORD</label>
+            <label style={{ fontSize: 13, fontWeight: 500 }}>PASSWORD</label>
             <input
               type="password"
               value={password}
@@ -155,10 +161,12 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ccc",
-              }}
+  width: "100%",
+  padding: "14px", // was 10px
+  border: "1px solid #ccc",
+  fontSize: "16px",
+  borderRadius: "6px",
+}}
               required
             />
           </div>
@@ -182,12 +190,14 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              backgroundColor: "#2F3E5C",
-              color: "white",
-              padding: "12px",
-              border: "none",
-              cursor: "pointer",
-            }}
+  backgroundColor: "#2F3E5C",
+  color: "white",
+  padding: "14px", // was 12px
+  border: "none",
+  cursor: "pointer",
+  fontSize: "16px",
+  borderRadius: "6px",
+}}
           >
             {loading ? "Logging in..." : "Log In"}
           </button>
