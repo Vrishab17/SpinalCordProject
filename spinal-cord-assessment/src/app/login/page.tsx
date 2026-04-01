@@ -17,12 +17,12 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
- // Get staff_id as well
-const { data, error } = await supabase
-  .from("Staff Credentials")
-  .select("username, password_hash, staff_id")
-  .eq("username", username)
-  .maybeSingle();
+    // Get staff_id as well
+    const { data, error } = await supabase
+      .from("Staff Credentials")
+      .select("username, password_hash, staff_id")
+      .eq("username", username)
+      .maybeSingle();
 
     if (error) {
       setError("Invalid username or password. Please try again.");
@@ -36,41 +36,40 @@ const { data, error } = await supabase
       return;
     }
 
-    // If you're hashing passwords, replace this later
     if (data.password_hash !== password) {
       setError("Invalid username or password");
       setLoading(false);
       return;
     }
-// Get staff name immediately
-const { data: nameData } = await supabase
-  .from("Staff Name")
-  .select("prefix, given_name, preferred_name, family_name")
-  .eq("STAFFstaff_id", data.staff_id) 
-  .maybeSingle();
 
-// Build name
-const firstName =
-  nameData?.preferred_name || nameData?.given_name || "";
+    // Get staff name immediately
+    const { data: nameData } = await supabase
+      .from("Staff Name")
+      .select("prefix, given_name, preferred_name, family_name")
+      .eq("STAFFstaff_id", data.staff_id)
+      .maybeSingle();
 
-const fullName = [
-  nameData?.prefix,
-  firstName,
-  nameData?.family_name,
-]
-  .filter(Boolean)
-  .join(" ");
+    const firstName =
+      nameData?.preferred_name || nameData?.given_name || "";
 
-// Store EVERYTHING
-localStorage.setItem(
-  "staffInfo",
-  JSON.stringify({
-    username,
-    fullName,
-  })
-);
+    const fullName = [
+      nameData?.prefix,
+      firstName,
+      nameData?.family_name,
+    ]
+      .filter(Boolean)
+      .join(" ");
 
-router.push("/");
+    // Store EVERYTHING
+    localStorage.setItem(
+      "staffInfo",
+      JSON.stringify({
+        username,
+        fullName,
+      })
+    );
+
+    router.push("/");
   }
 
   return (
@@ -89,13 +88,11 @@ router.push("/");
           position: "relative",
         }}
       >
-        {/* Top branding */}
         <div style={{ position: "absolute", top: 40, left: 40 }}>
           <div style={{ fontWeight: 600 }}>Health New Zealand</div>
           <div style={{ color: "#6EC1E4" }}>Te Whatu Ora</div>
         </div>
 
-        {/* Main title */}
         <h1
           style={{
             fontSize: 56,
@@ -129,29 +126,16 @@ router.push("/");
             gap: 20,
           }}
         >
-          <button
-            type="button"
-            style={{
-              padding: "12px",
-              border: "1px solid #2F3E5C",
-              background: "white",
-              cursor: "pointer",
-            }}
-          >
-            Sign in with Te Whatu Ora SSO
-          </button>
-
-          <div style={{ textAlign: "center", color: "#6B7280" }}>
-            or use staff log in
-          </div>
-
           <div>
             <label style={{ fontSize: 12 }}>STAFF USERNAME</label>
             <input
               type="text"
               placeholder="jdoe"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setError(null);
+              }}
               style={{
                 width: "100%",
                 padding: "10px",
@@ -166,7 +150,10 @@ router.push("/");
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError(null);
+              }}
               style={{
                 width: "100%",
                 padding: "10px",
@@ -177,7 +164,18 @@ router.push("/");
           </div>
 
           {error && (
-            <div style={{ color: "red", fontSize: 14 }}>{error}</div>
+            <div
+              style={{
+                backgroundColor: "#FEE2E2",
+                color: "#991B1B",
+                padding: "10px",
+                borderRadius: "6px",
+                fontSize: "14px",
+                border: "1px solid #FCA5A5",
+              }}
+            >
+              {error}
+            </div>
           )}
 
           <button
