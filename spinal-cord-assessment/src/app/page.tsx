@@ -1,5 +1,5 @@
-import LandingPage from "./landingPage/landingPage"
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return <LandingPage />
+export default function Home() {
+  redirect("/login");
 }

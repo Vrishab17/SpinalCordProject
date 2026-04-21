@@ -1,45 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-
-type GP = {
-  title: string;
-  given_name: string;
-  family_name: string;
-};
 
 export default function Header() {
-  const [gpName, setGpName] = useState("Loading...");
+  const [staffName, setStaffName] = useState("Loading...");
 
   useEffect(() => {
-    async function fetchGP() {
-      const { data: userData } = await supabase.auth.getUser();
+    const staffInfo = localStorage.getItem("staffInfo");
 
-      if (!userData?.user) {
-        setGpName("Unknown User");
-        return;
-      }
-
-      // Adjust table/column names if needed
-      const { data, error } = await supabase
-        .from("Staff") // or GP table
-        .select("title, given_name, family_name")
-        .eq("user_id", userData.user.id)
-        .single();
-
-      if (error || !data) {
-        setGpName("Unknown User");
-        return;
-      }
-
-      const gp = data as GP;
-
-      const formatted = `${gp.title} ${gp.given_name[0]}. ${gp.family_name}`;
-      setGpName(formatted);
+    if (!staffInfo) {
+      setStaffName("Unknown User");
+      return;
     }
 
-    fetchGP();
+    try {
+      const parsed = JSON.parse(staffInfo);
+      setStaffName(parsed.fullName || "Unknown User");
+    } catch {
+      setStaffName("Unknown User");
+    }
   }, []);
 
   return (
@@ -56,16 +35,9 @@ export default function Header() {
     >
       {/* LEFT */}
       <div>
-        <div
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            marginBottom: "4px",
-          }}
-        >
+        <div style={{ fontSize: "28px", fontWeight: 700 }}>
           Health New Zealand
         </div>
-
         <div
           style={{
             fontSize: "20px",
@@ -85,17 +57,17 @@ export default function Header() {
           gap: "14px",
         }}
       >
+        {/* Name */}
         <span
           style={{
             fontSize: "18px",
-            fontWeight: 400,
             color: "#AEB9D3",
           }}
         >
-          {gpName}
+          {staffName}
         </span>
 
-        {/* Profile icon */}
+        {/* Person Icon */}
         <div
           style={{
             width: "58px",
@@ -105,6 +77,7 @@ export default function Header() {
             position: "relative",
           }}
         >
+          {/* Head */}
           <div
             style={{
               width: "16px",
@@ -117,6 +90,8 @@ export default function Header() {
               transform: "translateX(-50%)",
             }}
           />
+
+          {/* Body */}
           <div
             style={{
               width: "28px",
