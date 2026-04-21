@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/src/styles/globals.css"],"sourcesContent":["@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700&display=swap');\n\n:root {\n  --bg-page: #F6F4EC;\n  --bg-component: #FFFFFF;\n  --text-primary: #15284C;\n  --btn-primary: #2D3E5E;\n  --border-color: #D6D6D6;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  font-family: 'Fira Sans', sans-serif;\n  background-color: var(--bg-page);\n  color: var(--text-primary);\n}"],"names":[],"mappings":"AAEA;;;;;;;;AAQA;;;;AAIA"}}]
-}
