@@ -375,7 +375,7 @@ export default async function Page({ params }: Props) {
             New Assessment
           </Link>
 
-          <Link href="/" style={{
+          <Link href="/dashboard" style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

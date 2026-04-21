@@ -25,7 +25,7 @@ export default function NewPatientPage() {
       >
         {/* BACK BUTTON (always goes home) */}
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/dashboard")}
           style={{
             marginBottom: "20px",
             padding: "10px 16px",
