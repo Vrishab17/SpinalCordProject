@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+spinal-cord-assessment/.next/
 /out/
 
 # production
