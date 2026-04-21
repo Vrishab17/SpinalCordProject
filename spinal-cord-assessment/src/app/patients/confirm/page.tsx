@@ -141,15 +141,15 @@ export default function ConfirmPatientPage() {
 
   async function handleRegisterPatient() {
     if (!consent || saving) return;
-
+  
     setSaving(true);
     setSaveError(null);
     setSaveMessage(null);
-
+  
     try {
       const nowIso = new Date().toISOString();
       const todayDate = nowIso.split("T")[0];
-
+  
       const patientId = await generateRandomPatientId();
       const nextNameId = await getNextId("Patient Name", "name_id");
       const nextContactId = await getNextId("Patient Contact", "contact_id");
@@ -157,7 +157,7 @@ export default function ConfirmPatientPage() {
       const nextNhiIdentifierId = patientFormData.nhiNumber
         ? await getNextId("Patient NHI Identifier", "nhi_identifer_id")
         : null;
-
+  
       const genderValue =
         patientFormData.gender === "Male"
           ? "M"
@@ -166,9 +166,9 @@ export default function ConfirmPatientPage() {
           : patientFormData.gender === "Other"
           ? "O"
           : null;
-
+  
       const fhirPatientId = `fhir-patient-${crypto.randomUUID()}`;
-
+  
       const { error: patientInsertError } = await supabase.from("Patient").insert([
         {
           patient_id: patientId,
@@ -183,31 +183,31 @@ export default function ConfirmPatientPage() {
           fhir_patient_id: fhirPatientId,
         },
       ]);
-
+  
       if (patientInsertError) {
         throw new Error(`Patient insert failed: ${patientInsertError.message}`);
       }
-
+  
       const { error: patientNameInsertError } = await supabase
-  .from("Patient Name")
-  .insert([
-    {
-      name_id: nextNameId,
-      PATIENTpatient_id: patientId,
-      family_name: patientFormData.lastName || null,
-      given_name: patientFormData.firstName || null,
-      preffered_name: patientFormData.preferredName || null,
-      prefix: patientFormData.prefix || null,
-      suffix: null,
-      created_at: todayDate,
-      updated_at: todayDate,
-    },
-  ]);
-
+        .from("Patient Name")
+        .insert([
+          {
+            name_id: nextNameId,
+            PATIENTpatient_id: patientId,
+            family_name: patientFormData.lastName || null,
+            given_name: patientFormData.firstName || null,
+            preffered_name: patientFormData.preferredName || null,
+            prefix: patientFormData.prefix || null,
+            suffix: null,
+            created_at: todayDate,
+            updated_at: todayDate,
+          },
+        ]);
+  
       if (patientNameInsertError) {
         throw new Error(`Patient Name insert failed: ${patientNameInsertError.message}`);
       }
-
+  
       const { error: patientContactInsertError } = await supabase
         .from("Patient Contact")
         .insert([
@@ -225,11 +225,11 @@ export default function ConfirmPatientPage() {
             updated_at: todayDate,
           },
         ]);
-
+  
       if (patientContactInsertError) {
         throw new Error(`Patient Contact insert failed: ${patientContactInsertError.message}`);
       }
-
+  
       const { error: patientAddressInsertError } = await supabase
         .from("Patient Address")
         .insert([
@@ -249,11 +249,11 @@ export default function ConfirmPatientPage() {
             updated_at: todayDate,
           },
         ]);
-
+  
       if (patientAddressInsertError) {
         throw new Error(`Patient Address insert failed: ${patientAddressInsertError.message}`);
       }
-
+  
       if (patientFormData.nhiNumber && nextNhiIdentifierId !== null) {
         const { error: patientNhiInsertError } = await supabase
           .from("Patient NHI Identifier")
@@ -268,15 +268,16 @@ export default function ConfirmPatientPage() {
               created_at: nowIso,
             },
           ]);
-
+  
         if (patientNhiInsertError) {
           throw new Error(
             `Patient NHI Identifier insert failed: ${patientNhiInsertError.message}`
           );
         }
       }
-
-      setSaveMessage("Patient registered successfully.");
+  
+      sessionStorage.removeItem("new_patient_form_data");
+      router.push("/");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "An unexpected error occurred.";
