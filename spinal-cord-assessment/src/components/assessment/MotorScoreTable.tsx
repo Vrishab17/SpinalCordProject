@@ -19,7 +19,7 @@ export default function MotorScoreTable({ exam, setExam, side }: Props) {
         ...prev[side],
         motor: {
           ...prev[side].motor,
-          [level]: value
+          [level]: value as any 
         }
       }
     }));
@@ -29,11 +29,11 @@ export default function MotorScoreTable({ exam, setExam, side }: Props) {
     <div>
       <h4>{side.toUpperCase()} Motor</h4>
 
-      {motorLevels.map(level => (
+      {motorLevels.map((level) => (
         <div key={level}>
           <label>{level}</label>
           <select
-            value={exam[side].motor[level as keyof typeof exam[typeof side].motor]}
+            value={(exam[side].motor as any)[level]} 
             onChange={(e) => handleChange(level, e.target.value)}
           >
             <option value="0">0</option>
@@ -46,7 +46,6 @@ export default function MotorScoreTable({ exam, setExam, side }: Props) {
           </select>
         </div>
       ))}
-
     </div>
   );
 }

@@ -17,14 +17,18 @@ const sensoryLevels = [
 
 export default function SensoryScoreTable({ exam, setExam, side }: Props) {
 
-  const handleChange = (type: "lightTouch" | "pinPrick", level: string, value: string) => {
+  const handleChange = (
+    type: "lightTouch" | "pinPrick",
+    level: string,
+    value: string
+  ) => {
     setExam(prev => ({
       ...prev,
       [side]: {
         ...prev[side],
         [type]: {
           ...prev[side][type],
-          [level]: value
+          [level]: value as any 
         }
       }
     }));
@@ -34,14 +38,16 @@ export default function SensoryScoreTable({ exam, setExam, side }: Props) {
     <div>
       <h4>{side.toUpperCase()} Sensory</h4>
 
-      {sensoryLevels.map(level => (
+      {sensoryLevels.map((level) => (
         <div key={level}>
           <label>{level}</label>
 
           <span> LT </span>
           <select
-            value={exam[side].lightTouch[level as keyof typeof exam[typeof side].lightTouch]}
-            onChange={(e) => handleChange("lightTouch", level, e.target.value)}
+            value={(exam[side].lightTouch as any)[level]}  
+            onChange={(e) =>
+              handleChange("lightTouch", level, e.target.value)
+            }
           >
             <option value="0">0</option>
             <option value="1">1</option>
@@ -51,8 +57,10 @@ export default function SensoryScoreTable({ exam, setExam, side }: Props) {
 
           <span> PP </span>
           <select
-            value={exam[side].pinPrick[level as keyof typeof exam[typeof side].pinPrick]}
-            onChange={(e) => handleChange("pinPrick", level, e.target.value)}
+            value={(exam[side].pinPrick as any)[level]} 
+            onChange={(e) =>
+              handleChange("pinPrick", level, e.target.value)
+            }
           >
             <option value="0">0</option>
             <option value="1">1</option>
@@ -61,7 +69,6 @@ export default function SensoryScoreTable({ exam, setExam, side }: Props) {
           </select>
         </div>
       ))}
-
     </div>
   );
 }
