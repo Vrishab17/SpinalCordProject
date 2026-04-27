@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Exam } from "isncsci";
 import { runAssessment } from "@/lib/isncsci";
 
+import BodyDiagram from "./BodyDiagram";
 import MotorScoreTable from "./MotorScoreTable";
 import SensoryScoreTable from "./SensoryScoreTable";
 import AISClassification from "./AISClassification";
@@ -52,15 +53,30 @@ export default function AssessmentForm() {
     <div style={{ padding: "20px" }}>
       <h2>Assessment Form</h2>
 
-      {/* MOTOR */}
-      <h3>Motor Scores</h3>
-      <MotorScoreTable exam={exam} setExam={setExam} side="right" />
-      <MotorScoreTable exam={exam} setExam={setExam} side="left" />
+      
+      <div style={{ display: "flex", gap: "40px" }}>
 
-      {/* SENSORY */}
-      <h3>Sensory Scores</h3>
-      <SensoryScoreTable exam={exam} setExam={setExam} side="right" />
-      <SensoryScoreTable exam={exam} setExam={setExam} side="left" />
+        {/* LEFT SIDE - MOTOR */}
+        <div>
+          <h3>Motor Scores</h3>
+          <MotorScoreTable exam={exam} setExam={setExam} side="right" />
+          <MotorScoreTable exam={exam} setExam={setExam} side="left" />
+        </div>
+
+        
+        <div>
+          <h3>Body Diagram</h3>
+          <BodyDiagram exam={exam} setExam={setExam} />
+        </div>
+
+        
+        <div>
+          <h3>Sensory Scores</h3>
+          <SensoryScoreTable exam={exam} setExam={setExam} side="right" />
+          <SensoryScoreTable exam={exam} setExam={setExam} side="left" />
+        </div>
+
+      </div>
 
       {/* ANAL */}
       <h3>Anal Function</h3>
