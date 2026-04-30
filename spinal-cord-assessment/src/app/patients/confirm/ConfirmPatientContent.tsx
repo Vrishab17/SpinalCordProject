@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import { supabase } from "@/lib/supabaseClient";
@@ -95,6 +95,8 @@ export default function ConfirmPatientContent() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [loggedInGpName, setLoggedInGpName] = useState("Not recorded");
+  
 
   const formData: FormData | null = useMemo(() => {
     const raw = searchParams.get("data");
@@ -106,6 +108,23 @@ export default function ConfirmPatientContent() {
       return null;
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const storedStaffInfo = localStorage.getItem("staffInfo");
+  
+    if (!storedStaffInfo) return;
+  
+    try {
+      const parsed = JSON.parse(storedStaffInfo) as {
+        username: string;
+        fullName: string;
+      };
+  
+      setLoggedInGpName(parsed.fullName || "Not recorded");
+    } catch {
+      setLoggedInGpName("Not recorded");
+    }
+  }, []);
 
   if (!formData) {
     return (
@@ -168,25 +187,37 @@ export default function ConfirmPatientContent() {
           : null;
   
       const fhirPatientId = `fhir-patient-${crypto.randomUUID()}`;
-  
-      const { error: patientInsertError } = await supabase.from("Patient").insert([
-        {
-          patient_id: patientId,
-          nhi_number: patientFormData.nhiNumber || null,
-          date_of_birth: patientFormData.dateOfBirth || null,
-          gender: genderValue,
-          nz_citizenship_status: patientFormData.nzCitizenshipStatus || null,
-          place_of_birth: patientFormData.placeOfBirth || null,
-          date_of_death: null,
-          created_at: todayDate,
-          is_active: true,
-          fhir_patient_id: fhirPatientId,
-        },
-      ]);
-  
-      if (patientInsertError) {
-        throw new Error(`Patient insert failed: ${patientInsertError.message}`);
-      }
+      console.log("=== DEBUG START ===");
+      console.log("Full form data:", patientFormData);
+      console.log("DOB:", patientFormData.dateOfBirth);
+      console.log("Ethnicity:", patientFormData.ethnicity);
+      console.log("=== DEBUG END ===");
+      const { data: insertedPatient, error: patientInsertError } = await supabase
+  .from("Patient")
+  .insert([
+    {
+      patient_id: patientId,
+      nhi_number: patientFormData.nhiNumber || null,
+      date_of_birth: patientFormData.dateOfBirth || null,
+      ethnicity: patientFormData.ethnicity || null,
+      gender: genderValue,
+      nz_citizenship_status: patientFormData.nzCitizenshipStatus || null,
+      place_of_birth: patientFormData.placeOfBirth || null,
+      date_of_death: null,
+      created_at: todayDate,
+      is_active: true,
+      fhir_patient_id: fhirPatientId,
+    },
+  ])
+  .select("*")
+  .single();
+
+console.log("INSERTED PATIENT:", insertedPatient);
+console.log("INSERT ERROR:", patientInsertError);
+
+if (patientInsertError) {
+  throw new Error(`Patient insert failed: ${patientInsertError.message}`);
+}
   
       const { error: patientNameInsertError } = await supabase
         .from("Patient Name")
@@ -277,7 +308,7 @@ export default function ConfirmPatientContent() {
       }
   
       sessionStorage.removeItem("new_patient_form_data");
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "An unexpected error occurred.";
@@ -392,10 +423,7 @@ export default function ConfirmPatientContent() {
             <div>{patientFormData.emailAddress || "Not recorded"}</div>
 
             <div>Admitting Clinician</div>
-            <div>Dr. J. Doe</div>
-
-            <div>Ward / Unit</div>
-            <div>ASRU Ward 3A</div>
+            <div>{loggedInGpName}</div>
 
             <div>Date of Admission</div>
             <div>{admissionDate}</div>
