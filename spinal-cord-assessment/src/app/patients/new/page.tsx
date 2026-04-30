@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import NewPatientForm from "@/components/patients/NewPatientForm";
@@ -23,7 +24,6 @@ export default function NewPatientPage() {
           padding: "32px 24px",
         }}
       >
-        {/* BACK BUTTON (always goes home) */}
         <button
           onClick={() => router.push("/dashboard")}
           style={{
@@ -39,7 +39,6 @@ export default function NewPatientPage() {
           ← Back to Home
         </button>
 
-        {/*TITLE */}
         <h1
           style={{
             fontSize: "32px",
@@ -51,7 +50,9 @@ export default function NewPatientPage() {
           New Patient
         </h1>
 
-        <NewPatientForm />
+        <Suspense fallback={<div>Loading form...</div>}>
+          <NewPatientForm />
+        </Suspense>
       </div>
     </main>
   );
