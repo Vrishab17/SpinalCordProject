@@ -301,7 +301,8 @@ export default async function Page({ params }: Props) {
 
   return (
     <div style={{
-      minHeight: "100vh",
+      height: "100vh",
+      overflow: "hidden",
       backgroundColor: BG,
       color: NAVY,
       display: "flex",
@@ -358,39 +359,9 @@ export default async function Page({ params }: Props) {
 
           <div style={{ flex: 1, minHeight: 80 }} />
 
-          <Link href={`/assessment/new?patientId=${patient.patient_id}`} style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            backgroundColor: BTN_PRIMARY,
-            color: "#FFFFFF",
-            fontWeight: 600,
-            fontSize: 15,
-            padding: "15px 24px",
-            textDecoration: "none",
-            letterSpacing: "0.01em",
-          }}>
-            <span style={{ fontSize: 20, lineHeight: 1, marginTop: -1 }}>+</span>
-            New Assessment
-          </Link>
+          
 
-          <Link href="/dashboard" style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            marginTop: 10,
-            backgroundColor: "transparent",
-            color: NAVY,
-            fontWeight: 500,
-            fontSize: 15,
-            padding: "13px 24px",
-            textDecoration: "none",
-            border: `1px solid ${BORDER}`,
-          }}>
-            ← Back
-          </Link>
+          
         </div>
 
         {/* ════ RIGHT PANEL ════ */}
