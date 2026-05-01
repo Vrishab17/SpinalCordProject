@@ -21,21 +21,6 @@ export default function Buttons() {
       >
         Search Patient
       </button>
-
-      <button
-        onClick={() => router.push("/patients/new")}
-        style={{
-          padding: "12px 18px",
-          backgroundColor: "#2D3E5E",
-          color: "#FFFFFF",
-          border: "none",
-          fontSize: "14px",
-          fontWeight: 400,
-          cursor: "pointer",
-        }}
-      >
-        + New Patient
-      </button>
     </div>
   );
 }
