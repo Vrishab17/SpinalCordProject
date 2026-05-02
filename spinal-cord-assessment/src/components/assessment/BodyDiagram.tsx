@@ -17,13 +17,8 @@ function levelToSvgLevel(side: "right" | "left", level: string) {
   return `${side}-${level.toLowerCase().replace("_", "-")}`;
 }
 
-function getWorstScore(a: Score, b: Score): string {
-  const validScores = ["0", "1", "2"];
-
-  if (!validScores.includes(String(a))) return String(b);
-  if (!validScores.includes(String(b))) return String(a);
-
-  return Number(a) <= Number(b) ? String(a) : String(b);
+function getScoreColour(score: Score) {
+  return scoreColours[String(score)] || "#F9F9F9";
 }
 
 export default function BodyDiagram({ exam }: Props) {
@@ -58,18 +53,57 @@ export default function BodyDiagram({ exam }: Props) {
         const lightTouchScore = exam[side].lightTouch[level];
         const pinPrickScore = exam[side].pinPrick[level];
 
-        const finalScore = getWorstScore(lightTouchScore, pinPrickScore);
-        const colour = scoreColours[finalScore] || "#F9F9F9";
+        const lightTouchColour = getScoreColour(lightTouchScore);
+        const pinPrickColour = getScoreColour(pinPrickScore);
 
         const paths = diagramElement.querySelectorAll(
           `[data-level="${svgLevel}"]`
         );
 
         paths.forEach((path) => {
-          if (path instanceof SVGElement) {
-            path.style.fill = colour;
-            path.style.fillOpacity = "0.65";
-          }
+          if (!(path instanceof SVGElement)) return;
+
+          const parent = path.parentElement;
+          if (!parent) return;
+
+          const originalPath = path as SVGPathElement;
+          const originalD = originalPath.getAttribute("d");
+
+          if (!originalD) return;
+
+          const existingLayers = parent.querySelectorAll(
+            `[data-generated-layer="${svgLevel}"]`
+          );
+
+          existingLayers.forEach((layer) => layer.remove());
+
+          originalPath.style.fill = "#F9F9F9";
+          originalPath.style.fillOpacity = "1";
+
+          const lightTouchLayer = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+          );
+
+          lightTouchLayer.setAttribute("d", originalD);
+          lightTouchLayer.setAttribute("fill", lightTouchColour);
+          lightTouchLayer.setAttribute("fill-opacity", "0.5");
+          lightTouchLayer.setAttribute("data-generated-layer", svgLevel);
+          lightTouchLayer.setAttribute("pointer-events", "none");
+
+          const pinPrickLayer = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+          );
+
+          pinPrickLayer.setAttribute("d", originalD);
+          pinPrickLayer.setAttribute("fill", pinPrickColour);
+          pinPrickLayer.setAttribute("fill-opacity", "0.5");
+          pinPrickLayer.setAttribute("data-generated-layer", svgLevel);
+          pinPrickLayer.setAttribute("pointer-events", "none");
+
+          parent.insertBefore(lightTouchLayer, originalPath.nextSibling);
+          parent.insertBefore(pinPrickLayer, lightTouchLayer.nextSibling);
         });
       });
     });
