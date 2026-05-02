@@ -1,7 +1,6 @@
 "use client";
 
 type Props = {
-
   result: any;
 
   topDown: boolean;
@@ -9,7 +8,6 @@ type Props = {
   setTopDown: React.Dispatch<React.SetStateAction<boolean>>;
 
   onCalculate: () => void;
-
 };
 
 function get(obj: any, paths: string[]) {
@@ -27,12 +25,12 @@ function ResultBox({ value, wide = false }: { value: any; wide?: boolean }) {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        width: wide ? "110px" : "54px",
-        height: "32px",
+        width: wide ? "100px" : "48px",
+        height: "28px",
         border: "1px solid #AEB4BE",
         backgroundColor: "#E5E5E5",
         color: "#15284C",
-        fontSize: "14px",
+        fontSize: "13px",
         fontWeight: 500,
       }}
     >
@@ -47,149 +45,206 @@ export default function ResultsPanel({
   setTopDown,
   onCalculate,
 }: Props) {
-
   const c = result?.classification ?? {};
   const t = result?.totals ?? {};
 
-  const sensoryRight = get(c, ["neurologicalLevel.sensoryRight", "neurologicalLevels.sensoryRight"]);
-  const sensoryLeft = get(c, ["neurologicalLevel.sensoryLeft", "neurologicalLevels.sensoryLeft"]);
-  const motorRight = get(c, ["neurologicalLevel.motorRight", "neurologicalLevels.motorRight"]);
-  const motorLeft = get(c, ["neurologicalLevel.motorLeft", "neurologicalLevels.motorLeft"]);
+  const sensoryRight = get(c, [
+    "neurologicalLevel.sensoryRight",
+    "neurologicalLevels.sensoryRight",
+  ]);
+  const sensoryLeft = get(c, [
+    "neurologicalLevel.sensoryLeft",
+    "neurologicalLevels.sensoryLeft",
+  ]);
+  const motorRight = get(c, [
+    "neurologicalLevel.motorRight",
+    "neurologicalLevels.motorRight",
+  ]);
+  const motorLeft = get(c, [
+    "neurologicalLevel.motorLeft",
+    "neurologicalLevels.motorLeft",
+  ]);
 
   const nli = get(c, ["neurologicalLevelOfInjury"]);
   const complete = get(c, ["completeOrIncomplete", "injuryComplete"]);
   const ais = get(c, ["ASIAImpairmentScale", "asiaImpairmentScale"]);
 
-  const zppSensoryRight = get(c, ["zoneOfPartialPreservations.sensoryRight", "zoneOfPartialPreservation.sensoryRight"]);
-  const zppSensoryLeft = get(c, ["zoneOfPartialPreservations.sensoryLeft", "zoneOfPartialPreservation.sensoryLeft"]);
-  const zppMotorRight = get(c, ["zoneOfPartialPreservations.motorRight", "zoneOfPartialPreservation.motorRight"]);
-  const zppMotorLeft = get(c, ["zoneOfPartialPreservations.motorLeft", "zoneOfPartialPreservation.motorLeft"]);
+  const zppSensoryRight = get(c, [
+    "zoneOfPartialPreservations.sensoryRight",
+    "zoneOfPartialPreservation.sensoryRight",
+  ]);
+  const zppSensoryLeft = get(c, [
+    "zoneOfPartialPreservations.sensoryLeft",
+    "zoneOfPartialPreservation.sensoryLeft",
+  ]);
+  const zppMotorRight = get(c, [
+    "zoneOfPartialPreservations.motorRight",
+    "zoneOfPartialPreservation.motorRight",
+  ]);
+  const zppMotorLeft = get(c, [
+    "zoneOfPartialPreservations.motorLeft",
+    "zoneOfPartialPreservation.motorLeft",
+  ]);
 
   return (
     <aside
       style={{
-        width: "420px",
-        maxWidth: "420px",
+        width: "330px",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
         color: "#15284C",
-        borderRight: "2px solid #2D3E5E",
-        padding: "24px 22px 24px 0",
         backgroundColor: "#F6F4EC",
+        fontSize: "16px",
+        transform: "scale(0.88)",
+        transformOrigin: "top left",
       }}
     >
       <div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-    marginBottom: "24px",
-  }}
->
-  <label
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      fontSize: "14px",
-      fontWeight: 600,
-      color: "#15284C",
-    }}
-  >
-    <input
-      type="checkbox"
-      checked={topDown}
-      onChange={(e) => setTopDown(e.target.checked)}
-    />
-    Top-down propagation
-  </label>
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "20px",
+        }}
+      >
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "3px",
+            fontSize: "13px",
+            fontWeight: 600,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={topDown}
+            onChange={(e) => setTopDown(e.target.checked)}
+          />
+          Top-down
+        </label>
 
-  <button
-    type="button"
-    onClick={onCalculate}
-    style={{
-      width: "140px",
-      height: "40px",
-      backgroundColor: "#2D3E5E",
-      color: "#FFFFFF",
-      border: "none",
-      fontWeight: 600,
-      cursor: "pointer",
-    }}
-  >
-    Calculate
-  </button>
-</div>
-      <h2 style={{ margin: "0 0 22px", fontSize: "28px", fontWeight: 700 }}>
+        <button
+          onClick={onCalculate}
+          style={{
+            height: "32px",
+            padding: "0 12px",
+            backgroundColor: "#2D3E5E",
+            color: "#fff",
+            border: "none",
+            fontSize: "13px",
+            cursor: "pointer",
+          }}
+        >
+          Calculate
+        </button>
+      </div>
+      <h2 style={{ margin: "0 0 14px", fontSize: "28px", fontWeight: 700 }}>
         Classification
       </h2>
+      <div
+        style={{
+          display: "flex",
 
-      <Section title="Neurological Levels">
-        <div style={{ display: "grid", gridTemplateColumns: "90px 60px 60px", gap: "8px", alignItems: "center" }}>
-          <span></span>
-          <strong>R</strong>
-          <strong>L</strong>
+          flexDirection: "column",
 
-          <span>Sensory</span>
-          <ResultBox value={sensoryRight} />
-          <ResultBox value={sensoryLeft} />
+          justifyContent: "space-between",
 
-          <span>Motor</span>
-          <ResultBox value={motorRight} />
-          <ResultBox value={motorLeft} />
-        </div>
-      </Section>
+          flex: 1,
+        }}
+      >
+        <Section title="Neurological Levels">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "90px 60px 60px",
+              gap: "4px",
+              alignItems: "center",
+            }}
+          >
+            <span></span>
+            <strong>R</strong>
+            <strong>L</strong>
 
-      <Section title="Injury Classification">
-        <div style={{ display: "grid", gap: "10px" }}>
-          <Row label="NLI" value={nli} wide />
-          <Row label="Complete?" value={complete} wide />
-          <Row label="AIS" value={ais} wide />
-        </div>
-      </Section>
+            <span>Sensory</span>
+            <ResultBox value={sensoryRight} />
+            <ResultBox value={sensoryLeft} />
 
-      <Section title="Zone of Partial Preservation">
-        <div style={{ display: "grid", gridTemplateColumns: "90px 60px 60px", gap: "8px", alignItems: "center" }}>
-          <span></span>
-          <strong>R</strong>
-          <strong>L</strong>
+            <span>Motor</span>
+            <ResultBox value={motorRight} />
+            <ResultBox value={motorLeft} />
+          </div>
+        </Section>
 
-          <span>Sensory</span>
-          <ResultBox value={zppSensoryRight} />
-          <ResultBox value={zppSensoryLeft} />
+        <Section title="Injury Classification">
+          <div style={{ display: "grid", gap: "10px" }}>
+            <Row label="NLI" value={nli} wide />
+            <Row label="Complete?" value={complete} wide />
+            <Row label="AIS" value={ais} wide />
+          </div>
+        </Section>
 
-          <span>Motor</span>
-          <ResultBox value={zppMotorRight} />
-          <ResultBox value={zppMotorLeft} />
-        </div>
-      </Section>
+        <Section title="Zone of Partial Preservation">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "90px 60px 60px",
+              gap: "4px",
+              alignItems: "center",
+            }}
+          >
+            <span></span>
+            <strong>R</strong>
+            <strong>L</strong>
 
-      <Section title="Sub-scores">
-        <div style={{ display: "grid", gridTemplateColumns: "95px 60px 60px 60px", gap: "8px", alignItems: "center" }}>
-          <span></span>
-          <strong>R</strong>
-          <strong>L</strong>
-          <strong>Total</strong>
+            <span>Sensory</span>
+            <ResultBox value={zppSensoryRight} />
+            <ResultBox value={zppSensoryLeft} />
 
-          <span>UEMS</span>
-          <ResultBox value={t?.right?.upperExtremity} />
-          <ResultBox value={t?.left?.upperExtremity} />
-          <ResultBox value={t?.upperExtremity} />
+            <span>Motor</span>
+            <ResultBox value={zppMotorRight} />
+            <ResultBox value={zppMotorLeft} />
+          </div>
+        </Section>
 
-          <span>LEMS</span>
-          <ResultBox value={t?.right?.lowerExtremity} />
-          <ResultBox value={t?.left?.lowerExtremity} />
-          <ResultBox value={t?.lowerExtremity} />
+        <Section title="Sub-scores">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "95px 60px 60px 60px",
+              gap: "4px",
+              alignItems: "center",
+            }}
+          >
+            <span></span>
+            <strong>R</strong>
+            <strong>L</strong>
+            <strong>Total</strong>
 
-          <span>LT</span>
-          <ResultBox value={t?.right?.lightTouch} />
-          <ResultBox value={t?.left?.lightTouch} />
-          <ResultBox value={t?.lightTouch} />
+            <span>UEMS</span>
+            <ResultBox value={t?.right?.upperExtremity} />
+            <ResultBox value={t?.left?.upperExtremity} />
+            <ResultBox value={t?.upperExtremity} />
 
-          <span>PP</span>
-          <ResultBox value={t?.right?.pinPrick} />
-          <ResultBox value={t?.left?.pinPrick} />
-          <ResultBox value={t?.pinPrick} />
-        </div>
-      </Section>
+            <span>LEMS</span>
+            <ResultBox value={t?.right?.lowerExtremity} />
+            <ResultBox value={t?.left?.lowerExtremity} />
+            <ResultBox value={t?.lowerExtremity} />
+
+            <span>LT</span>
+            <ResultBox value={t?.right?.lightTouch} />
+            <ResultBox value={t?.left?.lightTouch} />
+            <ResultBox value={t?.lightTouch} />
+
+            <span>PP</span>
+            <ResultBox value={t?.right?.pinPrick} />
+            <ResultBox value={t?.left?.pinPrick} />
+            <ResultBox value={t?.pinPrick} />
+          </div>
+        </Section>
+      </div>
     </aside>
   );
 }
@@ -202,10 +257,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section style={{ marginBottom: "28px" }}>
+    <section>
       <h3
         style={{
-          margin: "0 0 12px",
+          margin: "0 0 14px",
           fontSize: "22px",
           fontWeight: 700,
           color: "#15284C",
@@ -228,7 +283,7 @@ function Row({
   wide?: boolean;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
       <span style={{ width: "90px" }}>{label}</span>
       <ResultBox value={value} wide={wide} />
     </div>

@@ -6,15 +6,47 @@ import BodyDiagram from "./BodyDiagram";
 import ResultsPanel from "./ResultsPanel";
 
 export const LEVELS = [
-  "C2", "C3", "C4", "C5", "C6", "C7", "C8", "T1",
-  "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9",
-  "T10", "T11", "T12", "L1", "L2", "L3", "L4", "L5",
-  "S1", "S2", "S3", "S4_5",
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "T1",
+  "T2",
+  "T3",
+  "T4",
+  "T5",
+  "T6",
+  "T7",
+  "T8",
+  "T9",
+  "T10",
+  "T11",
+  "T12",
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "S1",
+  "S2",
+  "S3",
+  "S4_5",
 ] as const;
 
 export const MOTOR_LEVELS = [
-  "C5", "C6", "C7", "C8", "T1",
-  "L2", "L3", "L4", "L5", "S1",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "T1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "S1",
 ] as const;
 
 type Side = "right" | "left";
@@ -41,13 +73,14 @@ type UiExam = {
 };
 
 export const inputStyle: React.CSSProperties = {
-  width: "42px",
-  height: "28px",
+  width: "38px",
+  height: "26px",
   border: "1px solid #AEB4BE",
   backgroundColor: "#E5E5E5",
   textAlign: "center",
   color: "#15284C",
-  fontSize: "13px",
+  fontSize: "12px",
+  padding: 0,
 };
 
 function emptyScores(): Record<string, UiScore> {
@@ -124,15 +157,15 @@ function toISNCSCIExam(exam: UiExam): ISNCSCIExam {
     voluntaryAnalContraction: exam.voluntaryAnalContraction || "NT",
     deepAnalPressure: exam.deepAnalPressure || "NT",
     right: {
-      lowestNonKeyMuscleWithMotorFunction:
-        exam.right.lowestNonKeyMuscleWithMotorFunction as any,
+      lowestNonKeyMuscleWithMotorFunction: exam.right
+        .lowestNonKeyMuscleWithMotorFunction as any,
       motor: motor("right") as any,
       lightTouch: sensory("right", "lightTouch") as any,
       pinPrick: sensory("right", "pinPrick") as any,
     },
     left: {
-      lowestNonKeyMuscleWithMotorFunction:
-        exam.left.lowestNonKeyMuscleWithMotorFunction as any,
+      lowestNonKeyMuscleWithMotorFunction: exam.left
+        .lowestNonKeyMuscleWithMotorFunction as any,
       motor: motor("left") as any,
       lightTouch: sensory("left", "lightTouch") as any,
       pinPrick: sensory("left", "pinPrick") as any,
@@ -145,7 +178,12 @@ export default function AssessmentForm() {
   const [result, setResult] = useState<any>(null);
   const [topDown, setTopDown] = useState(false);
 
-  function update(side: Side, type: ScoreType, level: string, rawValue: string) {
+  function update(
+    side: Side,
+    type: ScoreType,
+    level: string,
+    rawValue: string
+  ) {
     const value = cleanValue(rawValue, type);
 
     setExam((prev) => {
@@ -215,9 +253,9 @@ export default function AssessmentForm() {
         key={`right-${level}`}
         style={{
           display: "grid",
-          gridTemplateColumns: "45px 42px 42px 42px",
+          gridTemplateColumns: "40px 38px 38px 38px",
           gap: "4px",
-          marginBottom: "4px",
+          marginBottom: "1px",
           alignItems: "center",
         }}
       >
@@ -229,7 +267,12 @@ export default function AssessmentForm() {
           <div />
         )}
 
-        {renderInput("right", "lightTouch", level, exam.right.lightTouch[level])}
+        {renderInput(
+          "right",
+          "lightTouch",
+          level,
+          exam.right.lightTouch[level]
+        )}
         {renderInput("right", "pinPrick", level, exam.right.pinPrick[level])}
       </div>
     ));
@@ -241,9 +284,9 @@ export default function AssessmentForm() {
         key={`left-${level}`}
         style={{
           display: "grid",
-          gridTemplateColumns: "42px 42px 42px 45px",
+          gridTemplateColumns: "38px 38px 38px 40px",
           gap: "4px",
-          marginBottom: "4px",
+          marginBottom: "1px",
           alignItems: "center",
         }}
       >
@@ -263,139 +306,156 @@ export default function AssessmentForm() {
 
   return (
     <div
-      style={{
-        backgroundColor: "#F6F4EC",
-        color: "#15284C",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "420px 250px 1fr 250px",
-          gap: "24px",
-          alignItems: "start",
-        }}
-      >
-        <div
-
-style={{
-  position: "sticky",
-  top: "20px",
-  height: "fit-content",
-}}
+  style={{
+    backgroundColor: "#F6F4EC",
+    color: "#15284C",
+    height: "calc(100vh - 100px)",
+    overflow: "hidden",
+    padding: "6px",
+    boxSizing: "border-box",
+  }}
 >
-<ResultsPanel
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "340px minmax(0, 1fr)",
+    gap: "24px",
+    alignItems: "stretch",
+    height: "100%",
+    minHeight: 0,
+  }}
+>
+<div
+  style={{
+    height: "100%",
+    overflow: "hidden",
+    borderRight: "2px solid #2D3E5E",
+    paddingRight: "14px",
+    backgroundColor: "#F6F4EC",
+    boxSizing: "border-box",
+  }}
+>
+          <ResultsPanel
+            result={result}
+            topDown={topDown}
+            setTopDown={setTopDown}
+            onCalculate={calculate}
+          />
+        </div>
+        <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "200px minmax(0, 1fr) 200px",
+    gap: "24px",
+    alignItems: "center",
+    height: "100%",
+    minHeight: 0,
+    paddingLeft: "36px",
+    boxSizing: "border-box",
+  }}
+>
+          <section>
+            <h2 style={{ margin: "0 0 4px", fontSize: "18px" }}>RIGHT</h2>
 
-  result={result}
-
-  topDown={topDown}
-
-  setTopDown={setTopDown}
-
-  onCalculate={calculate}
-
-/>
-</div>
-        
-        <section>
-          
-          
-
-          <h2>RIGHT</h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "45px 42px 42px 42px",
-              gap: "4px",
-              fontSize: "11px",
-              fontWeight: 700,
-              textAlign: "center",
-              marginBottom: "6px",
-            }}
-          >
-            <span />
-            <span>M</span>
-            <span>LT</span>
-            <span>PP</span>
-          </div>
-
-          {renderRightRows()}
-
-          <label>
-            (VAC) Voluntary anal contraction{" "}
-            <select
-              value={exam.voluntaryAnalContraction}
-              onChange={(e) => {
-                setExam((prev) => ({
-                  ...prev,
-                  voluntaryAnalContraction: e.target.value as BinaryObservation,
-                }));
-                setResult(null);
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "38px 34px 34px 34px",
+                marginBottom: "1px",
+                gap: "2px",
+                fontSize: "12px",
+                fontWeight: 700,
+                textAlign: "center",
               }}
             >
-              <option value=""></option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-              <option value="NT">NT</option>
-            </select>
-          </label>
-        </section>
+              <span />
+              <span>M</span>
+              <span>LT</span>
+              <span>PP</span>
+            </div>
 
-        <section
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingTop: "120px",
-          }}
-        >
-          <BodyDiagram exam={exam as any} />
-        </section>
+            {renderRightRows()}
 
-        <section>
-          
+            <label>
+              (VAC) Voluntary anal contraction{" "}
+              <select
+                value={exam.voluntaryAnalContraction}
+                onChange={(e) => {
+                  setExam((prev) => ({
+                    ...prev,
+                    voluntaryAnalContraction: e.target
+                      .value as BinaryObservation,
+                  }));
+                  setResult(null);
+                }}
+              >
+                <option value=""></option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="NT">NT</option>
+              </select>
+            </label>
+          </section>
 
-          <h2>LEFT</h2>
-
-          <div
+          <section
             style={{
-              display: "grid",
-              gridTemplateColumns: "42px 42px 42px 45px",
-              gap: "4px",
-              fontSize: "11px",
-              fontWeight: 700,
-              textAlign: "center",
-              marginBottom: "6px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            <span>LT</span>
-            <span>PP</span>
-            <span>M</span>
-            <span />
-          </div>
-
-          {renderLeftRows()}
-
-          <label>
-            <select
-              value={exam.deepAnalPressure}
-              onChange={(e) => {
-                setExam((prev) => ({
-                  ...prev,
-                  deepAnalPressure: e.target.value as BinaryObservation,
-                }));
-                setResult(null);
+            <div
+              style={{
+                transform: "scale(1)",
+                transformOrigin: "top center",
               }}
             >
-              <option value=""></option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-              <option value="NT">NT</option>
-            </select>{" "}
-            (DAP) Deep anal pressure
-          </label>
-        </section>
+              <BodyDiagram exam={exam as any} />
+            </div>
+          </section>
+
+          <section>
+            <h2 style={{ margin: "0 0 4px", fontSize: "18px" }}>LEFT</h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "34px 34px 34px 38px",
+                marginBottom: "1px",
+                gap: "2px",
+                fontSize: "12px",
+                fontWeight: 700,
+                textAlign: "center",
+              }}
+            >
+              <span>LT</span>
+              <span>PP</span>
+              <span>M</span>
+              <span />
+            </div>
+
+            {renderLeftRows()}
+
+            <label>
+              <select
+                value={exam.deepAnalPressure}
+                onChange={(e) => {
+                  setExam((prev) => ({
+                    ...prev,
+                    deepAnalPressure: e.target.value as BinaryObservation,
+                  }));
+                  setResult(null);
+                }}
+              >
+                <option value=""></option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="NT">NT</option>
+              </select>{" "}
+              (DAP) Deep anal pressure
+            </label>
+          </section>
+        </div>
       </div>
     </div>
   );
