@@ -1,277 +1,462 @@
 "use client";
 
 import { useState } from "react";
+import { ISNCSCI, Exam as ISNCSCIExam } from "isncsci";
 import BodyDiagram from "./BodyDiagram";
-import { runAssessment } from "@/lib/isncsci";
-import { Exam, Score } from "@/types/exam";
+import ResultsPanel from "./ResultsPanel";
 
-/* LEVELS */
-const LEVELS = [
-  "C2","C3","C4","C5","C6","C7","C8","T1",
-  "T2","T3","T4","T5","T6","T7","T8","T9",
-  "T10","T11","T12","L1","L2","L3","L4","L5",
-  "S1","S2","S3","S4_5"
-];
+export const LEVELS = [
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "T1",
+  "T2",
+  "T3",
+  "T4",
+  "T5",
+  "T6",
+  "T7",
+  "T8",
+  "T9",
+  "T10",
+  "T11",
+  "T12",
+  "L1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "S1",
+  "S2",
+  "S3",
+  "S4_5",
+] as const;
 
-/* MOTOR LEVELS (ONLY THESE GET MOTOR INPUTS) */
-const MOTOR_LEVELS = [
-  "C5","C6","C7","C8","T1","L2","L3","L4","L5","S1"
-];
+export const MOTOR_LEVELS = [
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "T1",
+  "L2",
+  "L3",
+  "L4",
+  "L5",
+  "S1",
+] as const;
 
-const MOTOR_OPTIONS = [
-  { value: "C5", label: "C5 - Shoulder / Elbow Flexion" },
-  { value: "C6", label: "C6 - Elbow / Wrist Extension" },
-  { value: "C7", label: "C7 - Elbow Extension" },
-  { value: "C8", label: "C8 - Finger Flexion" },
-  { value: "T1", label: "T1 - Finger Abduction" },
-  { value: "L2", label: "L2 - Hip Flexion" },
-  { value: "L3", label: "L3 - Knee Extension" },
-  { value: "L4", label: "L4 - Ankle Dorsiflexion" },
-  { value: "L5", label: "L5 - Great Toe Extension" },
-  { value: "S1", label: "S1 - Ankle Plantarflexion" },
-];
+type Side = "right" | "left";
+type ScoreType = "motor" | "lightTouch" | "pinPrick";
 
-const SCORES: Score[] = ["0","1","2"];
-type YesNoNT = "Yes" | "No" | "NT" | "UNK";
+type UiScore = "" | "0" | "1" | "2" | "3" | "4" | "5" | "NT";
+type BinaryObservation = "" | "Yes" | "No" | "NT";
 
-/* HELPERS */
-const createEmpty = () =>
-  Object.fromEntries(LEVELS.map(l => [l, "0"])) as Record<string, Score>;
+type UiExam = {
+  right: {
+    lowestNonKeyMuscleWithMotorFunction: string;
+    motor: Record<string, UiScore>;
+    lightTouch: Record<string, UiScore>;
+    pinPrick: Record<string, UiScore>;
+  };
+  left: {
+    lowestNonKeyMuscleWithMotorFunction: string;
+    motor: Record<string, UiScore>;
+    lightTouch: Record<string, UiScore>;
+    pinPrick: Record<string, UiScore>;
+  };
+  voluntaryAnalContraction: BinaryObservation;
+  deepAnalPressure: BinaryObservation;
+};
 
-const defaultExam: Exam = {
+export const inputStyle: React.CSSProperties = {
+  width: "38px",
+  height: "26px",
+  border: "1px solid #AEB4BE",
+  backgroundColor: "#E5E5E5",
+  textAlign: "center",
+  color: "#15284C",
+  fontSize: "12px",
+  padding: 0,
+};
+
+function emptyScores(): Record<string, UiScore> {
+  return LEVELS.reduce((acc, level) => {
+    acc[level] = "";
+    return acc;
+  }, {} as Record<string, UiScore>);
+}
+
+const defaultExam: UiExam = {
   right: {
     lowestNonKeyMuscleWithMotorFunction: "C5",
-    motor: createEmpty(),
-    lightTouch: createEmpty(),
-    pinPrick: createEmpty(),
+    motor: emptyScores(),
+    lightTouch: emptyScores(),
+    pinPrick: emptyScores(),
   },
   left: {
     lowestNonKeyMuscleWithMotorFunction: "C5",
-    motor: createEmpty(),
-    lightTouch: createEmpty(),
-    pinPrick: createEmpty(),
+    motor: emptyScores(),
+    lightTouch: emptyScores(),
+    pinPrick: emptyScores(),
   },
-  deepAnalPressure: "No",
-  voluntaryAnalContraction: "No",
+  voluntaryAnalContraction: "",
+  deepAnalPressure: "",
 };
 
+function cleanValue(value: string, type: ScoreType): UiScore {
+  const v = value.toUpperCase();
+
+  if (v === "") return "";
+  if (v === "NT") return "NT";
+
+  if (type === "motor") {
+    if (["0", "1", "2", "3", "4", "5"].includes(v)) return v as UiScore;
+  } else {
+    if (["0", "1", "2"].includes(v)) return v as UiScore;
+  }
+
+  return "";
+}
+
+function hasEmptyScores(exam: UiExam) {
+  for (const side of ["right", "left"] as const) {
+    for (const level of LEVELS) {
+      if (!exam[side].lightTouch[level]) return true;
+      if (!exam[side].pinPrick[level]) return true;
+
+      if (MOTOR_LEVELS.includes(level as any) && !exam[side].motor[level]) {
+        return true;
+      }
+    }
+  }
+
+  if (!exam.voluntaryAnalContraction) return true;
+  if (!exam.deepAnalPressure) return true;
+
+  return false;
+}
+
+function toISNCSCIExam(exam: UiExam): ISNCSCIExam {
+  const motor = (side: Side) =>
+    MOTOR_LEVELS.reduce((acc, level) => {
+      acc[level] = exam[side].motor[level] || "NT";
+      return acc;
+    }, {} as Record<string, string>);
+
+  const sensory = (side: Side, type: "lightTouch" | "pinPrick") =>
+    LEVELS.reduce((acc, level) => {
+      acc[level] = exam[side][type][level] || "NT";
+      return acc;
+    }, {} as Record<string, string>);
+
+  return {
+    voluntaryAnalContraction: exam.voluntaryAnalContraction || "NT",
+    deepAnalPressure: exam.deepAnalPressure || "NT",
+    right: {
+      lowestNonKeyMuscleWithMotorFunction: exam.right
+        .lowestNonKeyMuscleWithMotorFunction as any,
+      motor: motor("right") as any,
+      lightTouch: sensory("right", "lightTouch") as any,
+      pinPrick: sensory("right", "pinPrick") as any,
+    },
+    left: {
+      lowestNonKeyMuscleWithMotorFunction: exam.left
+        .lowestNonKeyMuscleWithMotorFunction as any,
+      motor: motor("left") as any,
+      lightTouch: sensory("left", "lightTouch") as any,
+      pinPrick: sensory("left", "pinPrick") as any,
+    },
+  } as ISNCSCIExam;
+}
+
 export default function AssessmentForm() {
-  const [exam, setExam] = useState(defaultExam);
+  const [exam, setExam] = useState<UiExam>(defaultExam);
+  const [result, setResult] = useState<any>(null);
+  const [topDown, setTopDown] = useState(false);
 
-  const update = (
-    side: "right" | "left",
-    type: "motor" | "lightTouch" | "pinPrick",
+  function update(
+    side: Side,
+    type: ScoreType,
     level: string,
-    value: Score
-  ) => {
-    setExam(prev => ({
-      ...prev,
-      [side]: {
-        ...prev[side],
-        [type]: {
-          ...prev[side][type],
-          [level]: value,
+    rawValue: string
+  ) {
+    const value = cleanValue(rawValue, type);
+
+    setExam((prev) => {
+      const updatedValues = {
+        ...prev[side][type],
+        [level]: value,
+      };
+
+      if (topDown && value !== "") {
+        const startIndex = LEVELS.indexOf(level as any);
+
+        for (let i = startIndex + 1; i < LEVELS.length; i++) {
+          const nextLevel = LEVELS[i];
+
+          if (type === "motor" && !MOTOR_LEVELS.includes(nextLevel as any)) {
+            continue;
+          }
+
+          updatedValues[nextLevel] = value;
+        }
+      }
+
+      return {
+        ...prev,
+        [side]: {
+          ...prev[side],
+          [type]: updatedValues,
         },
-      },
-    }));
-  };
+      };
+    });
 
-  const renderSelect = (value: Score, onChange: any) => (
-    <select value={value} onChange={onChange} style={{ width: "45px" }}>
-      {SCORES.map(s => <option key={s}>{s}</option>)}
-    </select>
-  );
+    setResult(null);
+  }
 
-  const rowStyle = {
-    height: "32px",
-    display: "flex",
-    alignItems: "center",
-    gap: "6px"
-  };
+  function calculate() {
+    if (hasEmptyScores(exam)) {
+      alert("You cannot calculate while there are empty results.");
+      return;
+    }
+
+    const validExam = toISNCSCIExam(exam);
+    const calculated = new ISNCSCI(validExam);
+
+    console.log(calculated);
+    setResult(calculated);
+  }
+
+  function renderInput(
+    side: Side,
+    type: ScoreType,
+    level: string,
+    value: string
+  ) {
+    return (
+      <input
+        value={value}
+        onChange={(e) => update(side, type, level, e.target.value)}
+        maxLength={2}
+        style={inputStyle}
+      />
+    );
+  }
+
+  function renderRightRows() {
+    return LEVELS.map((level) => (
+      <div
+        key={`right-${level}`}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "40px 38px 38px 38px",
+          gap: "4px",
+          marginBottom: "1px",
+          alignItems: "center",
+        }}
+      >
+        <span style={{ textAlign: "right", paddingRight: "6px" }}>{level}</span>
+
+        {MOTOR_LEVELS.includes(level as any) ? (
+          renderInput("right", "motor", level, exam.right.motor[level])
+        ) : (
+          <div />
+        )}
+
+        {renderInput(
+          "right",
+          "lightTouch",
+          level,
+          exam.right.lightTouch[level]
+        )}
+        {renderInput("right", "pinPrick", level, exam.right.pinPrick[level])}
+      </div>
+    ));
+  }
+
+  function renderLeftRows() {
+    return LEVELS.map((level) => (
+      <div
+        key={`left-${level}`}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "38px 38px 38px 40px",
+          gap: "4px",
+          marginBottom: "1px",
+          alignItems: "center",
+        }}
+      >
+        {renderInput("left", "lightTouch", level, exam.left.lightTouch[level])}
+        {renderInput("left", "pinPrick", level, exam.left.pinPrick[level])}
+
+        {MOTOR_LEVELS.includes(level as any) ? (
+          renderInput("left", "motor", level, exam.left.motor[level])
+        ) : (
+          <div />
+        )}
+
+        <span style={{ paddingLeft: "6px" }}>{level}</span>
+      </div>
+    ));
+  }
 
   return (
-    <div style={{ marginTop: "20px" }}>
-
-      {/* MAIN GRID */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-
-        {/* RIGHT SIDE */}
-        <div>
-          <strong>Right</strong>
-          <div style={{ display: "flex", gap: "10px", fontWeight: "bold" }}>
-            <span>M</span><span>LT</span><span>PP</span>
-          </div>
-
-          {LEVELS.map(level => (
-            <div key={"r-"+level} style={rowStyle}>
-              <span style={{ width: "40px" }}>{level}</span>
-
-              {MOTOR_LEVELS.includes(level)
-                ? renderSelect(
-                    exam.right.motor[level],
-                    (e:any)=>update("right","motor",level,e.target.value)
-                  )
-                : <div style={{ width: "45px" }} />
-              }
-
-              {renderSelect(
-                exam.right.lightTouch[level],
-                (e:any)=>update("right","lightTouch",level,e.target.value)
-              )}
-
-              {renderSelect(
-                exam.right.pinPrick[level],
-                (e:any)=>update("right","pinPrick",level,e.target.value)
-              )}
-            </div>
-          ))}
+    <div
+  style={{
+    backgroundColor: "#F6F4EC",
+    color: "#15284C",
+    height: "calc(100vh - 100px)",
+    overflow: "hidden",
+    padding: "6px",
+    boxSizing: "border-box",
+  }}
+>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "340px minmax(0, 1fr)",
+    gap: "24px",
+    alignItems: "stretch",
+    height: "100%",
+    minHeight: 0,
+  }}
+>
+<div
+  style={{
+    height: "100%",
+    overflow: "hidden",
+    borderRight: "2px solid #2D3E5E",
+    paddingRight: "14px",
+    backgroundColor: "#F6F4EC",
+    boxSizing: "border-box",
+  }}
+>
+          <ResultsPanel
+            result={result}
+            topDown={topDown}
+            setTopDown={setTopDown}
+            onCalculate={calculate}
+          />
         </div>
+        <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "200px minmax(0, 1fr) 200px",
+    gap: "24px",
+    alignItems: "center",
+    height: "100%",
+    minHeight: 0,
+    paddingLeft: "36px",
+    boxSizing: "border-box",
+  }}
+>
+          <section>
+            <h2 style={{ margin: "0 0 4px", fontSize: "18px" }}>RIGHT</h2>
 
-        {/* BODY DIAGRAM */}
-        <div>
-          <BodyDiagram exam={exam} />
-        </div>
-
-        {/* LEFT SIDE */}
-        <div>
-          <strong>Left</strong>
-          <div style={{ display: "flex", gap: "10px", fontWeight: "bold" }}>
-            <span>LT</span><span>PP</span><span>M</span>
-          </div>
-
-          {LEVELS.map(level => (
-            <div key={"l-"+level} style={rowStyle}>
-
-              {renderSelect(
-                exam.left.lightTouch[level],
-                (e:any)=>update("left","lightTouch",level,e.target.value)
-              )}
-
-              {renderSelect(
-                exam.left.pinPrick[level],
-                (e:any)=>update("left","pinPrick",level,e.target.value)
-              )}
-
-              {MOTOR_LEVELS.includes(level)
-                ? renderSelect(
-                    exam.left.motor[level],
-                    (e:any)=>update("left","motor",level,e.target.value)
-                  )
-                : <div style={{ width: "45px" }} />
-              }
-
-              <span style={{ width: "40px" }}>{level}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* BOTTOM SECTION */}
-      <div style={{ marginTop: "40px", display: "flex", justifyContent: "space-between" }}>
-
-        {/* VAC */}
-        <label>
-          (VAC) Voluntary anal contraction
-          <br />
-          <select
-            value={exam.voluntaryAnalContraction}
-            onChange={e =>
-              setExam(prev => ({
-                ...prev,
-                voluntaryAnalContraction: e.target.value as YesNoNT
-              }))
-            }
-          >
-            <option>Yes</option>
-            <option>No</option>
-            <option>NT</option>
-            <option>UNK</option>
-          </select>
-        </label>
-
-        {/* DAP */}
-        <label>
-          (DAP) Deep anal pressure
-          <br />
-          <select
-            value={exam.deepAnalPressure}
-            onChange={e =>
-              setExam(prev => ({
-                ...prev,
-                deepAnalPressure: e.target.value as YesNoNT
-              }))
-            }
-          >
-            <option>Yes</option>
-            <option>No</option>
-            <option>NT</option>
-            <option>UNK</option>
-          </select>
-        </label>
-      </div>
-
-      {/* LOWEST MOTOR + COMMENTS */}
-      <div style={{ marginTop: "20px", display: "flex", gap: "40px" }}>
-        <div>
-          <strong>Lowest non-key muscle with motor function</strong>
-
-          <div>
-            Right:
-            <br />
-            <select
-              value={exam.right.lowestNonKeyMuscleWithMotorFunction}
-              onChange={e =>
-                setExam(prev => ({
-                  ...prev,
-                  right: {
-                    ...prev.right,
-                    lowestNonKeyMuscleWithMotorFunction: e.target.value
-                  }
-                }))
-              }
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "38px 34px 34px 34px",
+                marginBottom: "1px",
+                gap: "2px",
+                fontSize: "12px",
+                fontWeight: 700,
+                textAlign: "center",
+              }}
             >
-              {MOTOR_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
+              <span />
+              <span>M</span>
+              <span>LT</span>
+              <span>PP</span>
+            </div>
 
-          <div>
-            Left:
-            <br />
-            <select
-              value={exam.left.lowestNonKeyMuscleWithMotorFunction}
-              onChange={e =>
-                setExam(prev => ({
-                  ...prev,
-                  left: {
-                    ...prev.left,
-                    lowestNonKeyMuscleWithMotorFunction: e.target.value
-                  }
-                }))
-              }
+            {renderRightRows()}
+
+            <label>
+              (VAC) Voluntary anal contraction{" "}
+              <select
+                value={exam.voluntaryAnalContraction}
+                onChange={(e) => {
+                  setExam((prev) => ({
+                    ...prev,
+                    voluntaryAnalContraction: e.target
+                      .value as BinaryObservation,
+                  }));
+                  setResult(null);
+                }}
+              >
+                <option value=""></option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="NT">NT</option>
+              </select>
+            </label>
+          </section>
+
+          <section
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                transform: "scale(1)",
+                transformOrigin: "top center",
+              }}
             >
-              {MOTOR_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+              <BodyDiagram exam={exam as any} />
+            </div>
+          </section>
 
-        <div>
-          <strong>Comments:</strong>
-          <br />
-          <textarea style={{ width: "300px", height: "100px" }} />
+          <section>
+            <h2 style={{ margin: "0 0 4px", fontSize: "18px" }}>LEFT</h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "34px 34px 34px 38px",
+                marginBottom: "1px",
+                gap: "2px",
+                fontSize: "12px",
+                fontWeight: 700,
+                textAlign: "center",
+              }}
+            >
+              <span>LT</span>
+              <span>PP</span>
+              <span>M</span>
+              <span />
+            </div>
+
+            {renderLeftRows()}
+
+            <label>
+              <select
+                value={exam.deepAnalPressure}
+                onChange={(e) => {
+                  setExam((prev) => ({
+                    ...prev,
+                    deepAnalPressure: e.target.value as BinaryObservation,
+                  }));
+                  setResult(null);
+                }}
+              >
+                <option value=""></option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="NT">NT</option>
+              </select>{" "}
+              (DAP) Deep anal pressure
+            </label>
+          </section>
         </div>
       </div>
-
-      {/* CALCULATE */}
-      <div style={{ marginTop: "20px" }}>
-        <button onClick={() => console.log(runAssessment(exam))}>
-          Calculate
-        </button>
-      </div>
-
     </div>
   );
 }
