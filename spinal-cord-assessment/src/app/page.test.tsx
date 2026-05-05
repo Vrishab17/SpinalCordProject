@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import Home from "./page";
 
+jest.mock("next/navigation", () => ({
+  redirect: jest.fn(),
+}));
+
 const redirectMock = redirect as unknown as jest.Mock;
 
 describe("Home", () => {
@@ -18,5 +22,13 @@ describe("Home", () => {
 
     expect(redirectMock).toHaveBeenCalledWith("/login");
     expect(redirectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("only redirects to the login route", () => {
+    expect(() => {
+      Home();
+    }).toThrow(/NEXT_REDIRECT:\/login/);
+
+    expect(redirectMock).not.toHaveBeenCalledWith("/dashboard");
   });
 });
