@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Header() {
   const [staffName, setStaffName] = useState("Loading...");
@@ -33,21 +34,37 @@ export default function Header() {
         width: "100%",
       }}
     >
-      {/* LEFT */}
-      <div>
-        <div style={{ fontSize: "28px", fontWeight: 700 }}>
-          Health New Zealand
-        </div>
+      {/* LEFT (Clickable Home → Dashboard) */}
+      <Link href="/dashboard" style={{ textDecoration: "none" }}>
         <div
           style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "#1FC2D5",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            display: "inline-block",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.8";
+            e.currentTarget.style.transform = "scale(1.03)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1)";
           }}
         >
-          Te Whatu Ora
+          <div style={{ fontSize: "28px", fontWeight: 700, color: "#FFFFFF" }}>
+            Health New Zealand
+          </div>
+          <div
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#1FC2D5",
+            }}
+          >
+            Te Whatu Ora
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* RIGHT */}
       <div
