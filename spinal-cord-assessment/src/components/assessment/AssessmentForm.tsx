@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ISNCSCI, Exam as ISNCSCIExam } from "isncsci";
 import BodyDiagram from "./BodyDiagram";
 import ResultsPanel from "./ResultsPanel";
+import { useSearchParams } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export const LEVELS = [
   "C2",
@@ -51,7 +53,6 @@ export const MOTOR_LEVELS = [
 
 type Side = "right" | "left";
 type ScoreType = "motor" | "lightTouch" | "pinPrick";
-
 type UiScore = "" | "0" | "1" | "2" | "3" | "4" | "5" | "NT";
 type BinaryObservation = "" | "Yes" | "No" | "NT";
 
@@ -173,11 +174,61 @@ function toISNCSCIExam(exam: UiExam): ISNCSCIExam {
   } as ISNCSCIExam;
 }
 
+function calculateAge(dob: string) {
+  const birth = new Date(dob);
+  const today = new Date();
+
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+
 export default function AssessmentForm() {
+  const searchParams = useSearchParams();
+  const nhi = searchParams.get("nhi");
+  const [patient, setPatient] = useState<any>(null);
   const [exam, setExam] = useState<UiExam>(defaultExam);
   const [result, setResult] = useState<any>(null);
   const [topDown, setTopDown] = useState(false);
 
+  useEffect(() => {
+    async function loadPatient() {
+      if (!nhi) return;
+
+      const { data: patientData, error: patientError } = await supabase
+        .from("Patient")
+        .select("*")
+        .eq("nhi_number", nhi)
+        .single();
+
+      if (patientError || !patientData) {
+        console.error("Could not load patient:", patientError);
+        return;
+      }
+
+      const { data: nameData, error: nameError } = await supabase
+        .from("Patient Name")
+        .select("*")
+        .eq("PATIENTpatient_id", patientData.patient_id)
+        .single();
+
+      if (nameError) {
+        console.error("Could not load patient name:", nameError);
+      }
+
+      setPatient({
+        ...patientData,
+        name: nameData,
+      });
+    }
+
+    loadPatient();
+  }, [nhi]);
   function update(
     side: Side,
     type: ScoreType,
@@ -224,10 +275,7 @@ export default function AssessmentForm() {
       return;
     }
 
-    const validExam = toISNCSCIExam(exam);
-    const calculated = new ISNCSCI(validExam);
-
-    console.log(calculated);
+    const calculated = new ISNCSCI(toISNCSCIExam(exam));
     setResult(calculated);
   }
 
@@ -306,35 +354,84 @@ export default function AssessmentForm() {
 
   return (
     <div
-  style={{
-    backgroundColor: "#F6F4EC",
-    color: "#15284C",
-    height: "calc(100vh - 100px)",
-    overflow: "hidden",
-    padding: "6px",
-    boxSizing: "border-box",
-  }}
->
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "340px minmax(0, 1fr)",
-    gap: "24px",
-    alignItems: "stretch",
-    height: "100%",
-    minHeight: 0,
-  }}
->
-<div
-  style={{
-    height: "100%",
-    overflow: "hidden",
-    borderRight: "2px solid #2D3E5E",
-    paddingRight: "14px",
-    backgroundColor: "#F6F4EC",
-    boxSizing: "border-box",
-  }}
->
+      style={{
+        backgroundColor: "#F6F4EC",
+        color: "#15284C",
+        height: "calc(100vh - 100px)",
+        //overflow: "hidden",
+        boxSizing: "border-box",
+        marginTop: "-1px",
+        padding: 0,
+        margin: 0,
+      }}
+    >
+      {/* Patient details strip */}
+      <div
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderBottom: "1px solid #15284C",
+          padding: "10px 22px",
+          margin: 0,
+          width: "100%",
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateColumns: "1.6fr 1.2fr 1fr 1fr 1.4fr 2fr",
+          gap: "18px",
+          alignItems: "center",
+          fontSize: "14px",
+          color: "#15284C",
+        }}
+      >
+        <span>
+          <strong>NAME:</strong>{" "}
+          {patient
+            ? `${patient.name?.family_name ?? ""}, ${
+                patient.name?.given_name ?? ""
+              }`
+            : "Loading..."}
+        </span>
+        <span>
+          <strong>NHI:</strong> {nhi ?? "N/A"}
+        </span>
+        <span>
+          <strong>DOB:</strong> {patient?.date_of_birth ?? "N/A"}
+        </span>
+        <span>
+          <strong>AGE:</strong>{" "}
+          {patient?.date_of_birth
+            ? `${calculateAge(patient.date_of_birth)} Years`
+            : "N/A"}
+        </span>
+        <span>
+          <strong>SEX:</strong> {patient?.gender ?? "N/A"}
+        </span>
+        <span>
+          <strong>ETHNICITY:</strong> {patient?.ethnicity ?? "N/A"}
+        </span>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "340px minmax(0, 1fr)",
+          gap: "24px",
+          alignItems: "stretch",
+          height: "calc(100% - 43px)",
+          minHeight: 0,
+          padding: "6px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            //overflow: "hidden",
+            borderRight: "2px solid #2D3E5E",
+            paddingRight: "14px",
+            backgroundColor: "#F6F4EC",
+            boxSizing: "border-box",
+          }}
+        >
           <ResultsPanel
             result={result}
             topDown={topDown}
@@ -342,27 +439,28 @@ export default function AssessmentForm() {
             onCalculate={calculate}
           />
         </div>
+
         <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "200px minmax(0, 1fr) 200px",
-    gap: "24px",
-    alignItems: "center",
-    height: "100%",
-    minHeight: 0,
-    paddingLeft: "36px",
-    boxSizing: "border-box",
-  }}
->
+          style={{
+            display: "grid",
+            gridTemplateColumns: "200px minmax(0, 1fr) 200px",
+            gap: "24px",
+            alignItems: "center",
+            height: "100%",
+            minHeight: 0,
+            paddingLeft: "36px",
+            boxSizing: "border-box",
+          }}
+        >
           <section>
             <h2 style={{ margin: "0 0 4px", fontSize: "18px" }}>RIGHT</h2>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "38px 34px 34px 34px",
+                gridTemplateColumns: "40px 38px 38px 38px",
                 marginBottom: "1px",
-                gap: "2px",
+                gap: "4px",
                 fontSize: "12px",
                 fontWeight: 700,
                 textAlign: "center",
@@ -376,7 +474,7 @@ export default function AssessmentForm() {
 
             {renderRightRows()}
 
-            <label>
+            <label style={{ fontSize: "13px" }}>
               (VAC) Voluntary anal contraction{" "}
               <select
                 value={exam.voluntaryAnalContraction}
@@ -404,14 +502,7 @@ export default function AssessmentForm() {
               alignItems: "center",
             }}
           >
-            <div
-              style={{
-                transform: "scale(1)",
-                transformOrigin: "top center",
-              }}
-            >
-              <BodyDiagram exam={exam as any} />
-            </div>
+            <BodyDiagram exam={exam as any} />
           </section>
 
           <section>
@@ -420,9 +511,9 @@ export default function AssessmentForm() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "34px 34px 34px 38px",
+                gridTemplateColumns: "38px 38px 38px 40px",
                 marginBottom: "1px",
-                gap: "2px",
+                gap: "4px",
                 fontSize: "12px",
                 fontWeight: 700,
                 textAlign: "center",
@@ -436,7 +527,7 @@ export default function AssessmentForm() {
 
             {renderLeftRows()}
 
-            <label>
+            <label style={{ fontSize: "13px" }}>
               <select
                 value={exam.deepAnalPressure}
                 onChange={(e) => {

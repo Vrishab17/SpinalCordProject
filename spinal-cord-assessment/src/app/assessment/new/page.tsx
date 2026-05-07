@@ -8,7 +8,7 @@ export default function AssessmentPage() {
     <div>
       <Header />
 
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: "0px" }}>
         <AssessmentForm />
       </div>
     </div>
