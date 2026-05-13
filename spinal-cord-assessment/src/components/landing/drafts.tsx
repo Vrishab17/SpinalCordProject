@@ -3,6 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  DEFAULT_CLINICIAN_PATIENT_FILTER,
+  type ClinicianPatientFilter,
+} from "@/lib/clinicianPatientFilter";
+
+type DraftsProps = {
+  clinicianPatientFilter?: ClinicianPatientFilter;
+};
 
 export type DraftStatus = "OPEN" | "DRAFT" | "FINALIZED";
 
@@ -65,7 +73,9 @@ function labelStatus(status: DraftStatus) {
   }
 }
 
-export default function Drafts() {
+export default function Drafts({
+  clinicianPatientFilter = DEFAULT_CLINICIAN_PATIENT_FILTER,
+}: DraftsProps) {
   const router = useRouter();
 
   const [drafts, setDrafts] = useState<DraftAssessment[]>([]);
@@ -172,6 +182,14 @@ export default function Drafts() {
     );
   }, [drafts]);
 
+  const filterLoading = clinicianPatientFilter.status === "loading";
+
+  const visibleDrafts = useMemo(() => {
+    if (clinicianPatientFilter.status === "all") return sortedDrafts;
+    if (clinicianPatientFilter.status === "loading") return [];
+    return sortedDrafts.filter((d) => clinicianPatientFilter.patientIds.has(d.patientId));
+  }, [sortedDrafts, clinicianPatientFilter]);
+
   function openDraft(patientId: number) {
     router.push(`/history/${patientId}`);
   }
@@ -248,7 +266,7 @@ export default function Drafts() {
           </thead>
 
           <tbody>
-            {loading ? (
+            {loading || filterLoading ? (
               <tr>
                 <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
                   Loading...
@@ -260,14 +278,14 @@ export default function Drafts() {
                   {error}
                 </td>
               </tr>
-            ) : sortedDrafts.length === 0 ? (
+            ) : visibleDrafts.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: "24px", textAlign: "center" }}>
                   No drafts yet
                 </td>
               </tr>
             ) : (
-              sortedDrafts.map((draft) => (
+              visibleDrafts.map((draft) => (
                 <tr
                   key={draft.id}
                   onClick={() => openDraft(draft.patientId)}

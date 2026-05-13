@@ -4,6 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  DEFAULT_CLINICIAN_PATIENT_FILTER,
+  type ClinicianPatientFilter,
+} from "@/lib/clinicianPatientFilter";
+
+type RecentAssessmentsProps = {
+  clinicianPatientFilter?: ClinicianPatientFilter;
+};
 
 type AssessmentRow = {
   assessment_id: number;
@@ -147,7 +155,9 @@ function getStatusColor(status: string) {
   }
 }
 
-export default function RecentAssessments() {
+export default function RecentAssessments({
+  clinicianPatientFilter = DEFAULT_CLINICIAN_PATIENT_FILTER,
+}: RecentAssessmentsProps) {
   const router = useRouter();
 
   const [rows, setRows] = useState<RecentAssessmentDisplay[]>([]);
@@ -231,16 +241,42 @@ export default function RecentAssessments() {
 
   useEffect(() => {
     async function fetchRecentAssessments() {
+      if (clinicianPatientFilter.status === "loading") {
+        setLoading(true);
+        setRows([]);
+        setError(null);
+        return;
+      }
+
+      if (clinicianPatientFilter.status === "ready" && clinicianPatientFilter.patientIds.size === 0) {
+        setRows([]);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
-      const { data: assessmentData, error: assessmentError } = await supabase
+      let assessmentQuery = supabase
         .from("Assessment")
         .select(
           "assessment_id, assessment_date, status, current_version, PATIENTpatient_id"
         )
         .order("assessment_date", { ascending: false })
         .limit(50);
+
+      if (
+        clinicianPatientFilter.status === "ready" &&
+        clinicianPatientFilter.patientIds.size > 0
+      ) {
+        assessmentQuery = assessmentQuery.in(
+          "PATIENTpatient_id",
+          Array.from(clinicianPatientFilter.patientIds)
+        );
+      }
+
+      const { data: assessmentData, error: assessmentError } = await assessmentQuery;
 
       if (assessmentError) {
         setError(`Assessment query failed: ${assessmentError.message}`);
@@ -314,7 +350,7 @@ export default function RecentAssessments() {
     }
 
     fetchRecentAssessments();
-  }, []);
+  }, [clinicianPatientFilter]);
 
   const headerCellStyle: CSSProperties = {
     padding: "14px 12px",

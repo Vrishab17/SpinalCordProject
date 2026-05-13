@@ -1,8 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  DEFAULT_CLINICIAN_PATIENT_FILTER,
+  type ClinicianPatientFilter,
+} from "@/lib/clinicianPatientFilter";
+
+type UpcomingReviewsProps = {
+  clinicianPatientFilter?: ClinicianPatientFilter;
+};
 
 type AssessmentRow = {
   assessment_id: number;
@@ -62,7 +70,9 @@ function formatReviewDate(dateString: string) {
   };
 }
 
-export default function UpcomingReviews() {
+export default function UpcomingReviews({
+  clinicianPatientFilter = DEFAULT_CLINICIAN_PATIENT_FILTER,
+}: UpcomingReviewsProps) {
   const router = useRouter();
 
   const [rows, setRows] = useState<UpcomingReviewDisplay[]>([]);
@@ -158,6 +168,14 @@ export default function UpcomingReviews() {
     fetchUpcomingReviews();
   }, []);
 
+  const filterLoading = clinicianPatientFilter.status === "loading";
+
+  const visibleRows = useMemo(() => {
+    if (clinicianPatientFilter.status === "all") return rows;
+    if (clinicianPatientFilter.status === "loading") return [];
+    return rows.filter((r) => clinicianPatientFilter.patientIds.has(r.patientId));
+  }, [rows, clinicianPatientFilter]);
+
   const headerCellStyle: React.CSSProperties = {
     padding: "14px 12px",
     minHeight: "48px",
@@ -228,7 +246,7 @@ export default function UpcomingReviews() {
           </thead>
 
           <tbody>
-            {loading ? (
+            {loading || filterLoading ? (
               <tr>
                 <td
                   colSpan={3}
@@ -254,7 +272,7 @@ export default function UpcomingReviews() {
                   {error}
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            ) : visibleRows.length === 0 ? (
               <tr>
                 <td
                   colSpan={3}
@@ -268,7 +286,7 @@ export default function UpcomingReviews() {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              visibleRows.map((row) => (
                 <tr
                   key={row.id}
                   onClick={() => router.push(`/history/${row.patientId}`)}
