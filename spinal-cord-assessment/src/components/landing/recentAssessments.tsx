@@ -9,6 +9,8 @@ import {
   type ClinicianPatientFilter,
 } from "@/lib/clinicianPatientFilter";
 
+const PAGE_SIZE = 12;
+
 type RecentAssessmentsProps = {
   clinicianPatientFilter?: ClinicianPatientFilter;
 };
@@ -54,80 +56,6 @@ type DashboardFilterSelections = {
   status: StatusFilterChoice | null;
 };
 
-function matchesFinalisedStatus(status: string): boolean {
-  const u = status.toUpperCase();
-  return u === "FINALISED" || u === "FINALIZED";
-}
-
-function compareByDateThenVersion(
-  a: RecentAssessmentDisplay,
-  b: RecentAssessmentDisplay,
-  dateDir: number
-): number {
-  const d = a.assessmentDateMs - b.assessmentDateMs;
-  if (d !== 0) return dateDir * d;
-  return b.versionNum - a.versionNum;
-}
-
-function filterByStatus(
-  rows: RecentAssessmentDisplay[],
-  status: StatusFilterChoice | null
-): RecentAssessmentDisplay[] {
-  if (status === "status_draft") {
-    return rows.filter((r) => r.status.toUpperCase() === "DRAFT");
-  }
-  if (status === "status_finalised") {
-    return rows.filter((r) => matchesFinalisedStatus(r.status));
-  }
-  return rows;
-}
-
-function sortRows(
-  rows: RecentAssessmentDisplay[],
-  selections: DashboardFilterSelections
-): RecentAssessmentDisplay[] {
-  const copy = [...rows];
-  const { date, version } = selections;
-
-  const dateDir = date === "date_earliest_first" ? 1 : date === "date_latest_first" ? -1 : null;
-  const versionCmp = (a: RecentAssessmentDisplay, b: RecentAssessmentDisplay): number => {
-    if (version === "version_newest") {
-      const v = b.versionNum - a.versionNum;
-      if (v !== 0) return v;
-    } else if (version === "version_oldest") {
-      const v = a.versionNum - b.versionNum;
-      if (v !== 0) return v;
-    }
-    return 0;
-  };
-
-  copy.sort((a, b) => {
-    if (dateDir !== null) {
-      const d = dateDir * (a.assessmentDateMs - b.assessmentDateMs);
-      if (d !== 0) return d;
-      const v = versionCmp(a, b);
-      if (v !== 0) return v;
-      return b.versionNum - a.versionNum;
-    }
-    if (version === "version_newest" || version === "version_oldest") {
-      const v = versionCmp(a, b);
-      if (v !== 0) return v;
-      return b.assessmentDateMs - a.assessmentDateMs;
-    }
-    return compareByDateThenVersion(a, b, -1);
-  });
-
-  return copy;
-}
-
-function filterAndSortRows(
-  rows: RecentAssessmentDisplay[],
-  selections: DashboardFilterSelections
-): RecentAssessmentDisplay[] {
-  const filtered = filterByStatus(rows, selections.status);
-  return sortRows(filtered, selections);
-}
-
 function formatDate(dateString: string) {
   const date = new Date(dateString);
 
@@ -161,8 +89,12 @@ export default function RecentAssessments({
   const router = useRouter();
 
   const [rows, setRows] = useState<RecentAssessmentDisplay[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestSeqRef = useRef(0);
+
   const [filterSelections, setFilterSelections] = useState<DashboardFilterSelections>({
     date: "date_latest_first",
     version: null,
@@ -170,11 +102,6 @@ export default function RecentAssessments({
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const displayedRows = useMemo(
-    () => filterAndSortRows(rows, filterSelections),
-    [rows, filterSelections]
-  );
 
   const filterSections: {
     heading: string;
@@ -239,17 +166,45 @@ export default function RecentAssessments({
     });
   }
 
+  const clinicianFilterKey = useMemo(() => {
+    if (clinicianPatientFilter.status === "all") return "all";
+    if (clinicianPatientFilter.status === "loading") return "loading";
+    return `ready:${[...clinicianPatientFilter.patientIds].sort((a, b) => a - b).join(",")}`;
+  }, [clinicianPatientFilter]);
+
+  const uiFilterKey = useMemo(
+    () => `${filterSelections.date ?? "none"}|${filterSelections.version ?? "none"}|${filterSelections.status ?? "none"}`,
+    [filterSelections]
+  );
+
+  const prevFilterKeyRef = useRef<string | null>(null);
   useEffect(() => {
+    const combinedKey = `${clinicianFilterKey}::${uiFilterKey}`;
+    const filterChanged =
+      prevFilterKeyRef.current !== null && prevFilterKeyRef.current !== combinedKey;
+    prevFilterKeyRef.current = combinedKey;
+
+    if (filterChanged && page !== 1) {
+      setPage(1);
+      return;
+    }
+
     async function fetchRecentAssessments() {
+      const reqId = ++requestSeqRef.current;
+
       if (clinicianPatientFilter.status === "loading") {
+        if (reqId !== requestSeqRef.current) return;
         setLoading(true);
         setRows([]);
+        setTotalCount(0);
         setError(null);
         return;
       }
 
       if (clinicianPatientFilter.status === "ready" && clinicianPatientFilter.patientIds.size === 0) {
+        if (reqId !== requestSeqRef.current) return;
         setRows([]);
+        setTotalCount(0);
         setLoading(false);
         setError(null);
         return;
@@ -258,13 +213,41 @@ export default function RecentAssessments({
       setLoading(true);
       setError(null);
 
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
       let assessmentQuery = supabase
         .from("Assessment")
         .select(
-          "assessment_id, assessment_date, status, current_version, PATIENTpatient_id"
+          "assessment_id, assessment_date, status, current_version, PATIENTpatient_id",
+          { count: "exact" }
         )
-        .order("assessment_date", { ascending: false })
-        .limit(50);
+        .range(from, to);
+
+      if (filterSelections.status === "status_draft") {
+        assessmentQuery = assessmentQuery.eq("status", "DRAFT");
+      } else if (filterSelections.status === "status_finalised") {
+        assessmentQuery = assessmentQuery.in("status", ["FINALISED", "FINALIZED", "FINAL"]);
+      }
+
+      if (filterSelections.date) {
+        assessmentQuery = assessmentQuery.order("assessment_date", {
+          ascending: filterSelections.date === "date_earliest_first",
+        });
+        if (filterSelections.version) {
+          assessmentQuery = assessmentQuery.order("current_version", {
+            ascending: filterSelections.version === "version_oldest",
+          });
+        }
+      } else if (filterSelections.version) {
+        assessmentQuery = assessmentQuery
+          .order("current_version", {
+            ascending: filterSelections.version === "version_oldest",
+          })
+          .order("assessment_date", { ascending: false });
+      } else {
+        assessmentQuery = assessmentQuery.order("assessment_date", { ascending: false });
+      }
 
       if (
         clinicianPatientFilter.status === "ready" &&
@@ -276,7 +259,9 @@ export default function RecentAssessments({
         );
       }
 
-      const { data: assessmentData, error: assessmentError } = await assessmentQuery;
+      const { data: assessmentData, error: assessmentError, count } = await assessmentQuery;
+
+      if (reqId !== requestSeqRef.current) return;
 
       if (assessmentError) {
         setError(`Assessment query failed: ${assessmentError.message}`);
@@ -284,7 +269,16 @@ export default function RecentAssessments({
         return;
       }
 
+      setTotalCount(count ?? 0);
+
       const assessments = (assessmentData ?? []) as AssessmentRow[];
+      const totalMatching = count ?? 0;
+
+      if (assessments.length === 0 && page > 1 && totalMatching > 0) {
+        setPage(1);
+        setLoading(false);
+        return;
+      }
 
       if (assessments.length === 0) {
         setRows([]);
@@ -299,6 +293,8 @@ export default function RecentAssessments({
         .select("patient_id, nhi_number")
         .in("patient_id", patientIds);
 
+      if (reqId !== requestSeqRef.current) return;
+
       if (patientError) {
         setError(`Patient query failed: ${patientError.message}`);
         setLoading(false);
@@ -309,6 +305,8 @@ export default function RecentAssessments({
         .from("Patient Name")
         .select("PATIENTpatient_id, given_name, family_name")
         .in("PATIENTpatient_id", patientIds);
+
+      if (reqId !== requestSeqRef.current) return;
 
       if (patientNameError) {
         setError(`Patient Name query failed: ${patientNameError.message}`);
@@ -350,7 +348,9 @@ export default function RecentAssessments({
     }
 
     fetchRecentAssessments();
-  }, [clinicianPatientFilter]);
+  }, [clinicianFilterKey, uiFilterKey, page, clinicianPatientFilter, filterSelections]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const headerCellStyle: CSSProperties = {
     padding: "14px 12px",
@@ -364,10 +364,21 @@ export default function RecentAssessments({
     borderBottom: "1px solid #D6D6D6",
   };
 
+  const headerVersionCellStyle: CSSProperties = {
+    ...headerCellStyle,
+    textAlign: "center",
+  };
+
   const bodyCellStyle: CSSProperties = {
     padding: "14px 12px",
     minHeight: "48px",
     verticalAlign: "middle",
+    textAlign: "left",
+  };
+
+  const bodyVersionCellStyle: CSSProperties = {
+    ...bodyCellStyle,
+    textAlign: "center",
   };
 
   return (
@@ -549,8 +560,7 @@ export default function RecentAssessments({
         style={{
           flex: 1,
           minHeight: 0,
-          overflowY: "auto",
-          overflowX: "auto",
+          overflow: "hidden",
         }}
       >
         <table
@@ -567,7 +577,7 @@ export default function RecentAssessments({
               <th style={headerCellStyle}>NHI Number</th>
               <th style={headerCellStyle}>Patient Name</th>
               <th style={headerCellStyle}>Date</th>
-              <th style={headerCellStyle}>Version Number</th>
+              <th style={headerVersionCellStyle}>Version Number</th>
               <th style={headerCellStyle}>Status</th>
             </tr>
           </thead>
@@ -585,52 +595,114 @@ export default function RecentAssessments({
                   {error}
                 </td>
               </tr>
-            ) : rows.length === 0 ? (
+            ) : rows.length === 0 && totalCount === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   No recent assessments to display.
                 </td>
               </tr>
-            ) : displayedRows.length === 0 ? (
+            ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   No assessments match this filter.
                 </td>
               </tr>
             ) : (
-              displayedRows.map((row) => (
-                <tr
-                  key={row.id}
-                  onClick={() => router.push(`/history/${row.patientId}`)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#F8FAFC";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  style={{
-                    cursor: "pointer",
-                  }}
-                >
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
-                  <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.versionNumber}</td>
-                  <td
-                    style={{
-                      ...bodyCellStyle,
-                      borderBottom: "1px solid #E5E7EB",
-                      color: getStatusColor(row.status),
+              <>
+                {rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() => router.push(`/history/${row.patientId}`)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#F8FAFC";
                     }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                    style={{ cursor: "pointer" }}
                   >
-                    {row.status}
-                  </td>
-                </tr>
-              ))
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
+                    <td style={{ ...bodyVersionCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.versionNumber}</td>
+                    <td
+                      style={{
+                        ...bodyCellStyle,
+                        borderBottom: "1px solid #E5E7EB",
+                        color: getStatusColor(row.status),
+                      }}
+                    >
+                      {row.status}
+                    </td>
+                  </tr>
+                ))}
+              </>
             )}
           </tbody>
         </table>
       </div>
+
+      {!loading && !error && totalCount > 0 && (
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "12px 16px",
+            flexWrap: "nowrap",
+            minHeight: "72px",
+            paddingTop: "14px",
+            marginTop: "10px",
+            borderTop: "1px solid #E5E7EB",
+          }}
+        >
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            style={{
+              height: "38px",
+              padding: "0 14px",
+              fontSize: "14px",
+              fontWeight: 500,
+              fontFamily: "inherit",
+              color: page <= 1 ? "#9CA3AF" : "#15284C",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #D6D6D6",
+              borderRadius: "6px",
+              cursor: page <= 1 ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Previous page
+          </button>
+          <span style={{ fontSize: "14px", color: "#6B7280", whiteSpace: "nowrap" }}>
+            Page {page} of {totalPages} ({(page - 1) * PAGE_SIZE + 1}-
+            {Math.min(page * PAGE_SIZE, totalCount)} of {totalCount})
+          </span>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => p + 1)}
+            style={{
+              height: "38px",
+              padding: "0 14px",
+              fontSize: "14px",
+              fontWeight: 500,
+              fontFamily: "inherit",
+              color: page >= totalPages ? "#9CA3AF" : "#15284C",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #D6D6D6",
+              borderRadius: "6px",
+              cursor: page >= totalPages ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Next page
+          </button>
+        </div>
+      )}
     </div>
   );
 }

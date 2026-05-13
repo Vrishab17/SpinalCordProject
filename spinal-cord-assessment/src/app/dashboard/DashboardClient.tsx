@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import Buttons from "@/components/landing/buttons";
 import RecentAssessments from "@/components/landing/recentAssessments";
 import UpcomingReviews from "@/components/landing/upcoming";
-import Drafts from "@/components/landing/drafts";
 import { supabase } from "@/lib/supabaseClient";
 import type { ClinicianPatientFilter } from "@/lib/clinicianPatientFilter";
 
@@ -206,21 +205,12 @@ export default function DashboardClient() {
 
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
               height: "100%",
               minHeight: 0,
               overflow: "hidden",
             }}
           >
-            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-              <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
-            </div>
-
-            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
-              <Drafts clinicianPatientFilter={clinicianFilter} />
-            </div>
+            <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
           </div>
         </div>
       </div>

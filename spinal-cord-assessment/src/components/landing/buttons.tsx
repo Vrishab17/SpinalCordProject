@@ -8,14 +8,17 @@ export default function Buttons() {
   return (
     <div style={{ display: "flex", gap: "12px" }}>
       <button
+        type="button"
         onClick={() => router.push("/search")}
         style={{
-          padding: "12px 18px",
+          padding: "10px 16px",
           backgroundColor: "#FFFFFF",
           border: "1px solid #D6D6D6",
+          borderRadius: "6px",
           color: "#15284C",
           fontSize: "14px",
-          fontWeight: 400,
+          fontWeight: 600,
+          fontFamily: "inherit",
           cursor: "pointer",
         }}
       >
