@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { supabase } from "@/lib/supabaseClient";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
@@ -78,7 +77,6 @@ const SEL = {
 const NAVY       = "#15284C";
 const BORDER     = "#D6D6D6";
 const BG         = "#F6F4EC";
-const BTN_PRIMARY = "#2D3E5E";
 const LABEL_COL  = "#6B7A96";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -99,13 +97,6 @@ function calculateAge(dob: string | null | undefined): string {
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   return `${age} Years`;
-}
-
-function displayStatus(status: string | null | undefined): string {
-  if (!status) return "Unknown";
-  const u = status.toUpperCase();
-  if (u === "FINALISED" || u === "FINALIZED") return "FINAL";
-  return u;
 }
 
 function formatClinicianFromStaffName(sn: StaffNameRow | undefined): string {
@@ -326,9 +317,16 @@ export default async function Page({ params }: Props) {
         {/* ════ LEFT PANEL ════ */}
         <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-          <p style={{ fontWeight: 700, fontSize: 15, margin: "0 0 10px 0", color: NAVY }}>
+          <h2
+            style={{
+              fontSize: 22,
+              fontWeight: 700,
+              margin: "0 0 14px 0",
+              color: NAVY,
+            }}
+          >
             Patient Details
-          </p>
+          </h2>
 
           <div style={{
             border: `1px solid ${BORDER}`,
@@ -372,7 +370,6 @@ export default async function Page({ params }: Props) {
         ) : (
           <AssessmentHistoryPanel
             assessments={assessmentDisplay}
-            patientName={fullName}
             nhiNumber={patient.nhi_number ?? "N/A"}
           />
         )}

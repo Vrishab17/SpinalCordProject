@@ -408,8 +408,8 @@ export default function RecentAssessments({
       >
         <h2
           style={{
-            fontSize: "20px",
-            fontWeight: 600,
+            fontSize: "22px",
+            fontWeight: 700,
             margin: 0,
           }}
         >

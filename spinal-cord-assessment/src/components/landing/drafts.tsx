@@ -230,9 +230,9 @@ export default function Drafts({
     >
       <h2
         style={{
-          fontSize: "20px",
-          fontWeight: 600,
-          marginBottom: "14px",
+          fontSize: "22px",
+          fontWeight: 700,
+          margin: "0 0 14px 0",
           flexShrink: 0,
         }}
       >
