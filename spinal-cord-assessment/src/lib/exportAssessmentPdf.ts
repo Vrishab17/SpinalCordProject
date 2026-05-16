@@ -1,4 +1,6 @@
 import { PDFDocument, rgb, StandardFonts, degrees } from "pdf-lib";
+import { getLoggedInStaff } from "@/lib/auth";
+
 
 const LEVELS = [
   "C2", "C3", "C4", "C5", "C6", "C7", "C8", "T1",
@@ -12,7 +14,7 @@ const MOTOR_LEVELS = [
   "L2", "L3", "L4", "L5", "S1",
 ];
 
-const SHOW_DEBUG_GRID = true; // change to false when finished
+const SHOW_DEBUG_GRID = false;
 
 function value(v: any) {
   return v === undefined || v === null || v === "" ? "" : String(v);
@@ -88,6 +90,8 @@ export async function exportAssessmentPdf({
   const templateBytes = await fetch("/isncsci-template.pdf").then((res) =>
     res.arrayBuffer()
   );
+  const staff = getLoggedInStaff();
+  const examinerName = staff?.fullName ?? "";
 
   const pdfDoc = await PDFDocument.load(templateBytes);
   const page = pdfDoc.getPages()[0];
@@ -106,8 +110,8 @@ export async function exportAssessmentPdf({
     x: number,
     y: number,
     size = 8,
-    isBold = false,
-    center = true,
+    isBold = true,
+    center = false,
     rotate = 0
   ) {
     const str = value(input);
@@ -135,21 +139,21 @@ export async function exportAssessmentPdf({
   const examDate = new Date().toLocaleDateString("en-NZ");
 
   // Header fields
-  text(patientName, 442, 26, 8, false, false);
-  text(examDate, 710, 573, 8, false, false);
-  text("Dr Michelle Walker", 560, 547, 8, false, false);
+  text(patientName, 442, 585, 8, undefined, false);
+  text(examDate, 660, 585, 8, undefined, false);
+  text(examinerName, 450, 565, 8, undefined, false);
 
   // Main score grid
-  const startY = 470;
-  const rowGap = 14.1;
+  const startY = 500;
+  const rowGap = 13;
 
-  const rightMotorX = 196;
-  const rightLTX = 238;
-  const rightPPX = 279;
+  const rightMotorX = 199;
+  const rightLTX = 235;
+  const rightPPX = 281;
 
-  const leftLTX = 489;
-  const leftPPX = 531;
-  const leftMotorX = 573;
+  const leftLTX = 499;
+  const leftPPX = 546;
+  const leftMotorX = 586;
 
   LEVELS.forEach((level, index) => {
     const y = startY - index * rowGap;
@@ -167,78 +171,78 @@ export async function exportAssessmentPdf({
   });
 
   // VAC / DAP
-  text(exam.voluntaryAnalContraction, 142, 134, 8);
-  text(exam.deepAnalPressure, 632, 134, 8);
+  text(exam.voluntaryAnalContraction, 149, 152, 8);
+  text(exam.deepAnalPressure, 639, 152, 8);
 
   // Totals under main score columns
-  text(t?.right?.motor, rightMotorX, 102, 8);
-  text(t?.right?.lightTouch, rightLTX, 102, 8);
-  text(t?.right?.pinPrick, rightPPX, 102, 8);
+  text(t?.right?.motor, rightMotorX, 134, 8);
+  text(t?.right?.lightTouch, rightLTX, 134, 8);
+  text(t?.right?.pinPrick, rightPPX, 134, 8);
 
-  text(t?.left?.lightTouch, leftLTX, 102, 8);
-  text(t?.left?.pinPrick, leftPPX, 102, 8);
-  text(t?.left?.motor, leftMotorX, 102, 8);
+  text(t?.left?.lightTouch, leftLTX, 134, 8);
+  text(t?.left?.pinPrick, leftPPX, 134, 8);
+  text(t?.left?.motor, leftMotorX, 134, 8);
 
   // Motor subscores
-  text(t?.right?.upperExtremity, 54, 55, 8);
-  text(t?.left?.upperExtremity, 104, 55, 8);
-  text(t?.upperExtremity, 167, 55, 8);
+  text(t?.right?.upperExtremity, 49, 92, 8);
+  text(t?.left?.upperExtremity, 100, 92, 8);
+  text(t?.upperExtremity, 183, 92, 8);
 
-  text(t?.right?.lowerExtremity, 269, 55, 8);
-  text(t?.left?.lowerExtremity, 320, 55, 8);
-  text(t?.lowerExtremity, 393, 55, 8);
+  text(t?.right?.lowerExtremity, 242, 92, 8);
+  text(t?.left?.lowerExtremity, 293, 92, 8);
+  text(t?.lowerExtremity, 382, 92, 8);
 
   // Sensory subscores
-  text(t?.right?.lightTouch, 482, 55, 8);
-  text(t?.left?.lightTouch, 532, 55, 8);
-  text(t?.lightTouch, 604, 55, 8);
+  text(t?.right?.lightTouch, 446, 92, 8);
+  text(t?.left?.lightTouch, 500, 92, 8);
+  text(t?.lightTouch, 570, 92, 8);
 
-  text(t?.right?.pinPrick, 658, 55, 8);
-  text(t?.left?.pinPrick, 708, 55, 8);
-  text(t?.pinPrick, 762, 55, 8);
+  text(t?.right?.pinPrick, 624, 92, 8);
+  text(t?.left?.pinPrick, 682, 92, 8);
+  text(t?.pinPrick, 755, 92, 8);
 
   // Classification section
   text(
     get(c, ["neurologicalLevel.sensoryRight", "neurologicalLevels.sensoryRight"]),
-    176,
-    27,
+    172,
+    50,
     7
   );
 
   text(
     get(c, ["neurologicalLevel.sensoryLeft", "neurologicalLevels.sensoryLeft"]),
-    205,
-    27,
+    199,
+    50,
     7
   );
 
   text(
     get(c, ["neurologicalLevel.motorRight", "neurologicalLevels.motorRight"]),
-    176,
-    12,
+    172,
+    37,
     7
   );
 
   text(
     get(c, ["neurologicalLevel.motorLeft", "neurologicalLevels.motorLeft"]),
-    205,
-    12,
+    199,
+    37,
     7
   );
 
-  text(get(c, ["neurologicalLevelOfInjury"]), 332, 21, 8);
+  text(get(c, ["neurologicalLevelOfInjury"]), 330, 46, 8);
 
   text(
     get(c, ["completeOrIncomplete", "injuryComplete"]),
-    505,
-    21,
+    528,
+    55,
     8
   );
 
   text(
     get(c, ["ASIAImpairmentScale", "asiaImpairmentScale"]),
-    541,
-    7,
+    528,
+    37,
     8
   );
 
@@ -248,8 +252,8 @@ export async function exportAssessmentPdf({
       "zoneOfPartialPreservations.sensoryRight",
       "zoneOfPartialPreservation.sensoryRight",
     ]),
-    715,
-    27,
+    723,
+    50,
     7
   );
 
@@ -258,8 +262,8 @@ export async function exportAssessmentPdf({
       "zoneOfPartialPreservations.sensoryLeft",
       "zoneOfPartialPreservation.sensoryLeft",
     ]),
-    752,
-    27,
+    750,
+    50,
     7
   );
 
@@ -268,8 +272,8 @@ export async function exportAssessmentPdf({
       "zoneOfPartialPreservations.motorRight",
       "zoneOfPartialPreservation.motorRight",
     ]),
-    715,
-    12,
+    723,
+    37,
     7
   );
 
@@ -278,8 +282,8 @@ export async function exportAssessmentPdf({
       "zoneOfPartialPreservations.motorLeft",
       "zoneOfPartialPreservation.motorLeft",
     ]),
-    752,
-    12,
+    750,
+    37,
     7
   );
 

@@ -1,25 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getLoggedInStaff } from "@/lib/auth";
 import Link from "next/link";
 
 export default function Header() {
   const [staffName, setStaffName] = useState("Loading...");
 
   useEffect(() => {
-    const staffInfo = localStorage.getItem("staffInfo");
-
-    if (!staffInfo) {
-      setStaffName("Unknown User");
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(staffInfo);
-      setStaffName(parsed.fullName || "Unknown User");
-    } catch {
-      setStaffName("Unknown User");
-    }
+    const staff = getLoggedInStaff();
+    setStaffName(staff?.fullName ?? "Unknown User");
   }, []);
 
   return (
