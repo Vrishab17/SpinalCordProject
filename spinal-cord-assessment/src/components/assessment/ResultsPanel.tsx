@@ -8,6 +8,8 @@ type Props = {
   setTopDown: React.Dispatch<React.SetStateAction<boolean>>;
 
   onCalculate: () => void;
+
+  onExportPDF: () => void;
 };
 
 function get(obj: any, paths: string[]) {
@@ -44,6 +46,7 @@ export default function ResultsPanel({
   topDown,
   setTopDown,
   onCalculate,
+  onExportPDF,
 }: Props) {
   const c = result?.classification ?? {};
   const t = result?.totals ?? {};
@@ -139,6 +142,21 @@ export default function ResultsPanel({
           }}
         >
           Calculate
+        </button>
+        <button
+          type="button"
+          onClick={onExportPDF}
+          style={{
+            height: "32px",
+            padding: "0 12px",
+            backgroundColor: "#FFFFFF",
+            color: "#2D3E5E",
+            border: "1px solid #2D3E5E",
+            fontSize: "13px",
+            cursor: "pointer",
+          }}
+        >
+          Export PDF
         </button>
       </div>
       <h2 style={{ margin: "0 0 14px", fontSize: "28px", fontWeight: 700 }}>

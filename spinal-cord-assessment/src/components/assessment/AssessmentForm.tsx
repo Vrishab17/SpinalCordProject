@@ -6,6 +6,7 @@ import BodyDiagram from "./BodyDiagram";
 import ResultsPanel from "./ResultsPanel";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { exportAssessmentPdf } from "@/lib/exportAssessmentPdf";
 
 export const LEVELS = [
   "C2",
@@ -279,6 +280,15 @@ export default function AssessmentForm() {
     setResult(calculated);
   }
 
+  function handleExportPDF() {
+    exportAssessmentPdf({
+      patient,
+      exam,
+      result,
+      nhi,
+    });
+  }
+
   function renderInput(
     side: Side,
     type: ScoreType,
@@ -437,6 +447,7 @@ export default function AssessmentForm() {
             topDown={topDown}
             setTopDown={setTopDown}
             onCalculate={calculate}
+            onExportPDF={handleExportPDF}
           />
         </div>
 
