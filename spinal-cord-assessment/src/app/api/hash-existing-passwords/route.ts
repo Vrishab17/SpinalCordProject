@@ -12,7 +12,7 @@ export async function GET() {
   }
 
   for (const staff of data) {
-    if (staff.password_hash.startsWith("$2$") || staff.password_hash.startsWith("$2$")) {
+    if (staff.password_hash.startsWith("$2a$") || staff.password_hash.startsWith("$2b$")) {
       continue;
     }
 

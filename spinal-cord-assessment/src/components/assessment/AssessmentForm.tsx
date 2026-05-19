@@ -282,6 +282,39 @@ export default function AssessmentForm({ patientId }: AssessmentFormProps) {
     };
   }, [result, totalsPreview]);
 
+  useEffect(() => {
+    async function loadPatient() {
+      if (!nhi) return;
+
+      const { data: patientData, error: patientError } = await supabase
+        .from("Patient")
+        .select("*")
+        .eq("nhi_number", nhi)
+        .single();
+
+      if (patientError || !patientData) {
+        console.error("Could not load patient:", patientError);
+        return;
+      }
+
+      const { data: nameData, error: nameError } = await supabase
+        .from("Patient Name")
+        .select("*")
+        .eq("PATIENTpatient_id", patientData.patient_id)
+        .single();
+
+      if (nameError) {
+        console.error("Could not load patient name:", nameError);
+      }
+
+      setPatient({
+        ...patientData,
+        name: nameData,
+      });
+    }
+
+    loadPatient();
+  }, [nhi]);
   function update(
     side: Side,
     type: ScoreType,
@@ -423,6 +456,15 @@ export default function AssessmentForm({ patientId }: AssessmentFormProps) {
 
   function updateClassification() {
     calculate();
+  }
+
+  function handleExportPDF() {
+    exportAssessmentPdf({
+      patient,
+      exam,
+      result,
+      nhi,
+    });
   }
 
   function renderInput(
