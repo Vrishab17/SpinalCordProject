@@ -15,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -26,15 +26,15 @@ export default function LoginPage() {
         password,
       }),
     });
-  
+
     const result = await response.json();
-  
+
     if (!response.ok) {
       setError(result.error || "Invalid username or password");
       setLoading(false);
       return;
     }
-  
+
     sessionStorage.setItem(
       "staffInfo",
       JSON.stringify({
@@ -43,13 +43,12 @@ export default function LoginPage() {
         staffId: result.staffId,
       })
     );
-  
+
     router.push("/dashboard");
   }
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      
       {/* LEFT PANEL */}
       <div
         style={{
@@ -63,14 +62,12 @@ export default function LoginPage() {
           position: "relative",
         }}
       >
-<div style={{ position: "absolute", top: 20, left: 20 }}>
-  <div style={{ fontWeight: 700, fontSize: 30 }}>
-    Health New Zealand
-  </div>
-  <div style={{ color: "#6EC1E4", fontSize: 20 }}>
-    Te Whatu Ora
-  </div>
-</div>
+        <div style={{ position: "absolute", top: 20, left: 20 }}>
+          <div style={{ fontWeight: 700, fontSize: 30 }}>
+            Health New Zealand
+          </div>
+          <div style={{ color: "#6EC1E4", fontSize: 20 }}>Te Whatu Ora</div>
+        </div>
 
         <h1
           style={{
@@ -106,7 +103,9 @@ export default function LoginPage() {
           }}
         >
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>STAFF USERNAME</label>
+            <label style={{ fontSize: 13, fontWeight: 500 }}>
+              STAFF USERNAME
+            </label>
             <input
               type="text"
               placeholder="jdoe"
@@ -116,12 +115,12 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-  width: "100%",
-  padding: "14px",
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+                width: "100%",
+                padding: "14px",
+                border: "1px solid #ccc",
+                fontSize: "16px",
+                borderRadius: "6px",
+              }}
               required
             />
           </div>
@@ -136,12 +135,12 @@ export default function LoginPage() {
                 setError(null);
               }}
               style={{
-  width: "100%",
-  padding: "14px", // was 10px
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+                width: "100%",
+                padding: "14px", // was 10px
+                border: "1px solid #ccc",
+                fontSize: "16px",
+                borderRadius: "6px",
+              }}
               required
             />
           </div>
@@ -165,14 +164,14 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-  backgroundColor: "#2F3E5C",
-  color: "white",
-  padding: "14px", // was 12px
-  border: "none",
-  cursor: "pointer",
-  fontSize: "16px",
-  borderRadius: "6px",
-}}
+              backgroundColor: "#2F3E5C",
+              color: "white",
+              padding: "14px", // was 12px
+              border: "none",
+              cursor: "pointer",
+              fontSize: "16px",
+              borderRadius: "6px",
+            }}
           >
             {loading ? "Logging in..." : "Log In"}
           </button>

@@ -24,9 +24,10 @@ function readStaffIdFromStorage(): number | null {
 
 export default function DashboardClient() {
   const [onlyMyPatients, setOnlyMyPatients] = useState(false);
-  const [clinicianFilter, setClinicianFilter] = useState<ClinicianPatientFilter>({
-    status: "all",
-  });
+  const [clinicianFilter, setClinicianFilter] =
+    useState<ClinicianPatientFilter>({
+      status: "all",
+    });
   const [staffId, setStaffId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -76,147 +77,147 @@ export default function DashboardClient() {
 
   return (
     <AuthGuard>
-    <main
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: "#F6F4EC",
-      }}
-    >
-      <Header />
-
-      <div
+      <main
         style={{
-          flex: 1,
-          overflow: "hidden",
-          maxWidth: "1300px",
-          width: "100%",
-          margin: "0 auto",
-          padding: "32px 24px",
+          height: "100vh",
           display: "flex",
           flexDirection: "column",
-          boxSizing: "border-box",
+          backgroundColor: "#F6F4EC",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px",
-            flexShrink: 0,
-            flexWrap: "wrap",
-            gap: "12px",
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "40px",
-              fontWeight: 700,
-              margin: 0,
-              color: "#15284C",
-            }}
-          >
-            ISNCSCI / ASRU
-          </h1>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "20px",
-              flexWrap: "wrap",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <button
-                type="button"
-                role="switch"
-                aria-checked={onlyMyPatients}
-                aria-label="Show only patients assigned to me"
-                onClick={() => setOnlyMyPatients((v) => !v)}
-                style={{
-                  position: "relative",
-                  width: "44px",
-                  height: "24px",
-                  borderRadius: "12px",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  flexShrink: 0,
-                  backgroundColor: onlyMyPatients ? "#15284C" : "#D1D5DB",
-                  transition: "background-color 0.15s ease",
-                }}
-              >
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "3px",
-                    left: onlyMyPatients ? "23px" : "3px",
-                    width: "18px",
-                    height: "18px",
-                    borderRadius: "50%",
-                    backgroundColor: "#FFFFFF",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                    transition: "left 0.15s ease",
-                  }}
-                />
-              </button>
-              <span
-                style={{
-                  fontSize: "14px",
-                  color: "#15284C",
-                  fontWeight: 500,
-                  userSelect: "none",
-                }}
-              >
-                My Assessments 
-              </span>
-            </div>
-
-            <Buttons />
-          </div>
-        </div>
+        <Header />
 
         <div
           style={{
             flex: 1,
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr",
-            gap: "20px",
             overflow: "hidden",
-            minHeight: 0,
+            maxWidth: "1300px",
+            width: "100%",
+            margin: "0 auto",
+            padding: "32px 24px",
+            display: "flex",
+            flexDirection: "column",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
-              height: "100%",
-              minHeight: 0,
-              overflow: "hidden",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+              flexShrink: 0,
+              flexWrap: "wrap",
+              gap: "12px",
             }}
           >
-            <RecentAssessments clinicianPatientFilter={clinicianFilter} />
+            <h1
+              style={{
+                fontSize: "40px",
+                fontWeight: 700,
+                margin: 0,
+                color: "#15284C",
+              }}
+            >
+              ISNCSCI / ASRU
+            </h1>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "20px",
+                flexWrap: "wrap",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={onlyMyPatients}
+                  aria-label="Show only patients assigned to me"
+                  onClick={() => setOnlyMyPatients((v) => !v)}
+                  style={{
+                    position: "relative",
+                    width: "44px",
+                    height: "24px",
+                    borderRadius: "12px",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    flexShrink: 0,
+                    backgroundColor: onlyMyPatients ? "#15284C" : "#D1D5DB",
+                    transition: "background-color 0.15s ease",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "3px",
+                      left: onlyMyPatients ? "23px" : "3px",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      backgroundColor: "#FFFFFF",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                      transition: "left 0.15s ease",
+                    }}
+                  />
+                </button>
+                <span
+                  style={{
+                    fontSize: "14px",
+                    color: "#15284C",
+                    fontWeight: 500,
+                    userSelect: "none",
+                  }}
+                >
+                  My Assessments
+                </span>
+              </div>
+
+              <Buttons />
+            </div>
           </div>
 
           <div
             style={{
-              height: "100%",
-              minHeight: 0,
+              flex: 1,
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr",
+              gap: "20px",
               overflow: "hidden",
+              minHeight: 0,
             }}
           >
-            <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
+            <div
+              style={{
+                height: "100%",
+                minHeight: 0,
+                overflow: "hidden",
+              }}
+            >
+              <RecentAssessments clinicianPatientFilter={clinicianFilter} />
+            </div>
+
+            <div
+              style={{
+                height: "100%",
+                minHeight: 0,
+                overflow: "hidden",
+              }}
+            >
+              <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
     </AuthGuard>
   );
 }

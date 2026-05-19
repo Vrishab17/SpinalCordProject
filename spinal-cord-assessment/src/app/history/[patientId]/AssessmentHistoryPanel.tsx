@@ -170,9 +170,7 @@ export default function AssessmentHistoryPanel({
 
   const gradeOptions = Array.from(
     new Set(
-      assessments
-        .map((a) => (a.alsGrade ?? "").toUpperCase())
-        .filter(Boolean)
+      assessments.map((a) => (a.alsGrade ?? "").toUpperCase()).filter(Boolean)
     )
   ).sort();
 
@@ -216,388 +214,408 @@ export default function AssessmentHistoryPanel({
 
   return (
     <AuthGuard>
-    <div style={{ minWidth: 0 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 14,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: NAVY }}>
-          Assessment History
-        </h2>
-
-        <div style={{ display: "flex", gap: 12 }}>
-          <Link
-            href={`/assessment/new?nhi=${encodeURIComponent(nhiNumber)}`}
-            style={{
-              padding: "10px 16px",
-              backgroundColor: NAVY,
-              color: "#FFFFFF",
-              borderRadius: "6px",
-              fontWeight: 600,
-              fontSize: "14px",
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              fontFamily: "inherit",
-            }}
-          >
-            + New Assessment
-          </Link>
-
-          <div ref={dropdownRef} style={{ position: "relative" }}>
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={open}
-              onClick={handleToggleFilter}
-              style={{
-                ...dashboardFilterButtonStyle,
-                ...(open ? { backgroundColor: "#F8FAFC" } : {}),
-              }}
-            >
-              Filter
-              {activeCount > 0 ? (
-                <span
-                  aria-hidden
-                  style={{
-                    minWidth: "18px",
-                    height: "18px",
-                    padding: "0 5px",
-                    borderRadius: "9px",
-                    backgroundColor: NAVY,
-                    color: "#FFFFFF",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {activeCount}
-                </span>
-              ) : null}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                aria-hidden
-                style={{
-                  transform: open ? "rotate(180deg)" : "rotate(0deg)",
-                  transition: "transform 0.15s ease",
-                  flexShrink: 0,
-                }}
-              >
-                <path
-                  d="M2 4L6 8L10 4"
-                  stroke="#15284C"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            {open ? (
-              <div
-                role="dialog"
-                aria-label="Filter assessments"
-                style={filterPanelStyle}
-              >
-                <div style={menuSectionHeading}>Date range</div>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: 10,
-                  }}
-                >
-                  <label
-                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: LABEL_MUTED,
-                      }}
-                    >
-                      From
-                    </span>
-                    <input
-                      type="date"
-                      value={draft.dateFrom}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          dateFrom: e.target.value,
-                        }))
-                      }
-                      style={filterFieldStyle}
-                    />
-                  </label>
-                  <label
-                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: LABEL_MUTED,
-                      }}
-                    >
-                      To
-                    </span>
-                    <input
-                      type="date"
-                      value={draft.dateTo}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          dateTo: e.target.value,
-                        }))
-                      }
-                      style={filterFieldStyle}
-                    />
-                  </label>
-                </div>
-
-                <div
-                  style={{
-                    height: "1px",
-                    backgroundColor: ROW_DIVIDER,
-                    margin: "12px 0",
-                  }}
-                />
-
-                <div style={menuSectionHeading}>Assessment</div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                  }}
-                >
-                  <label
-                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: LABEL_MUTED,
-                      }}
-                    >
-                      Clinician
-                    </span>
-                    <select
-                      value={draft.clinician}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          clinician: e.target.value,
-                        }))
-                      }
-                      style={filterFieldStyle}
-                    >
-                      <option value="">Any</option>
-                      {clinicianOptions.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label
-                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: LABEL_MUTED,
-                      }}
-                    >
-                      AIS grade
-                    </span>
-                    <select
-                      value={draft.aisGrade}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          aisGrade: e.target.value,
-                        }))
-                      }
-                      style={filterFieldStyle}
-                    >
-                      <option value="">Any</option>
-                      {gradeOptions.map((g) => (
-                        <option key={g} value={g}>
-                          {g}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label
-                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: LABEL_MUTED,
-                      }}
-                    >
-                      Status
-                    </span>
-                    <select
-                      value={draft.status}
-                      onChange={(e) =>
-                        setDraft((d) => ({
-                          ...d,
-                          status: e.target.value,
-                        }))
-                      }
-                      style={filterFieldStyle}
-                    >
-                      <option value="">Any</option>
-                      {statusOptions.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    justifyContent: "flex-end",
-                    marginTop: 14,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    style={dashboardOutlinedControlStyle}
-                  >
-                    Clear
-                  </button>
-                  <button
-                    type="button"
-                    onClick={applyFilters}
-                    style={{
-                      padding: "10px 16px",
-                      borderRadius: "6px",
-                      backgroundColor: NAVY,
-                      border: `1px solid ${NAVY}`,
-                      color: "#FFFFFF",
-                      fontWeight: 600,
-                      fontSize: "14px",
-                      fontFamily: "inherit",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <button type="button" style={dashboardOutlinedControlStyle}>
-            Export All PDFs
-          </button>
-        </div>
-      </div>
-
-      <div
-        style={{
-          border: `1px solid ${BORDER}`,
-          borderRadius: "6px",
-          backgroundColor: "#FFFFFF",
-          overflow: "hidden",
-        }}
-      >
+      <div style={{ minWidth: 0 }}>
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
-            padding: "13px 20px",
-            borderBottom: `1px solid ${BORDER}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 14,
+            flexWrap: "wrap",
+            gap: 12,
           }}
         >
-          {["DATE", "CLINICIAN NAME", "AIS", "STATUS", ""].map((col) => (
-            <div key={col} style={{ fontWeight: 700, color: NAVY }}>
-              {col}
-            </div>
-          ))}
-        </div>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: NAVY }}>
+            Assessment History
+          </h2>
 
-        {visible.length === 0 ? (
-          <div
-            style={{
-              padding: "24px 20px",
-              textAlign: "center",
-              fontSize: "14px",
-              color: LABEL_MUTED,
-            }}
-          >
-            {assessments.length === 0
-              ? "No assessments recorded for this patient yet."
-              : "No assessments match these filters."}
-          </div>
-        ) : (
-          visible.map((a) => (
-            <div
-              key={a.assessment_id}
+          <div style={{ display: "flex", gap: 12 }}>
+            <Link
+              href={`/assessment/new?nhi=${encodeURIComponent(nhiNumber)}`}
               style={{
-                display: "grid",
-                gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
-                padding: "16px 20px",
-                borderBottom: `1px solid ${ROW_DIVIDER}`,
+                padding: "10px 16px",
+                backgroundColor: NAVY,
+                color: "#FFFFFF",
+                borderRadius: "6px",
+                fontWeight: 600,
+                fontSize: "14px",
+                textDecoration: "none",
+                display: "flex",
                 alignItems: "center",
+                fontFamily: "inherit",
               }}
             >
-              <div>{formatDate(a.assessment_date)}</div>
-              <div>{a.clinicianName}</div>
-              <div>{a.alsGrade ? `GRADE ${a.alsGrade}` : "N/A"}</div>
-              <div>{displayStatus(a.status)}</div>
-              <div>
-                <Link
-                  href={`/assessment?assessmentId=${a.assessment_id}`}
+              + New Assessment
+            </Link>
+
+            <div ref={dropdownRef} style={{ position: "relative" }}>
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded={open}
+                onClick={handleToggleFilter}
+                style={{
+                  ...dashboardFilterButtonStyle,
+                  ...(open ? { backgroundColor: "#F8FAFC" } : {}),
+                }}
+              >
+                Filter
+                {activeCount > 0 ? (
+                  <span
+                    aria-hidden
+                    style={{
+                      minWidth: "18px",
+                      height: "18px",
+                      padding: "0 5px",
+                      borderRadius: "9px",
+                      backgroundColor: NAVY,
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {activeCount}
+                  </span>
+                ) : null}
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  aria-hidden
                   style={{
-                    padding: "8px 14px",
-                    backgroundColor: "#FFFFFF",
-                    border: `1px solid ${BORDER}`,
-                    borderRadius: "6px",
-                    textDecoration: "none",
-                    color: NAVY,
-                    fontWeight: 500,
-                    fontSize: "14px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    fontFamily: "inherit",
+                    transform: open ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.15s ease",
+                    flexShrink: 0,
                   }}
                 >
-                  Open
-                </Link>
-              </div>
+                  <path
+                    d="M2 4L6 8L10 4"
+                    stroke="#15284C"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {open ? (
+                <div
+                  role="dialog"
+                  aria-label="Filter assessments"
+                  style={filterPanelStyle}
+                >
+                  <div style={menuSectionHeading}>Date range</div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 10,
+                    }}
+                  >
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: LABEL_MUTED,
+                        }}
+                      >
+                        From
+                      </span>
+                      <input
+                        type="date"
+                        value={draft.dateFrom}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            dateFrom: e.target.value,
+                          }))
+                        }
+                        style={filterFieldStyle}
+                      />
+                    </label>
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: LABEL_MUTED,
+                        }}
+                      >
+                        To
+                      </span>
+                      <input
+                        type="date"
+                        value={draft.dateTo}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            dateTo: e.target.value,
+                          }))
+                        }
+                        style={filterFieldStyle}
+                      />
+                    </label>
+                  </div>
+
+                  <div
+                    style={{
+                      height: "1px",
+                      backgroundColor: ROW_DIVIDER,
+                      margin: "12px 0",
+                    }}
+                  />
+
+                  <div style={menuSectionHeading}>Assessment</div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                    }}
+                  >
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: LABEL_MUTED,
+                        }}
+                      >
+                        Clinician
+                      </span>
+                      <select
+                        value={draft.clinician}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            clinician: e.target.value,
+                          }))
+                        }
+                        style={filterFieldStyle}
+                      >
+                        <option value="">Any</option>
+                        {clinicianOptions.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: LABEL_MUTED,
+                        }}
+                      >
+                        AIS grade
+                      </span>
+                      <select
+                        value={draft.aisGrade}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            aisGrade: e.target.value,
+                          }))
+                        }
+                        style={filterFieldStyle}
+                      >
+                        <option value="">Any</option>
+                        {gradeOptions.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: LABEL_MUTED,
+                        }}
+                      >
+                        Status
+                      </span>
+                      <select
+                        value={draft.status}
+                        onChange={(e) =>
+                          setDraft((d) => ({
+                            ...d,
+                            status: e.target.value,
+                          }))
+                        }
+                        style={filterFieldStyle}
+                      >
+                        <option value="">Any</option>
+                        {statusOptions.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      justifyContent: "flex-end",
+                      marginTop: 14,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      style={dashboardOutlinedControlStyle}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={applyFilters}
+                      style={{
+                        padding: "10px 16px",
+                        borderRadius: "6px",
+                        backgroundColor: NAVY,
+                        border: `1px solid ${NAVY}`,
+                        color: "#FFFFFF",
+                        fontWeight: 600,
+                        fontSize: "14px",
+                        fontFamily: "inherit",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
-          ))
-        )}
+
+            <button type="button" style={dashboardOutlinedControlStyle}>
+              Export All PDFs
+            </button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            border: `1px solid ${BORDER}`,
+            borderRadius: "6px",
+            backgroundColor: "#FFFFFF",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
+              padding: "13px 20px",
+              borderBottom: `1px solid ${BORDER}`,
+            }}
+          >
+            {["DATE", "CLINICIAN NAME", "AIS", "STATUS", ""].map((col) => (
+              <div key={col} style={{ fontWeight: 700, color: NAVY }}>
+                {col}
+              </div>
+            ))}
+          </div>
+
+          {visible.length === 0 ? (
+            <div
+              style={{
+                padding: "24px 20px",
+                textAlign: "center",
+                fontSize: "14px",
+                color: LABEL_MUTED,
+              }}
+            >
+              {assessments.length === 0
+                ? "No assessments recorded for this patient yet."
+                : "No assessments match these filters."}
+            </div>
+          ) : (
+            visible.map((a) => (
+              <div
+                key={a.assessment_id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
+                  padding: "16px 20px",
+                  borderBottom: `1px solid ${ROW_DIVIDER}`,
+                  alignItems: "center",
+                }}
+              >
+                <div>{formatDate(a.assessment_date)}</div>
+                <div>{a.clinicianName}</div>
+                <div>{a.alsGrade ? `GRADE ${a.alsGrade}` : "N/A"}</div>
+                <div>{displayStatus(a.status)}</div>
+                <div>
+                  <Link
+                    href={`/assessment?assessmentId=${a.assessment_id}`}
+                    style={{
+                      padding: "8px 14px",
+                      backgroundColor: "#FFFFFF",
+                      border: `1px solid ${BORDER}`,
+                      borderRadius: "6px",
+                      textDecoration: "none",
+                      color: NAVY,
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    Open
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </div>
     </AuthGuard>
   );
 }

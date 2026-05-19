@@ -63,10 +63,8 @@ const SEL = {
   patient:
     "patient_id,nhi_number,date_of_birth,gender,nz_citizenship_status,place_of_birth,ethnicity",
   name: "PATIENTpatient_id,given_name,family_name",
-  address:
-    "PATIENTpatient_id,line1,line2,suburb,city,postal_code,country",
-  assessment:
-    "assessment_id,assessment_date,status,STAFFstaff_id",
+  address: "PATIENTpatient_id,line1,line2,suburb,city,postal_code,country",
+  assessment: "assessment_id,assessment_date,status,STAFFstaff_id",
   exam: "exam_id,ASSESSMENTassessment_id",
   classification_result: "EXAMexam_id,als_grade",
   staff_name: "STAFFstaff_id,prefix,given_name,family_name",
@@ -74,10 +72,10 @@ const SEL = {
 
 // ─── Design tokens (matched to landing page / globals.css) ───────────────────
 
-const NAVY       = "#15284C";
-const BORDER     = "#D6D6D6";
-const BG         = "#F6F4EC";
-const LABEL_COL  = "#6B7A96";
+const NAVY = "#15284C";
+const BORDER = "#D6D6D6";
+const BG = "#F6F4EC";
+const LABEL_COL = "#6B7A96";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +83,11 @@ function formatDate(ds: string | null | undefined): string {
   if (!ds) return "N/A";
   const d = new Date(ds);
   if (Number.isNaN(d.getTime())) return ds;
-  return d.toLocaleDateString("en-NZ", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString("en-NZ", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 function calculateAge(dob: string | null | undefined): string {
@@ -125,12 +127,26 @@ export default async function Page({ params }: Props) {
 
   if (isNumeric) {
     const [patientRes, nameRes, addressRes, assessRes] = await Promise.all([
-      supabase.from("Patient").select(SEL.patient).eq("patient_id", numericId).maybeSingle(),
-      supabase.from("Patient Name").select(SEL.name)
-        .eq("PATIENTpatient_id", numericId).limit(1).maybeSingle(),
-      supabase.from("Patient Address").select(SEL.address)
-        .eq("PATIENTpatient_id", numericId).limit(1).maybeSingle(),
-      supabase.from("Assessment").select(SEL.assessment)
+      supabase
+        .from("Patient")
+        .select(SEL.patient)
+        .eq("patient_id", numericId)
+        .maybeSingle(),
+      supabase
+        .from("Patient Name")
+        .select(SEL.name)
+        .eq("PATIENTpatient_id", numericId)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("Patient Address")
+        .select(SEL.address)
+        .eq("PATIENTpatient_id", numericId)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("Assessment")
+        .select(SEL.assessment)
         .eq("PATIENTpatient_id", numericId)
         .order("assessment_date", { ascending: false }),
     ]);
@@ -139,7 +155,13 @@ export default async function Page({ params }: Props) {
       return (
         <div style={{ minHeight: "100vh", backgroundColor: BG }}>
           <Header />
-          <div style={{ padding: "40px", fontSize: 15, color: patientRes.error ? "#DC2626" : NAVY }}>
+          <div
+            style={{
+              padding: "40px",
+              fontSize: 15,
+              color: patientRes.error ? "#DC2626" : NAVY,
+            }}
+          >
             {patientRes.error
               ? `Failed to load patient: ${patientRes.error.message}`
               : `No patient found for: ${patientId}`}
@@ -164,7 +186,13 @@ export default async function Page({ params }: Props) {
       return (
         <div style={{ minHeight: "100vh", backgroundColor: BG }}>
           <Header />
-          <div style={{ padding: "40px", fontSize: 15, color: patientError ? "#DC2626" : NAVY }}>
+          <div
+            style={{
+              padding: "40px",
+              fontSize: 15,
+              color: patientError ? "#DC2626" : NAVY,
+            }}
+          >
             {patientError
               ? `Failed to load patient: ${patientError.message}`
               : `No patient found for: ${patientId}`}
@@ -177,11 +205,21 @@ export default async function Page({ params }: Props) {
     const pid = patient.patient_id;
 
     const [nameRes, addressRes, assessRes] = await Promise.all([
-      supabase.from("Patient Name").select(SEL.name)
-        .eq("PATIENTpatient_id", pid).limit(1).maybeSingle(),
-      supabase.from("Patient Address").select(SEL.address)
-        .eq("PATIENTpatient_id", pid).limit(1).maybeSingle(),
-      supabase.from("Assessment").select(SEL.assessment)
+      supabase
+        .from("Patient Name")
+        .select(SEL.name)
+        .eq("PATIENTpatient_id", pid)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("Patient Address")
+        .select(SEL.address)
+        .eq("PATIENTpatient_id", pid)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("Assessment")
+        .select(SEL.assessment)
         .eq("PATIENTpatient_id", pid)
         .order("assessment_date", { ascending: false }),
     ]);
@@ -193,9 +231,13 @@ export default async function Page({ params }: Props) {
   }
 
   // ── Staff names (Assessment.STAFFstaff_id → Staff Name) ──
-  const staffIds = [...new Set(
-    assessments.map((a) => a.STAFFstaff_id).filter((id): id is number => id != null)
-  )];
+  const staffIds = [
+    ...new Set(
+      assessments
+        .map((a) => a.STAFFstaff_id)
+        .filter((id): id is number => id != null)
+    ),
+  ];
   const staffNameById = new Map<number, StaffNameRow>();
 
   if (staffIds.length > 0) {
@@ -249,134 +291,177 @@ export default async function Page({ params }: Props) {
   }
 
   // ── Derived values ──
-  const fullName = name && (name.family_name || name.given_name)
-    ? `${name.family_name ?? ""}${name.family_name && name.given_name ? ", " : ""}${name.given_name ?? ""}`
-    : "Unknown";
+  const fullName =
+    name && (name.family_name || name.given_name)
+      ? `${name.family_name ?? ""}${
+          name.family_name && name.given_name ? ", " : ""
+        }${name.given_name ?? ""}`
+      : "Unknown";
 
   const addressLines: string[] = address
-    ? [address.line1, address.line2, address.suburb, address.city, address.country,
-       address.postal_code != null ? String(address.postal_code) : null]
-        .filter((v): v is string => v != null && v.trim() !== "")
+    ? [
+        address.line1,
+        address.line2,
+        address.suburb,
+        address.city,
+        address.country,
+        address.postal_code != null ? String(address.postal_code) : null,
+      ].filter((v): v is string => v != null && v.trim() !== "")
     : [];
 
   type DetailRow = { label: string; value: React.ReactNode };
 
   const detailRows: DetailRow[] = [
     { label: "Date of Birth", value: formatDate(patient.date_of_birth) },
-    { label: "Age",           value: calculateAge(patient.date_of_birth) },
-    { label: "Gender",        value: patient.gender ?? "Unknown" },
-    { label: "Ethnicity",     value: patient.ethnicity ?? "N/A" },
+    { label: "Age", value: calculateAge(patient.date_of_birth) },
+    { label: "Gender", value: patient.gender ?? "Unknown" },
+    { label: "Ethnicity", value: patient.ethnicity ?? "N/A" },
     { label: "Place of Birth", value: patient.place_of_birth ?? "N/A" },
-    { label: "NZ Citizenship Status", value: patient.nz_citizenship_status ?? "N/A" },
+    {
+      label: "NZ Citizenship Status",
+      value: patient.nz_citizenship_status ?? "N/A",
+    },
     {
       label: "Address",
-      value: addressLines.length > 0
-        ? (<>{addressLines.map((l, i) => (
-            <span key={i}>{l}{i < addressLines.length - 1 && <br />}</span>
-          ))}</>)
-        : "N/A",
+      value:
+        addressLines.length > 0 ? (
+          <>
+            {addressLines.map((l, i) => (
+              <span key={i}>
+                {l}
+                {i < addressLines.length - 1 && <br />}
+              </span>
+            ))}
+          </>
+        ) : (
+          "N/A"
+        ),
     },
   ];
 
   const assessmentDisplay: AssessmentDisplay[] = assessments.map((a) => ({
-    assessment_id:   a.assessment_id,
+    assessment_id: a.assessment_id,
     assessment_date: a.assessment_date,
-    status:          a.status,
-    clinicianName:   formatClinicianFromStaffName(
+    status: a.status,
+    clinicianName: formatClinicianFromStaffName(
       a.STAFFstaff_id != null ? staffNameById.get(a.STAFFstaff_id) : undefined
     ),
-    alsGrade:        alsGradeByAssessmentId.get(a.assessment_id) ?? null,
+    alsGrade: alsGradeByAssessmentId.get(a.assessment_id) ?? null,
   }));
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <AuthGuard>
-    <div style={{
-      height: "100vh",
-      overflow: "hidden",
-      backgroundColor: BG,
-      color: NAVY,
-      display: "flex",
-      flexDirection: "column",
-    }}>
-      <Header />
+      <div
+        style={{
+          height: "100vh",
+          overflow: "hidden",
+          backgroundColor: BG,
+          color: NAVY,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Header />
 
-      <div style={{
-        padding: "24px 40px 40px",
-        display: "grid",
-        gridTemplateColumns: "minmax(280px, 1fr) minmax(0, 2fr)",
-        gap: 40,
-        alignItems: "start",
-        flex: 1,
-        maxWidth: 1400,
-        margin: "0 auto",
-        width: "100%",
-        boxSizing: "border-box",
-      }}>
-
-        {/* ════ LEFT PANEL ════ */}
-        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-
-          <h2
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-              margin: "0 0 14px 0",
-              color: NAVY,
-            }}
+        <div
+          style={{
+            padding: "24px 40px 40px",
+            display: "grid",
+            gridTemplateColumns: "minmax(280px, 1fr) minmax(0, 2fr)",
+            gap: 40,
+            alignItems: "start",
+            flex: 1,
+            maxWidth: 1400,
+            margin: "0 auto",
+            width: "100%",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* ════ LEFT PANEL ════ */}
+          <div
+            style={{ display: "flex", flexDirection: "column", minWidth: 0 }}
           >
-            Patient Details
-          </h2>
+            <h2
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                margin: "0 0 14px 0",
+                color: NAVY,
+              }}
+            >
+              Patient Details
+            </h2>
 
-          <div style={{
-            border: `1px solid ${BORDER}`,
-            backgroundColor: "#FFFFFF",
-            padding: "20px 22px 24px",
-          }}>
-            <h1 style={{ fontSize: 28, fontWeight: 600, margin: "0 0 2px 0", lineHeight: 1.25 }}>
-              {fullName}
-            </h1>
-            <p style={{ fontSize: 13, margin: "0 0 18px 0", color: LABEL_COL }}>
-              NHI: {patient.nhi_number ?? "N/A"}
-            </p>
+            <div
+              style={{
+                border: `1px solid ${BORDER}`,
+                backgroundColor: "#FFFFFF",
+                padding: "20px 22px 24px",
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: 28,
+                  fontWeight: 600,
+                  margin: "0 0 2px 0",
+                  lineHeight: 1.25,
+                }}
+              >
+                {fullName}
+              </h1>
+              <p
+                style={{ fontSize: 13, margin: "0 0 18px 0", color: LABEL_COL }}
+              >
+                NHI: {patient.nhi_number ?? "N/A"}
+              </p>
 
-            <div style={{ display: "grid", rowGap: 8 }}>
-              {detailRows.map(({ label, value }) => (
-                <div key={label} style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  columnGap: 8,
-                  alignItems: "start",
-                }}>
-                  <span style={{ fontSize: 13, color: LABEL_COL }}>{label}</span>
-                  <span style={{ fontSize: 13, color: NAVY, textAlign: "right", lineHeight: 1.5 }}>{value}</span>
-                </div>
-              ))}
+              <div style={{ display: "grid", rowGap: 8 }}>
+                {detailRows.map(({ label, value }) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      columnGap: 8,
+                      alignItems: "start",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: LABEL_COL }}>
+                      {label}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 13,
+                        color: NAVY,
+                        textAlign: "right",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
+
+            <div style={{ flex: 1, minHeight: 80 }} />
           </div>
 
-          <div style={{ flex: 1, minHeight: 80 }} />
-
-          
-
-          
+          {/* ════ RIGHT PANEL ════ */}
+          {assessmentRes.error ? (
+            <div style={{ padding: "16px 0", color: "#DC2626", fontSize: 14 }}>
+              Failed to load assessments: {assessmentRes.error.message}
+            </div>
+          ) : (
+            <AssessmentHistoryPanel
+              assessments={assessmentDisplay}
+              nhiNumber={patient.nhi_number ?? "N/A"}
+            />
+          )}
         </div>
-
-        {/* ════ RIGHT PANEL ════ */}
-        {assessmentRes.error ? (
-          <div style={{ padding: "16px 0", color: "#DC2626", fontSize: 14 }}>
-            Failed to load assessments: {assessmentRes.error.message}
-          </div>
-        ) : (
-          <AssessmentHistoryPanel
-            assessments={assessmentDisplay}
-            nhiNumber={patient.nhi_number ?? "N/A"}
-          />
-        )}
-
       </div>
-    </div>
     </AuthGuard>
   );
 }

@@ -7,9 +7,9 @@ import AuthGuard from "@/components/AuthGuard";
 export default function ConfirmPatientPage() {
   return (
     <AuthGuard>
-    <Suspense fallback={<div>Loading confirmation...</div>}>
-      <ConfirmPatientContent />
-    </Suspense>
+      <Suspense fallback={<div>Loading confirmation...</div>}>
+        <ConfirmPatientContent />
+      </Suspense>
     </AuthGuard>
   );
 }
