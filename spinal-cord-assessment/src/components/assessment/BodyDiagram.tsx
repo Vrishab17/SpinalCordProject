@@ -26,6 +26,18 @@ export default function BodyDiagram({ exam }: Props) {
   const diagramRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (!svgHtml || !diagramRef.current) return;
+    const svg = diagramRef.current.querySelector("svg");
+    if (!svg || !(svg instanceof SVGSVGElement)) return;
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    svg.style.display = "block";
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
+    svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
+  }, [svgHtml]);
+
+  useEffect(() => {
     async function loadSvg() {
       const response = await fetch("/diagram.svg");
 
@@ -113,10 +125,12 @@ export default function BodyDiagram({ exam }: Props) {
     <div
       ref={diagramRef}
       style={{
-        width: "360px",
+        width: "clamp(460px, 46vw, 780px)",
+        maxWidth: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
+        flexShrink: 0,
       }}
       dangerouslySetInnerHTML={{ __html: svgHtml }}
     />

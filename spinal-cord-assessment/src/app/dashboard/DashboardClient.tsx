@@ -8,19 +8,7 @@ import RecentAssessments from "@/components/landing/recentAssessments";
 import UpcomingReviews from "@/components/landing/upcoming";
 import { supabase } from "@/lib/supabaseClient";
 import type { ClinicianPatientFilter } from "@/lib/clinicianPatientFilter";
-
-function readStaffIdFromStorage(): number | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem("staffInfo");
-    if (!raw) return null;
-    const j = JSON.parse(raw) as { staffId?: unknown };
-    const id = j.staffId;
-    return typeof id === "number" && Number.isFinite(id) ? id : null;
-  } catch {
-    return null;
-  }
-}
+import { readStaffIdFromStorage } from "@/lib/staffSession";
 
 export default function DashboardClient() {
   const [onlyMyPatients, setOnlyMyPatients] = useState(false);

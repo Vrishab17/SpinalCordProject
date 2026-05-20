@@ -1,55 +1,88 @@
 "use client";
 
+import type { CSSProperties, ReactNode } from "react";
+
+type TotalsClassification = Record<string, unknown>;
+
 type Props = {
-  result: any;
-
-  topDown: boolean;
-
-  setTopDown: React.Dispatch<React.SetStateAction<boolean>>;
-
+  result: unknown;
   onCalculate: () => void;
-
-  onExportPDF: () => void;
+  motorPreview: {
+    ur: number;
+    ul: number;
+    uems: number;
+    lr: number;
+    ll: number;
+    lems: number;
+  };
+  /** Dermatome totals shown under ZPP (main form passes computed strings). */
+  columnTotals: {
+    right: { ur: string; lr: string; lt: string; pp: string };
+    left: { ul: string; ll: string; lt: string; pp: string };
+  };
 };
 
-function get(obj: any, paths: string[]) {
+const NAVY = "#15284C";
+const BORDER = "#D6D6D6";
+
+function get(obj: unknown, paths: string[]): string {
   for (const path of paths) {
-    const value = path.split(".").reduce((acc, key) => acc?.[key], obj);
-    if (value !== undefined && value !== null && value !== "") return value;
+    const value = path.split(".").reduce(
+      (acc: unknown, key) =>
+        acc != null && typeof acc === "object"
+          ? (acc as Record<string, unknown>)[key]
+          : undefined,
+      obj
+    );
+    if (value !== undefined && value !== null && value !== "") {
+      return String(value);
+    }
   }
   return "";
 }
 
-function ResultBox({ value, wide = false }: { value: any; wide?: boolean }) {
+function ResultBox({
+  value,
+  wide = false,
+}: {
+  value: unknown;
+  wide?: boolean;
+}) {
   return (
     <span
       style={{
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        width: wide ? "100px" : "48px",
-        height: "28px",
-        border: "1px solid #AEB4BE",
-        backgroundColor: "#E5E5E5",
-        color: "#15284C",
+        minWidth: wide ? "72px" : "44px",
+        height: "32px",
+        padding: wide ? "0 10px" : "0 6px",
+        border: `1px solid ${BORDER}`,
+        backgroundColor: "#FFFFFF",
+        borderRadius: "6px",
+        color: NAVY,
         fontSize: "13px",
         fontWeight: 500,
+        fontFamily: "inherit",
       }}
     >
-      {value ?? ""}
+      {String(value ?? "")}
     </span>
   );
 }
 
 export default function ResultsPanel({
   result,
-  topDown,
-  setTopDown,
   onCalculate,
-  onExportPDF,
+  motorPreview,
+  columnTotals,
 }: Props) {
-  const c = result?.classification ?? {};
-  const t = result?.totals ?? {};
+  const r = result as TotalsClassification | null | undefined;
+  const c = (r?.classification ?? {}) as TotalsClassification;
+  const t = (r?.totals ?? {}) as Record<string, unknown> & {
+    right?: Record<string, unknown>;
+    left?: Record<string, unknown>;
+  };
 
   const sensoryRight = get(c, [
     "neurologicalLevel.sensoryRight",
@@ -89,179 +122,321 @@ export default function ResultsPanel({
     "zoneOfPartialPreservation.motorLeft",
   ]);
 
+  const ltR = (t.right?.lightTouch ?? t.lightTouch ?? "") as unknown;
+  const ltL = (t.left?.lightTouch ?? "") as unknown;
+  const ltTotal = (t.lightTouch ?? "") as unknown;
+
+  const ppR = (t.right?.pinPrick ?? t.pinPrick ?? "") as unknown;
+  const ppL = (t.left?.pinPrick ?? "") as unknown;
+  const ppTotal = (t.pinPrick ?? "") as unknown;
+
+  const uerShow = (t.right?.upperExtremity ?? motorPreview.ur) as unknown;
+  const uelShow = (t.left?.upperExtremity ?? motorPreview.ul) as unknown;
+  const lerShow = (t.right?.lowerExtremity ?? motorPreview.lr) as unknown;
+  const lelShow = (t.left?.lowerExtremity ?? motorPreview.ll) as unknown;
+  const uemsShow = (t.upperExtremity ?? motorPreview.uems) as unknown;
+  const lemsShow = (t.lowerExtremity ?? motorPreview.lems) as unknown;
+
+  const primaryBtn: CSSProperties = {
+    padding: "10px 14px",
+    backgroundColor: NAVY,
+    border: `1px solid ${NAVY}`,
+    borderRadius: "6px",
+    color: "#FFFFFF",
+    fontSize: "13px",
+    fontWeight: 600,
+    fontFamily: "inherit",
+    cursor: "pointer",
+  };
+
   return (
     <aside
       style={{
-        width: "330px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        color: "#15284C",
-        backgroundColor: "#F6F4EC",
-        fontSize: "16px",
-        transform: "scale(0.88)",
-        transformOrigin: "top left",
+        minHeight: 0,
+        backgroundColor: "#FFFFFF",
+        borderLeft: `1px solid ${BORDER}`,
+        color: NAVY,
+        fontSize: "14px",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
+          flex: 1,
+          overflow: "auto",
+          padding: "20px 22px",
           display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          marginBottom: "20px",
+          flexDirection: "column",
+          gap: "18px",
         }}
       >
-        <label
+        <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "3px",
-            fontSize: "13px",
-            fontWeight: 600,
+            justifyContent: "space-between",
+            gap: "10px",
+            flexWrap: "wrap",
           }}
         >
-          <input
-            type="checkbox"
-            checked={topDown}
-            onChange={(e) => setTopDown(e.target.checked)}
-          />
-          Top-down
-        </label>
+          <p style={{ margin: 0, fontSize: "12px", color: "#5C667A", flex: "1 1 160px", lineHeight: 1.4 }}>
+            Each score fills every level below it in that column automatically (top-down scoring).
+          </p>
+          <button type="button" onClick={onCalculate} style={primaryBtn}>
+            Update
+          </button>
+        </div>
 
-        <button
-          onClick={onCalculate}
+        <Section title="Motor subscores">
+          <div style={{ fontSize: "13px", lineHeight: 1.9 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+              <span style={{ minWidth: "36px", fontWeight: 600 }}>UER</span>
+              <ResultBox value={uerShow} />
+              <span>+</span>
+              <span style={{ fontWeight: 600 }}>UEL</span>
+              <ResultBox value={uelShow} />
+              <span>=</span>
+              <span style={{ fontWeight: 600 }}>UEMS</span>
+              <ResultBox value={uemsShow} />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "6px",
+                alignItems: "center",
+                marginTop: "6px",
+              }}
+            >
+              <span style={{ minWidth: "36px", fontWeight: 600 }}>LER</span>
+              <ResultBox value={lerShow} />
+              <span>+</span>
+              <span style={{ fontWeight: 600 }}>LEL</span>
+              <ResultBox value={lelShow} />
+              <span>=</span>
+              <span style={{ fontWeight: 600 }}>LEMS</span>
+              <ResultBox value={lemsShow} />
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Sensory subscores">
+          <div style={{ fontSize: "13px", lineHeight: 1.9 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center" }}>
+              <span style={{ fontWeight: 600 }}>LTR</span>
+              <ResultBox value={ltR !== "" ? ltR : "—"} />
+              <span>+</span>
+              <span style={{ fontWeight: 600 }}>LTL</span>
+              <ResultBox value={ltL !== "" ? ltL : "—"} />
+              <span>=</span>
+              <span style={{ fontWeight: 600 }}>LT Total</span>
+              <ResultBox value={ltTotal !== "" ? ltTotal : "—"} wide />
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center", marginTop: "6px" }}>
+              <span style={{ fontWeight: 600 }}>PPR</span>
+              <ResultBox value={ppR !== "" ? ppR : "—"} />
+              <span>+</span>
+              <span style={{ fontWeight: 600 }}>PPL</span>
+              <ResultBox value={ppL !== "" ? ppL : "—"} />
+              <span>=</span>
+              <span style={{ fontWeight: 600 }}>PP Total</span>
+              <ResultBox value={ppTotal !== "" ? ppTotal : "—"} wide />
+            </div>
+          </div>
+        </Section>
+
+        <div
           style={{
-            height: "32px",
-            padding: "0 12px",
-            backgroundColor: "#2D3E5E",
-            color: "#fff",
-            border: "none",
-            fontSize: "13px",
-            cursor: "pointer",
+            marginTop: "32px",
+            paddingTop: "24px",
+            borderTop: `1px solid ${BORDER}`,
           }}
         >
-          Calculate
-        </button>
-        <button
-          type="button"
-          onClick={onExportPDF}
-          style={{
-            height: "32px",
-            padding: "0 12px",
-            backgroundColor: "#FFFFFF",
-            color: "#2D3E5E",
-            border: "1px solid #2D3E5E",
-            fontSize: "13px",
-            cursor: "pointer",
-          }}
-        >
-          Export PDF
-        </button>
-      </div>
-      <h2 style={{ margin: "0 0 14px", fontSize: "28px", fontWeight: 700 }}>
-        Classification
-      </h2>
-      <div
-        style={{
-          display: "flex",
+          <Section title="Neurological levels (steps 1–6)">
+            <Step n={1} label="Sensory">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "24px 1fr 1fr",
+                gap: "6px",
+                alignItems: "center",
+              }}
+            >
+              <span />
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>R</span>
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>L</span>
+              <span />
+              <ResultBox value={sensoryRight} />
+              <ResultBox value={sensoryLeft} />
+            </div>
+          </Step>
+          <Step n={2} label="Motor">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "24px 1fr 1fr",
+                gap: "6px",
+                alignItems: "center",
+              }}
+            >
+              <span />
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>R</span>
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>L</span>
+              <span />
+              <ResultBox value={motorRight} />
+              <ResultBox value={motorLeft} />
+            </div>
+          </Step>
+          <Step n={3} label="Neurological level of injury (NLI)">
+            <ResultBox value={nli} wide />
+          </Step>
+          <Step n={4} label="Complete or incomplete?">
+            <ResultBox value={complete} wide />
+          </Step>
+          <Step n={5} label="ASIA Impairment Scale (AIS)">
+            <ResultBox value={ais} wide />
+          </Step>
+          <Step n={6} label="Zone of partial preservation">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "70px 1fr 1fr",
+                gap: "6px",
+                alignItems: "center",
+              }}
+            >
+              <span />
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>R</span>
+              <span style={{ fontSize: "12px", fontWeight: 700 }}>L</span>
+              <span style={{ fontSize: "12px" }}>Sensory</span>
+              <ResultBox value={zppSensoryRight} />
+              <ResultBox value={zppSensoryLeft} />
+              <span style={{ fontSize: "12px" }}>Motor</span>
+              <ResultBox value={zppMotorRight} />
+              <ResultBox value={zppMotorLeft} />
+            </div>
+          </Step>
 
-          flexDirection: "column",
-
-          justifyContent: "space-between",
-
-          flex: 1,
-        }}
-      >
-        <Section title="Neurological Levels">
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "90px 60px 60px",
-              gap: "4px",
-              alignItems: "center",
+              marginTop: "20px",
+              paddingTop: "18px",
+              borderTop: `1px solid ${BORDER}`,
+              display: "flex",
+              flexDirection: "column",
+              gap: "22px",
+              width: "100%",
+              boxSizing: "border-box",
             }}
           >
-            <span></span>
-            <strong>R</strong>
-            <strong>L</strong>
-
-            <span>Sensory</span>
-            <ResultBox value={sensoryRight} />
-            <ResultBox value={sensoryLeft} />
-
-            <span>Motor</span>
-            <ResultBox value={motorRight} />
-            <ResultBox value={motorLeft} />
+            <div style={{ width: "100%" }}>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  color: NAVY,
+                  marginBottom: "12px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                RIGHT TOTALS
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                  gap: "12px 10px",
+                  width: "100%",
+                  fontSize: "15px",
+                  lineHeight: 1.45,
+                  color: NAVY,
+                }}
+              >
+                <span style={{ minWidth: 0 }}>
+                  UER{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.right.ur}
+                  </strong>
+                  <span style={{ color: "#6B7280", fontSize: "14px" }}> /25</span>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  LER{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.right.lr}
+                  </strong>
+                  <span style={{ color: "#6B7280", fontSize: "14px" }}> /25</span>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  LT{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.right.lt}
+                  </strong>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  PP{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.right.pp}
+                  </strong>
+                </span>
+              </div>
+            </div>
+            <div style={{ width: "100%" }}>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  color: NAVY,
+                  marginBottom: "12px",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                LEFT TOTALS
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                  gap: "12px 10px",
+                  width: "100%",
+                  fontSize: "15px",
+                  lineHeight: 1.45,
+                  color: NAVY,
+                }}
+              >
+                <span style={{ minWidth: 0 }}>
+                  UEL{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.left.ul}
+                  </strong>
+                  <span style={{ color: "#6B7280", fontSize: "14px" }}> /25</span>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  LEL{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.left.ll}
+                  </strong>
+                  <span style={{ color: "#6B7280", fontSize: "14px" }}> /25</span>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  LT{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.left.lt}
+                  </strong>
+                </span>
+                <span style={{ minWidth: 0 }}>
+                  PP{" "}
+                  <strong style={{ fontSize: "18px", fontWeight: 700 }}>
+                    {columnTotals.left.pp}
+                  </strong>
+                </span>
+              </div>
+            </div>
           </div>
         </Section>
-
-        <Section title="Injury Classification">
-          <div style={{ display: "grid", gap: "10px" }}>
-            <Row label="NLI" value={nli} wide />
-            <Row label="Complete?" value={complete} wide />
-            <Row label="AIS" value={ais} wide />
-          </div>
-        </Section>
-
-        <Section title="Zone of Partial Preservation">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "90px 60px 60px",
-              gap: "4px",
-              alignItems: "center",
-            }}
-          >
-            <span></span>
-            <strong>R</strong>
-            <strong>L</strong>
-
-            <span>Sensory</span>
-            <ResultBox value={zppSensoryRight} />
-            <ResultBox value={zppSensoryLeft} />
-
-            <span>Motor</span>
-            <ResultBox value={zppMotorRight} />
-            <ResultBox value={zppMotorLeft} />
-          </div>
-        </Section>
-
-        <Section title="Sub-scores">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "95px 60px 60px 60px",
-              gap: "4px",
-              alignItems: "center",
-            }}
-          >
-            <span></span>
-            <strong>R</strong>
-            <strong>L</strong>
-            <strong>Total</strong>
-
-            <span>UEMS</span>
-            <ResultBox value={t?.right?.upperExtremity} />
-            <ResultBox value={t?.left?.upperExtremity} />
-            <ResultBox value={t?.upperExtremity} />
-
-            <span>LEMS</span>
-            <ResultBox value={t?.right?.lowerExtremity} />
-            <ResultBox value={t?.left?.lowerExtremity} />
-            <ResultBox value={t?.lowerExtremity} />
-
-            <span>LT</span>
-            <ResultBox value={t?.right?.lightTouch} />
-            <ResultBox value={t?.left?.lightTouch} />
-            <ResultBox value={t?.lightTouch} />
-
-            <span>PP</span>
-            <ResultBox value={t?.right?.pinPrick} />
-            <ResultBox value={t?.left?.pinPrick} />
-            <ResultBox value={t?.pinPrick} />
-          </div>
-        </Section>
+        </div>
       </div>
     </aside>
   );
@@ -272,16 +447,17 @@ function Section({
   children,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <section>
       <h3
         style={{
-          margin: "0 0 14px",
-          fontSize: "22px",
+          margin: "0 0 10px",
+          fontSize: "14px",
           fontWeight: 700,
-          color: "#15284C",
+          color: NAVY,
+          letterSpacing: "0.02em",
         }}
       >
         {title}
@@ -291,19 +467,28 @@ function Section({
   );
 }
 
-function Row({
+function Step({
+  n,
   label,
-  value,
-  wide = false,
+  children,
 }: {
+  n: number;
   label: string;
-  value: any;
-  wide?: boolean;
+  children: ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-      <span style={{ width: "90px" }}>{label}</span>
-      <ResultBox value={value} wide={wide} />
+    <div style={{ marginBottom: "12px" }}>
+      <div
+        style={{
+          fontSize: "12px",
+          fontWeight: 700,
+          color: "#4B5563",
+          marginBottom: "6px",
+        }}
+      >
+        {n}. {label}
+      </div>
+      {children}
     </div>
   );
 }

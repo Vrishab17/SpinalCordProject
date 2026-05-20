@@ -1,5 +1,5 @@
 import { PDFDocument, rgb, StandardFonts, degrees } from "pdf-lib";
-import { getLoggedInStaff } from "@/lib/auth";
+import { getLoggedInStaff } from "./auth";
 
 const LEVELS = [
   "C2",
