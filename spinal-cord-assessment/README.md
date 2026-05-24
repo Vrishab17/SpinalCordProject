@@ -73,7 +73,7 @@ Login uses `Staff` + `Staff Credentials` (bcrypt password hash), not Supabase Au
 To hash plain-text passwords already in the DB (one-off dev helper):
 
 ```http
-POST /api/hash-existing-passwords
+Visit: http://localhost:3000/api/hash-existing-passwords
 ```
 
 (Create credentials via SQL only on non-production environments.)
