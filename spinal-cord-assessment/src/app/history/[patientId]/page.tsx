@@ -49,7 +49,7 @@ type ExamRow = {
 
 type ClassificationResultRow = {
   EXAMexam_id: number;
-  als_grade: string | null;
+  ais_grade: string | null;
 };
 
 type StaffNameRow = {
@@ -66,7 +66,7 @@ const SEL = {
   address: "PATIENTpatient_id,line1,line2,suburb,city,postal_code,country",
   assessment: "assessment_id,assessment_date,status,STAFFstaff_id",
   exam: "exam_id,ASSESSMENTassessment_id",
-  classification_result: "EXAMexam_id,als_grade",
+  classification_result: "EXAMexam_id,ais_grade",
   staff_name: "STAFFstaff_id,prefix,given_name,family_name",
 } as const;
 
@@ -252,9 +252,9 @@ export default async function Page({ params }: Props) {
     });
   }
 
-  // ── AIS grade: Assessment → Exam → Classification Result (als_grade) ──
+  // ── AIS grade: Assessment → Exam → Classification Result (ais_grade) ──
   const assessmentIds = assessments.map((a) => a.assessment_id);
-  const alsGradeByAssessmentId = new Map<string, string | null>();
+  const aisGradeByAssessmentId = new Map<string, string | null>();
 
   if (assessmentIds.length > 0) {
     const { data: examRows } = await supabase
@@ -278,14 +278,14 @@ export default async function Page({ params }: Props) {
         .select(SEL.classification_result)
         .in("EXAMexam_id", examIds);
 
-      const alsByExam = new Map<number, string | null>();
+      const aisByExam = new Map<number, string | null>();
       for (const row of classRows ?? []) {
         const cr = row as ClassificationResultRow;
-        alsByExam.set(cr.EXAMexam_id, cr.als_grade);
+        aisByExam.set(cr.EXAMexam_id, cr.ais_grade);
       }
 
       for (const [assessmentId, examId] of bestExamByAssessment) {
-        alsGradeByAssessmentId.set(assessmentId, alsByExam.get(examId) ?? null);
+        aisGradeByAssessmentId.set(assessmentId, aisByExam.get(examId) ?? null);
       }
     }
   }
@@ -346,7 +346,7 @@ export default async function Page({ params }: Props) {
     clinicianName: formatClinicianFromStaffName(
       a.STAFFstaff_id != null ? staffNameById.get(a.STAFFstaff_id) : undefined
     ),
-    alsGrade: alsGradeByAssessmentId.get(a.assessment_id) ?? null,
+    alsGrade: aisGradeByAssessmentId.get(a.assessment_id) ?? null,
   }));
 
   // ─── Render ───────────────────────────────────────────────────────────────

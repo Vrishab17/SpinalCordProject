@@ -4,7 +4,14 @@ import {
   generateRandomLlnnAssessmentId,
 } from "./assessmentId";
 import { persistExamData } from "./assessmentExamData";
+import {
+  clearPatientInjuryContext,
+  formatInjuryNotes,
+  readPatientInjuryContext,
+} from "./patientInjuryContext";
 import { supabase } from "./supabaseClient";
+
+export { persistClassificationAndTotals } from "./classificationPersistence";
 
 export type PersistMode = "draft" | "final";
 
@@ -43,18 +50,119 @@ async function allocateDraftId(): Promise<number> {
   return 1;
 }
 
-async function allocateClassificationId(): Promise<number> {
+async function allocateFinalId(): Promise<number> {
   const { data, error } = await supabase
-    .from("Classification Result")
-    .select("classification_id")
-    .order("classification_id", { ascending: false })
+    .from("Final Assessment")
+    .select("final_id")
+    .order("final_id", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
-  const max = data?.classification_id;
+  const max = data?.final_id;
   if (typeof max === "number" && Number.isFinite(max)) return max + 1;
   return 1;
+}
+
+function injuryDateForNewAssessment(patientNhi: string | null): string | null {
+  if (!patientNhi) return null;
+  const ctx = readPatientInjuryContext(patientNhi);
+  const raw = ctx?.dateOfInjury?.trim();
+  if (!raw) return null;
+  return raw.length >= 10 ? raw.slice(0, 10) : raw;
+}
+
+async function upsertDraftAssessmentRow(opts: {
+  assessmentId: AssessmentId;
+  staffId: number;
+  mode: PersistMode;
+  patientNhi: string | null;
+  isoNow: string;
+}): Promise<void> {
+  const injuryCtx =
+    opts.patientNhi != null ? readPatientInjuryContext(opts.patientNhi) : null;
+  const injuryNotes = injuryCtx ? formatInjuryNotes(injuryCtx) : null;
+
+  const { data: draftRow } = await supabase
+    .from("Draft Assessment")
+    .select("draft_id")
+    .eq("ASSESSMENTassessment_id", opts.assessmentId)
+    .maybeSingle();
+
+  if (opts.mode === "draft") {
+    if (draftRow) {
+      const { error } = await supabase
+        .from("Draft Assessment")
+        .update({
+          last_saved_at: opts.isoNow,
+          is_current_draft: "true",
+          STAFFstaff_id: opts.staffId,
+          ...(injuryNotes ? { notes: injuryNotes } : {}),
+        })
+        .eq("ASSESSMENTassessment_id", opts.assessmentId);
+      if (error) throw new Error(error.message);
+    } else {
+      const draft_id = await allocateDraftId();
+      const { error } = await supabase.from("Draft Assessment").insert({
+        draft_id,
+        ASSESSMENTassessment_id: opts.assessmentId,
+        last_saved_at: opts.isoNow,
+        is_current_draft: "true",
+        STAFFstaff_id: opts.staffId,
+        notes: injuryNotes,
+      });
+      if (error) throw new Error(error.message);
+    }
+    return;
+  }
+
+  await supabase
+    .from("Draft Assessment")
+    .update({ is_current_draft: "false" })
+    .eq("ASSESSMENTassessment_id", opts.assessmentId);
+}
+
+async function upsertFinalAssessmentRow(opts: {
+  assessmentId: AssessmentId;
+  staffId: number;
+  isoNow: string;
+  patientNhi: string | null;
+}): Promise<void> {
+  const injuryCtx =
+    opts.patientNhi != null ? readPatientInjuryContext(opts.patientNhi) : null;
+  const injuryNotes = injuryCtx ? formatInjuryNotes(injuryCtx) : null;
+
+  const { data: existing } = await supabase
+    .from("Final Assessment")
+    .select("final_id")
+    .eq("ASSESSMENTassessment_id", opts.assessmentId)
+    .maybeSingle();
+
+  if (existing?.final_id != null) {
+    const { error } = await supabase
+      .from("Final Assessment")
+      .update({
+        is_current_final: "true",
+        finalised_at: opts.isoNow,
+        STAFFstaff_id: opts.staffId,
+        notes: injuryNotes,
+      })
+      .eq("ASSESSMENTassessment_id", opts.assessmentId);
+    if (error) throw new Error(error.message);
+    return;
+  }
+
+  const final_id = await allocateFinalId();
+  const { error } = await supabase.from("Final Assessment").insert({
+    final_id,
+    ASSESSMENTassessment_id: opts.assessmentId,
+    STAFFstaff_id: opts.staffId,
+    version_number: 1,
+    is_current_final: "true",
+    finalised_at: opts.isoNow,
+    notes: injuryNotes,
+  });
+  if (error) throw new Error(error.message);
 }
 
 /**
@@ -68,6 +176,7 @@ export async function persistAssessmentToDatabase(opts: {
   existingAssessmentId: AssessmentId | null;
   exam: UiExam;
   comments: string;
+  patientNhi?: string | null;
 }): Promise<{ assessmentId: AssessmentId }> {
   const isoNow = new Date().toISOString();
   const dateOnly = isoNow.slice(0, 10);
@@ -102,37 +211,22 @@ export async function persistAssessmentToDatabase(opts: {
 
     if (error) throw new Error(error.message);
 
-    if (opts.mode === "draft") {
-      const { data: draftRow } = await supabase
-        .from("Draft Assessment")
-        .select("draft_id")
-        .eq("ASSESSMENTassessment_id", id)
-        .maybeSingle();
+    await upsertDraftAssessmentRow({
+      assessmentId: id,
+      staffId: opts.staffId,
+      mode: opts.mode,
+      patientNhi: opts.patientNhi ?? null,
+      isoNow,
+    });
 
-      if (draftRow) {
-        await supabase
-          .from("Draft Assessment")
-          .update({
-            last_saved_at: isoNow,
-            is_current_draft: "true",
-            STAFFstaff_id: opts.staffId,
-          })
-          .eq("ASSESSMENTassessment_id", id);
-      } else {
-        const draft_id = await allocateDraftId();
-        await supabase.from("Draft Assessment").insert({
-          draft_id,
-          ASSESSMENTassessment_id: id,
-          last_saved_at: isoNow,
-          is_current_draft: "true",
-          STAFFstaff_id: opts.staffId,
-        });
-      }
-    } else {
-      await supabase
-        .from("Draft Assessment")
-        .update({ is_current_draft: "false" })
-        .eq("ASSESSMENTassessment_id", id);
+    if (opts.mode === "final") {
+      await upsertFinalAssessmentRow({
+        assessmentId: id,
+        staffId: opts.staffId,
+        isoNow,
+        patientNhi: opts.patientNhi ?? null,
+      });
+      if (opts.patientNhi) clearPatientInjuryContext(opts.patientNhi);
     }
 
     await persistExamData({
@@ -145,6 +239,7 @@ export async function persistAssessmentToDatabase(opts: {
   }
 
   const assessment_id = await allocateAssessmentId();
+  const injuryDate = injuryDateForNewAssessment(opts.patientNhi ?? null);
 
   const { data, error } = await supabase
     .from("Assessment")
@@ -155,6 +250,7 @@ export async function persistAssessmentToDatabase(opts: {
       status,
       STAFFstaff_id: opts.staffId,
       current_version: 1,
+      ...(injuryDate ? { injury_date: injuryDate } : {}),
     })
     .select("assessment_id")
     .single();
@@ -162,16 +258,22 @@ export async function persistAssessmentToDatabase(opts: {
   if (error) throw new Error(error.message);
   const assessmentId = data.assessment_id as AssessmentId;
 
-  if (opts.mode === "draft") {
-    const draft_id = await allocateDraftId();
-    const { error: dErr } = await supabase.from("Draft Assessment").insert({
-      draft_id,
-      ASSESSMENTassessment_id: assessmentId,
-      last_saved_at: isoNow,
-      is_current_draft: "true",
-      STAFFstaff_id: opts.staffId,
+  await upsertDraftAssessmentRow({
+    assessmentId,
+    staffId: opts.staffId,
+    mode: opts.mode,
+    patientNhi: opts.patientNhi ?? null,
+    isoNow,
+  });
+
+  if (opts.mode === "final") {
+    await upsertFinalAssessmentRow({
+      assessmentId,
+      staffId: opts.staffId,
+      isoNow,
+      patientNhi: opts.patientNhi ?? null,
     });
-    if (dErr) throw new Error(dErr.message);
+    if (opts.patientNhi) clearPatientInjuryContext(opts.patientNhi);
   }
 
   await persistExamData({
@@ -181,54 +283,4 @@ export async function persistAssessmentToDatabase(opts: {
   });
 
   return { assessmentId };
-}
-
-/**
- * Links a finalised assessment's exam to a `Classification Result` so patient
- * history can show AIS (see `history/[patientId]/page.tsx`).
- */
-export async function persistExamAndClassification(opts: {
-  assessmentId: AssessmentId;
-  alsGrade: string;
-}): Promise<void> {
-  const { data: examRow, error: exFindErr } = await supabase
-    .from("Exam")
-    .select("exam_id")
-    .eq("ASSESSMENTassessment_id", opts.assessmentId)
-    .order("exam_id", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (exFindErr) throw new Error(exFindErr.message);
-  if (!examRow?.exam_id) {
-    throw new Error("Exam data missing for this assessment.");
-  }
-
-  const examId = examRow.exam_id as number;
-
-  const { data: existingClass } = await supabase
-    .from("Classification Result")
-    .select("classification_id")
-    .eq("EXAMexam_id", examId)
-    .maybeSingle();
-
-  if (existingClass?.classification_id != null) {
-    const { error: crErr } = await supabase
-      .from("Classification Result")
-      .update({ als_grade: opts.alsGrade })
-      .eq("classification_id", existingClass.classification_id);
-    if (crErr) throw new Error(crErr.message);
-    return;
-  }
-
-  const classification_id = await allocateClassificationId();
-
-  const { error: crErr } = await supabase
-    .from("Classification Result")
-    .insert({
-      classification_id,
-      EXAMexam_id: examId,
-      als_grade: opts.alsGrade,
-    });
-  if (crErr) throw new Error(crErr.message);
 }

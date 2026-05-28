@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import { supabase } from "@/lib/supabaseClient";
 import AuthGuard from "@/components/AuthGuard";
 import { getLoggedInStaff } from "@/lib/auth";
+import { savePatientInjuryContext } from "@/lib/patientInjuryContext";
 
 type FormData = {
   firstName: string;
@@ -151,14 +152,10 @@ export default function ConfirmPatientContent() {
     year: "numeric",
   }).format(new Date());
 
-  async function handleRegisterPatient() {
-    if (!consent || saving) return;
-
-    setSaving(true);
-    setSaveError(null);
-    setSaveMessage(null);
-
-    try {
+  async function registerPatientToDatabase(): Promise<{
+    patientId: number;
+    nhi: string;
+  }> {
       const nowIso = new Date().toISOString();
       const todayDate = nowIso.split("T")[0];
 
@@ -167,7 +164,7 @@ export default function ConfirmPatientContent() {
       const nextContactId = await getNextId("Patient Contact", "contact_id");
       const nextAddressId = await getNextId("Patient Address", "address_id");
       const nextNhiIdentifierId = patientFormData.nhiNumber
-        ? await getNextId("Patient NHI Identifier", "nhi_identifer_id")
+        ? await getNextId("Patient NHI Identifier", "nhi_identifier_id")
         : null;
 
       const genderValue =
@@ -180,35 +177,23 @@ export default function ConfirmPatientContent() {
           : null;
 
       const fhirPatientId = `fhir-patient-${crypto.randomUUID()}`;
-      console.log("=== DEBUG START ===");
-      console.log("Full form data:", patientFormData);
-      console.log("DOB:", patientFormData.dateOfBirth);
-      console.log("Ethnicity:", patientFormData.ethnicity);
-      console.log("=== DEBUG END ===");
-      const { data: insertedPatient, error: patientInsertError } =
-        await supabase
-          .from("Patient")
-          .insert([
-            {
-              patient_id: patientId,
-              nhi_number: patientFormData.nhiNumber || null,
-              date_of_birth: patientFormData.dateOfBirth || null,
-              ethnicity: patientFormData.ethnicity || null,
-              gender: genderValue,
-              nz_citizenship_status:
-                patientFormData.nzCitizenshipStatus || null,
-              place_of_birth: patientFormData.placeOfBirth || null,
-              date_of_death: null,
-              created_at: todayDate,
-              is_active: true,
-              fhir_patient_id: fhirPatientId,
-            },
-          ])
-          .select("*")
-          .single();
+      const normalizedNhi = patientFormData.nhiNumber.trim().toUpperCase();
 
-      console.log("INSERTED PATIENT:", insertedPatient);
-      console.log("INSERT ERROR:", patientInsertError);
+      const { error: patientInsertError } = await supabase.from("Patient").insert([
+        {
+          patient_id: patientId,
+          nhi_number: normalizedNhi || null,
+          date_of_birth: patientFormData.dateOfBirth || null,
+          ethnicity: patientFormData.ethnicity || null,
+          gender: genderValue,
+          nz_citizenship_status: patientFormData.nzCitizenshipStatus || null,
+          place_of_birth: patientFormData.placeOfBirth || null,
+          date_of_death: null,
+          created_at: todayDate,
+          is_active: "true",
+          fhir_patient_id: fhirPatientId,
+        },
+      ]);
 
       if (patientInsertError) {
         throw new Error(`Patient insert failed: ${patientInsertError.message}`);
@@ -222,7 +207,7 @@ export default function ConfirmPatientContent() {
             PATIENTpatient_id: patientId,
             family_name: patientFormData.lastName || null,
             given_name: patientFormData.firstName || null,
-            preffered_name: patientFormData.preferredName || null,
+            preferred_name: patientFormData.preferredName || null,
             prefix: patientFormData.prefix || null,
             suffix: null,
             created_at: todayDate,
@@ -291,9 +276,9 @@ export default function ConfirmPatientContent() {
           .from("Patient NHI Identifier")
           .insert([
             {
-              nhi_identifer_id: nextNhiIdentifierId,
+              nhi_identifier_id: nextNhiIdentifierId,
               PATIENTpatient_id: patientId,
-              nhi_number: patientFormData.nhiNumber,
+              nhi_number: normalizedNhi,
               nhi_use: "official",
               assigned_at: todayDate,
               linked_at: todayDate,
@@ -308,7 +293,27 @@ export default function ConfirmPatientContent() {
         }
       }
 
+      if (normalizedNhi) {
+        savePatientInjuryContext(normalizedNhi, {
+          dateOfInjury: patientFormData.dateOfInjury,
+          injuryCause: patientFormData.injuryCause,
+          notes: patientFormData.notes,
+        });
+      }
+
       sessionStorage.removeItem("new_patient_form_data");
+      return { patientId, nhi: normalizedNhi };
+  }
+
+  async function handleRegisterPatient() {
+    if (!consent || saving) return;
+
+    setSaving(true);
+    setSaveError(null);
+    setSaveMessage(null);
+
+    try {
+      await registerPatientToDatabase();
       router.push("/dashboard");
     } catch (error) {
       const message =
@@ -321,8 +326,25 @@ export default function ConfirmPatientContent() {
     }
   }
 
-  function handleRegisterAndStartAssessment() {
-    alert("Register & Start Assessment is not wired yet.");
+  async function handleRegisterAndStartAssessment() {
+    if (!consent || saving) return;
+
+    setSaving(true);
+    setSaveError(null);
+    setSaveMessage(null);
+
+    try {
+      const { nhi } = await registerPatientToDatabase();
+      router.push(`/assessment?nhi=${encodeURIComponent(nhi)}`);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
+      setSaveError(message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -592,7 +614,7 @@ export default function ConfirmPatientContent() {
               <button
                 type="button"
                 disabled={!consent || saving}
-                onClick={handleRegisterAndStartAssessment}
+                onClick={() => void handleRegisterAndStartAssessment()}
                 style={{
                   minWidth: "260px",
                   height: "48px",

@@ -10,9 +10,8 @@ import BodyDiagram from "./BodyDiagram";
 import ResultsPanel from "./ResultsPanel";
 import {
   persistAssessmentToDatabase,
-  persistExamAndClassification,
+  persistClassificationAndTotals,
 } from "@/lib/persistAssessment";
-import { extractAisGradeFromResult } from "@/lib/extractAisGrade";
 import { readStaffIdFromStorage } from "@/lib/staffSession";
 import {
   LEVELS,
@@ -463,20 +462,18 @@ export default function AssessmentForm({
         existingAssessmentId: linkedAssessmentId,
         exam,
         comments,
+        patientNhi: nhi,
       });
       setLinkedAssessmentId(assessmentId);
       onAssessmentIdChange?.(assessmentId);
 
       const calculated = tryComputeClassification(exam);
       if (calculated) {
-        const aisGrade = extractAisGradeFromResult(calculated);
-        if (aisGrade) {
-          await persistExamAndClassification({
-            assessmentId,
-            alsGrade: aisGrade,
-          });
-          setResult(calculated);
-        }
+        await persistClassificationAndTotals({
+          assessmentId,
+          result: calculated,
+        });
+        setResult(calculated);
       }
 
       showSaveSuccess();
@@ -505,14 +502,6 @@ export default function AssessmentForm({
     if (!calculated) return;
     setResult(calculated);
 
-    const aisGrade = extractAisGradeFromResult(calculated);
-    if (!aisGrade) {
-      showSaveError(
-        "Could not read AIS grade from the classification. Use Update, then try again."
-      );
-      return;
-    }
-
     setSaving(true);
     try {
       const { assessmentId } = await persistAssessmentToDatabase({
@@ -522,10 +511,11 @@ export default function AssessmentForm({
         existingAssessmentId: linkedAssessmentId,
         exam,
         comments,
+        patientNhi: nhi,
       });
-      await persistExamAndClassification({
+      await persistClassificationAndTotals({
         assessmentId,
-        alsGrade: aisGrade,
+        result: calculated,
       });
       setLinkedAssessmentId(assessmentId);
       onAssessmentIdChange?.(assessmentId);

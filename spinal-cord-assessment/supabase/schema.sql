@@ -226,7 +226,7 @@ CREATE TABLE "Classification Result" (
   nli_motor_left character varying,
   neurological_level_of_injury character varying,
   injury_complete character varying,
-  als_grade character varying,
+  ais_grade character varying,
   zpp_sensory_right character varying,
   zpp_sensory_left character varying,
   zpp_motor_right character varying,
