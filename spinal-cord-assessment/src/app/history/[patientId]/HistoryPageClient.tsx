@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Header from "@/components/layout/Header";
-import { supabase } from "@/lib/supabaseClient";
-import { normalizeNhi } from "@/lib/nhi";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
 import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
 
@@ -16,20 +14,6 @@ type PatientRow = {
   nz_citizenship_status: string | null;
   ethnicity: string | null;
   place_of_birth: string | null;
-};
-
-type PatientNameRow = {
-  given_name: string | null;
-  family_name: string | null;
-};
-
-type PatientAddressRow = {
-  line1: string | null;
-  line2: string | null;
-  suburb: string | null;
-  city: string | null;
-  postal_code: number | null;
-  country: string | null;
 };
 
 const NAVY = "#15284C";
@@ -78,181 +62,32 @@ export default function HistoryPageClient() {
       setError(null);
 
       const numericId = Number(patientIdParam);
-      const isNumeric =
-        Number.isInteger(numericId) && !Number.isNaN(numericId);
+      if (!Number.isInteger(numericId) || Number.isNaN(numericId)) {
+        setError("History route expects numeric patient_id.");
+        setLoading(false);
+        return;
+      }
 
       try {
-        let patientRow: PatientRow | null = null;
-
-        if (isNumeric) {
-          const { data, error: pErr } = await supabase
-            .from("Patient")
-            .select(
-              "patient_id,nhi_number,date_of_birth,gender,nz_citizenship_status,place_of_birth,ethnicity"
-            )
-            .eq("patient_id", numericId)
-            .maybeSingle();
-          if (pErr) throw new Error(pErr.message);
-          patientRow = data as PatientRow | null;
-        } else {
-          const { data, error: pErr } = await supabase
-            .from("Patient")
-            .select(
-              "patient_id,nhi_number,date_of_birth,gender,nz_citizenship_status,place_of_birth,ethnicity"
-            )
-            .eq("nhi_number", normalizeNhi(patientIdParam))
-            .maybeSingle();
-          if (pErr) throw new Error(pErr.message);
-          patientRow = data as PatientRow | null;
-        }
-
-        if (!patientRow) {
-          if (!cancelled) {
-            setError(`No patient found for: ${patientIdParam}`);
-            setLoading(false);
-          }
-          return;
-        }
-
-        const pid = patientRow.patient_id;
-
-        const [nameRes, addressRes, assessRes] = await Promise.all([
-          supabase
-            .from("Patient Name")
-            .select("given_name,family_name")
-            .eq("PATIENTpatient_id", pid)
-            .limit(1)
-            .maybeSingle(),
-          supabase
-            .from("Patient Address")
-            .select("line1,line2,suburb,city,postal_code,country")
-            .eq("PATIENTpatient_id", pid)
-            .limit(1)
-            .maybeSingle(),
-          supabase
-            .from("Assessment")
-            .select("assessment_id,assessment_date,status,STAFFstaff_id")
-            .eq("PATIENTpatient_id", pid)
-            .order("assessment_date", { ascending: false }),
-        ]);
-
-        if (assessRes.error) throw new Error(assessRes.error.message);
-
-        const name = nameRes.data as PatientNameRow | null;
-        const address = addressRes.data as PatientAddressRow | null;
-        const assessRows = assessRes.data ?? [];
-
-        const staffIds = [
-          ...new Set(
-            assessRows
-              .map((a) => a.STAFFstaff_id as number | null)
-              .filter((id): id is number => id != null)
-          ),
-        ];
-
-        const staffNameById = new Map<
-          number,
-          { prefix: string | null; given_name: string | null; family_name: string | null }
-        >();
-
-        if (staffIds.length > 0) {
-          const { data: staffRows } = await supabase
-            .from("Staff Name")
-            .select("STAFFstaff_id,prefix,given_name,family_name")
-            .in("STAFFstaff_id", staffIds);
-          for (const row of staffRows ?? []) {
-            const r = row as {
-              STAFFstaff_id: number;
-              prefix: string | null;
-              given_name: string | null;
-              family_name: string | null;
-            };
-            staffNameById.set(r.STAFFstaff_id, r);
-          }
-        }
-
-        const assessmentIds = assessRows.map(
-          (a) => a.assessment_id as string
-        );
-        const aisByAssessment = new Map<string, string | null>();
-
-        if (assessmentIds.length > 0) {
-          const { data: examRows } = await supabase
-            .from("Exam")
-            .select("exam_id,ASSESSMENTassessment_id")
-            .in("ASSESSMENTassessment_id", assessmentIds);
-
-          const bestExam = new Map<string, number>();
-          for (const row of examRows ?? []) {
-            const e = row as { exam_id: number; ASSESSMENTassessment_id: string };
-            const prev = bestExam.get(e.ASSESSMENTassessment_id);
-            if (prev === undefined || e.exam_id > prev) {
-              bestExam.set(e.ASSESSMENTassessment_id, e.exam_id);
-            }
-          }
-
-          const examIds = [...bestExam.values()];
-          if (examIds.length > 0) {
-            const { data: classRows } = await supabase
-              .from("Classification Result")
-              .select("EXAMexam_id,ais_grade")
-              .in("EXAMexam_id", examIds);
-
-            const aisByExam = new Map<number, string | null>();
-            for (const row of classRows ?? []) {
-              const cr = row as { EXAMexam_id: number; ais_grade: string | null };
-              aisByExam.set(cr.EXAMexam_id, cr.ais_grade);
-            }
-            for (const [aid, eid] of bestExam) {
-              aisByAssessment.set(aid, aisByExam.get(eid) ?? null);
-            }
-          }
-        }
-
-        const display: AssessmentDisplay[] = assessRows.map((a) => {
-          const sid = a.STAFFstaff_id as number | null;
-          const sn = sid != null ? staffNameById.get(sid) : undefined;
-          const fam = sn?.family_name?.trim() ?? "";
-          const given = sn?.given_name?.trim() ?? "";
-          const prefix = (sn?.prefix?.trim() || "Dr").replace(/\.$/, "");
-          const initial = given ? `${given[0]}.` : "";
-          const clinician =
-            fam || given
-              ? `${prefix} ${initial} ${fam}`.replace(/\s+/g, " ").trim()
-              : "Unassigned";
-
-          return {
-            assessment_id: a.assessment_id as string,
-            assessment_date: a.assessment_date as string | null,
-            status: a.status as string | null,
-            clinicianName: clinician,
-            alsGrade: aisByAssessment.get(a.assessment_id as string) ?? null,
-          };
+        const res = await fetch(`/api/history/${numericId}`, {
+          credentials: "include",
         });
-
-        const nm =
-          name && (name.family_name || name.given_name)
-            ? `${name.family_name ?? ""}${
-                name.family_name && name.given_name ? ", " : ""
-              }${name.given_name ?? ""}`
-            : "Unknown";
-
-        const lines: string[] = address
-          ? [
-              address.line1,
-              address.line2,
-              address.suburb,
-              address.city,
-              address.country,
-              address.postal_code != null ? String(address.postal_code) : null,
-            ].filter((v): v is string => v != null && v.trim() !== "")
-          : [];
+        const body = (await res.json()) as {
+          patient?: PatientRow;
+          fullName?: string;
+          addressLines?: string[];
+          assessments?: AssessmentDisplay[];
+          error?: string;
+        };
+        if (!res.ok || !body.patient) {
+          throw new Error(body.error ?? "Failed to load patient history");
+        }
 
         if (!cancelled) {
-          setPatient(patientRow);
-          setFullName(nm);
-          setAddressLines(lines);
-          setAssessments(display);
+          setPatient(body.patient);
+          setFullName(body.fullName ?? "Unknown");
+          setAddressLines(body.addressLines ?? []);
+          setAssessments(body.assessments ?? []);
           setLoading(false);
         }
       } catch (e) {

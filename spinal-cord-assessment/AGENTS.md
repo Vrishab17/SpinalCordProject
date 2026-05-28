@@ -143,3 +143,49 @@ Do not replace it with an image, remove it, or change its `data-level` colouring
 - Dashboard assessments: authenticated dashboard widgets call `/api/dashboard/recent-assessments` and `/api/dashboard/upcoming-reviews`, so they are not blocked by anon RLS.
 - Patient search/new assessment: `PatientSearch` calls `/api/patients/search`; `AssessmentNewClient` calls `/api/assessment/context`.
 - Save draft/final: `AssessmentForm` calls `persistAssessmentToDatabase`, which posts to `/api/assessments/save`; that route uses `getSupabaseAdmin()` plus the staff session cookie.
+
+## Supabase Audit Map
+
+Current direct `supabase` browser-client imports:
+
+- `src/lib/supabaseClient.ts`: creates the anon/publishable browser client from `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, falling back to `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- `src/lib/patientInjuryClient.ts`: legacy client helper for `Patient Injury`; not used by active assessment flow.
+- `src/lib/assessmentExamData.ts`: legacy client helper for `Assessment`, `Patient`, `Exam`, `Exam Side`, `Motor Score`, `Light Touch Score`, and `Pin Prick Score`; active load/save now uses API routes instead.
+
+Current `getSupabaseAdmin()` API/server entry points:
+
+- `src/app/api/test/route.ts`: local-only health route. Counts `Patient`, `Assessment`, `Staff`, `Staff Credentials`, `Staff Name`, `Exam`, and `Classification Result`.
+- `src/app/api/hash-existing-passwords/route.ts`: local-only credential migration route. Reads/updates `Staff Credentials`.
+- `src/app/api/login/route.ts`: reads `Staff Credentials`, bcrypt-validates `password_hash`, reads `Staff Name`, and sets `sca_staff_session`.
+- `src/app/api/auth/session/route.ts`: reads only the staff session cookie; no DB.
+- `src/app/api/auth/logout/route.ts`: clears only the staff session cookie; no DB.
+- `src/app/api/dashboard/recent-assessments/route.ts`: reads `Assessment`, `Patient`, and `Patient Name`; returns `patientId` from `Assessment.PATIENTpatient_id`.
+- `src/app/api/dashboard/upcoming-reviews/route.ts`: reads `Assessment`, `Patient`, and `Patient Name`; returns `patientId` from `Assessment.PATIENTpatient_id`.
+- `src/app/api/patients/search/route.ts`: reads `Patient`, `Patient Name`, and `GP Enrollment` by NHI; returns numeric `Patient.patient_id` as `id`.
+- `src/app/api/patients/assessment-detail/route.ts`: reads `Patient` and `Patient Name` by NHI for PDF export patient fields.
+- `src/app/api/patients/register/route.ts`: via `registerPatientOnServer`, inserts `Patient`, `Patient Name`, `Patient Contact`, `Patient Address`, `Patient NHI Identifier`, `Patient Injury`, and `Audit Log`.
+- `src/app/api/assessment/context/route.ts`: loads either by LLNN `assessment_id` or NHI. Reads `Assessment`, `Patient`, `Patient Name`, `Patient Address`, `Patient Injury`, `Exam`, `Exam Side`, `Motor Score`, `Light Touch Score`, and `Pin Prick Score`.
+- `src/app/api/assessments/save/route.ts`: saves draft/final using `persistAssessmentOnServer`; writes `Assessment`, `Assessment Version`, `Draft Assessment`, `Final Assessment`, `Patient Injury`, `Exam`, `Exam Side`, score tables, optional `Classification Result`, optional `Assessment Totals`, and `Audit Log`.
+- `src/app/api/history/[patientId]/route.ts`: numeric patient history route. Reads `Patient`, `Patient Name`, `Patient Address`, `Assessment`, `Staff Name`, `Exam`, and `Classification Result`.
+
+ID expectations:
+
+- `/history/[patientId]`: numeric `Patient.patient_id` only. It must not receive NHI or assessment ID.
+- Dashboard recent/upcoming row `patientId`: always `Assessment.PATIENTpatient_id`.
+- `/assessment?assessmentId=LLNN`: loads an existing assessment by LLNN `Assessment.assessment_id`.
+- `/assessment?nhi=ABC1234`: starts a new assessment from NHI; the context API resolves it to `Patient.patient_id` before saving.
+- `AssessmentForm` save payload: sends numeric `patientId`, optional LLNN `existingAssessmentId`, exam state, comments, dates, and optional classification result.
+- Staff identity: numeric `Staff.staff_id` comes from `Staff Credentials.STAFFstaff_id` and is stored in cookie/sessionStorage as `staffId`.
+
+Flow checks:
+
+- Dashboard: `DashboardClient` sets clinician scope from sessionStorage staff info; `RecentAssessments` and `UpcomingReviews` fetch authenticated API payloads. Row clicks call `router.push('/history/' + row.patientId)`.
+- History: `HistoryPageClient` treats the route param as numeric `Patient.patient_id` and fetches `/api/history/[patientId]`; it no longer does browser anon Supabase reads.
+- Patient search: `PatientSearch` fetches `/api/patients/search?nhi=...`; View History routes to `/history/${patient.id}` and New Assessment routes to `/assessment?nhi=...`.
+- Assessment load: `AssessmentNewClient` fetches `/api/assessment/context`, fills the patient bar and form state, then `AssessmentForm` posts saves through `/api/assessments/save`.
+
+Known risks:
+
+- `patientInjuryClient.ts` and `assessmentExamData.ts` are legacy browser-client helpers and should not be reintroduced into active RLS-protected flows.
+- `.env` contains local secrets and must not be committed or printed.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` is the preferred browser key; `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is fallback only.

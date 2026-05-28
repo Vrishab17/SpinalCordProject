@@ -6,6 +6,8 @@ const TABLES = [
   "Staff",
   "Staff Credentials",
   "Staff Name",
+  "Exam",
+  "Classification Result",
 ] as const;
 
 export async function GET() {
