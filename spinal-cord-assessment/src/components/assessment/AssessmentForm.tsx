@@ -9,11 +9,11 @@ import { ISNCSCI, Exam as ISNCSCIExam } from "isncsci";
 import BodyDiagram from "./BodyDiagram";
 import ResultsPanel from "./ResultsPanel";
 import {
-  persistAssessmentToDatabase,
-  persistExamAndClassification,
-} from "@/lib/persistAssessment";
-import { extractAisGradeFromResult } from "@/lib/extractAisGrade";
-import { readStaffIdFromStorage } from "@/lib/staffSession";
+  formatAssessmentDateDisplay,
+  formatAssessmentTimestampDisplay,
+} from "@/lib/assessmentDates";
+import { persistAssessmentToDatabase } from "@/lib/persistAssessment";
+import { getLoggedInStaff } from "@/lib/auth";
 import {
   LEVELS,
   LOWER_MOTOR_LEVELS,
@@ -232,6 +232,10 @@ type AssessmentFormProps = {
   initialAssessmentId?: string | null;
   initialExam?: UiExam | null;
   initialComments?: string;
+  initialInjuryDate?: string;
+  initialReviewDate?: string;
+  initialCreatedAt?: string | null;
+  initialUpdatedAt?: string | null;
   readOnly?: boolean;
   onAssessmentIdChange?: (assessmentId: string) => void;
 };
@@ -242,6 +246,10 @@ export default function AssessmentForm({
   initialAssessmentId = null,
   initialExam = null,
   initialComments = "",
+  initialInjuryDate = "",
+  initialReviewDate = "",
+  initialCreatedAt = null,
+  initialUpdatedAt = null,
   readOnly = false,
   onAssessmentIdChange,
 }: AssessmentFormProps) {
@@ -253,10 +261,18 @@ export default function AssessmentForm({
   const [exam, setExam] = useState<UiExam>(initialExam ?? defaultExam);
   const [result, setResult] = useState<unknown>(null);
   const [comments, setComments] = useState(initialComments);
+  const [injuryDate, setInjuryDate] = useState(initialInjuryDate);
+  const [reviewDate, setReviewDate] = useState(initialReviewDate);
+  const [createdAt, setCreatedAt] = useState<string | null>(initialCreatedAt);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(initialUpdatedAt);
   const [linkedAssessmentId, setLinkedAssessmentId] = useState<string | null>(
     initialAssessmentId
   );
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "offline" | "error"
+  >("idle");
+  const [saveStatusDetail, setSaveStatusDetail] = useState("");
   const [saveFeedback, setSaveFeedback] = useState<
     { type: "success" } | { type: "error"; message: string } | null
   >(null);
@@ -284,6 +300,18 @@ export default function AssessmentForm({
   useEffect(() => {
     setComments(initialComments);
   }, [initialComments]);
+
+  useEffect(() => {
+    setInjuryDate(initialInjuryDate);
+    setReviewDate(initialReviewDate);
+    setCreatedAt(initialCreatedAt);
+    setUpdatedAt(initialUpdatedAt);
+  }, [
+    initialInjuryDate,
+    initialReviewDate,
+    initialCreatedAt,
+    initialUpdatedAt,
+  ]);
 
   useEffect(() => {
     if (!readOnly) return;
@@ -441,7 +469,7 @@ export default function AssessmentForm({
     return true;
   }
 
-  async function handleSaveDraft() {
+  async function runSave(mode: "draft" | "final") {
     if (readOnly) return;
     if (patientId == null) {
       showSaveError(
@@ -449,92 +477,71 @@ export default function AssessmentForm({
       );
       return;
     }
-    const staffId = readStaffIdFromStorage();
-    if (!staffId) {
+    if (!getLoggedInStaff()) {
       showSaveError("You must be logged in to save.");
       return;
     }
+
+    let classificationResult: unknown;
+    if (mode === "final") {
+      const calculated = computeClassification();
+      if (!calculated) return;
+      setResult(calculated);
+      classificationResult = calculated;
+    } else {
+      const calculated = tryComputeClassification(exam);
+      if (calculated) {
+        classificationResult = calculated;
+        setResult(calculated);
+      }
+    }
+
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setSaveStatus("offline");
+      setSaveStatusDetail("You appear to be offline. Reconnect and save again.");
+      return;
+    }
+
     setSaving(true);
+    setSaveStatus("saving");
+    setSaveStatusDetail("Saving to database…");
+
     try {
-      const { assessmentId } = await persistAssessmentToDatabase({
+      const saved = await persistAssessmentToDatabase({
         patientId,
-        staffId,
-        mode: "draft",
+        mode,
         existingAssessmentId: linkedAssessmentId,
         exam,
         comments,
+        injuryDate,
+        reviewDate,
+        classificationResult,
       });
-      setLinkedAssessmentId(assessmentId);
-      onAssessmentIdChange?.(assessmentId);
-
-      const calculated = tryComputeClassification(exam);
-      if (calculated) {
-        const aisGrade = extractAisGradeFromResult(calculated);
-        if (aisGrade) {
-          await persistExamAndClassification({
-            assessmentId,
-            alsGrade: aisGrade,
-          });
-          setResult(calculated);
-        }
-      }
-
+      setLinkedAssessmentId(saved.assessmentId);
+      setCreatedAt(saved.createdAt);
+      setUpdatedAt(saved.updatedAt);
+      onAssessmentIdChange?.(saved.assessmentId);
+      setSaveStatus("saved");
+      setSaveStatusDetail(
+        `Saved v${saved.versionNumber} at ${formatAssessmentTimestampDisplay(saved.updatedAt)}`
+      );
       showSaveSuccess();
     } catch (e) {
-      showSaveError(e instanceof Error ? e.message : "Could not save draft.");
+      const message = e instanceof Error ? e.message : "Could not save.";
+      setSaveStatus("error");
+      setSaveStatusDetail(message);
+      showSaveError(message);
     } finally {
       setSaving(false);
     }
   }
 
+  async function handleSaveDraft() {
+    await runSave("draft");
+  }
+
   async function handleSaveFinal() {
-    if (readOnly) return;
-    if (patientId == null) {
-      showSaveError(
-        "Open this assessment with a patient NHI (from Patient Search) so it can be saved to that patient."
-      );
-      return;
-    }
-    const staffId = readStaffIdFromStorage();
-    if (!staffId) {
-      showSaveError("You must be logged in to save.");
-      return;
-    }
-
-    const calculated = computeClassification();
-    if (!calculated) return;
-    setResult(calculated);
-
-    const aisGrade = extractAisGradeFromResult(calculated);
-    if (!aisGrade) {
-      showSaveError(
-        "Could not read AIS grade from the classification. Use Update, then try again."
-      );
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const { assessmentId } = await persistAssessmentToDatabase({
-        patientId,
-        staffId,
-        mode: "final",
-        existingAssessmentId: linkedAssessmentId,
-        exam,
-        comments,
-      });
-      await persistExamAndClassification({
-        assessmentId,
-        alsGrade: aisGrade,
-      });
-      setLinkedAssessmentId(assessmentId);
-      onAssessmentIdChange?.(assessmentId);
-      showSaveSuccess();
-    } catch (e) {
-      showSaveError(e instanceof Error ? e.message : "Could not save.");
-    } finally {
-      setSaving(false);
-    }
+    await runSave("final");
   }
 
   function updateClassification() {
@@ -778,6 +785,31 @@ export default function AssessmentForm({
               </button>
             )}
           </div>
+        </div>
+      ) : null}
+      {!readOnly && saveStatus !== "idle" ? (
+        <div
+          role="status"
+          style={{
+            padding: "8px 22px",
+            fontSize: 13,
+            fontWeight: 600,
+            color:
+              saveStatus === "saved"
+                ? "#15803D"
+                : saveStatus === "error" || saveStatus === "offline"
+                  ? "#DC2626"
+                  : NAVY,
+            backgroundColor:
+              saveStatus === "saved"
+                ? "#DCFCE7"
+                : saveStatus === "error" || saveStatus === "offline"
+                  ? "#FEF3F2"
+                  : "#E8EEF8",
+            borderBottom: `1px solid ${BORDER}`,
+          }}
+        >
+          {saveStatusDetail}
         </div>
       ) : null}
       <div
@@ -1097,6 +1129,130 @@ export default function AssessmentForm({
               boxSizing: "border-box",
             }}
           >
+            <h3
+              style={{
+                margin: "0 0 14px",
+                fontSize: "15px",
+                fontWeight: 700,
+                color: NAVY,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Assessment schedule
+            </h3>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: "16px",
+                marginBottom: "18px",
+              }}
+            >
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: NAVY,
+                }}
+              >
+                Date of injury
+                <input
+                  type="date"
+                  value={injuryDate}
+                  onChange={(e) => setInjuryDate(e.target.value)}
+                  readOnly={readOnly}
+                  disabled={readOnly}
+                  style={{
+                    ...selectStyle,
+                    minWidth: "unset",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    ...(readOnly
+                      ? { backgroundColor: "#F3F4F6", cursor: "not-allowed" }
+                      : {}),
+                  }}
+                />
+              </label>
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: NAVY,
+                }}
+              >
+                Next review date
+                <input
+                  type="date"
+                  value={reviewDate}
+                  onChange={(e) => setReviewDate(e.target.value)}
+                  readOnly={readOnly}
+                  disabled={readOnly}
+                  style={{
+                    ...selectStyle,
+                    minWidth: "unset",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    ...(readOnly
+                      ? { backgroundColor: "#F3F4F6", cursor: "not-allowed" }
+                      : {}),
+                  }}
+                />
+              </label>
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: NAVY,
+                }}
+              >
+                Created
+                <span
+                  style={{
+                    padding: "8px 10px",
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: "6px",
+                    backgroundColor: "#F3F4F6",
+                    fontSize: "13px",
+                    color: NAVY,
+                  }}
+                >
+                  {formatAssessmentTimestampDisplay(createdAt) || "—"}
+                </span>
+              </label>
+              <label
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: NAVY,
+                }}
+              >
+                Last updated
+                <span
+                  style={{
+                    padding: "8px 10px",
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: "6px",
+                    backgroundColor: "#F3F4F6",
+                    fontSize: "13px",
+                    color: NAVY,
+                  }}
+                >
+                  {formatAssessmentTimestampDisplay(updatedAt) || "—"}
+                </span>
+              </label>
+            </div>
             <label
               htmlFor="assessment-comments-main"
               style={{

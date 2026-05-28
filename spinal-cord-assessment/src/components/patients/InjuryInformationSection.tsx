@@ -84,6 +84,20 @@ export default function InjuryInformationSection({ formData, onChange }: Props) 
         </div>
 
         <div>
+          <label htmlFor="reviewDate" style={labelStyle}>
+            NEXT REVIEW DATE
+          </label>
+          <input
+            id="reviewDate"
+            name="reviewDate"
+            type="date"
+            value={formData.reviewDate}
+            onChange={onChange}
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
           <label htmlFor="injuryCause" style={labelStyle}>
             INJURY CAUSE
           </label>

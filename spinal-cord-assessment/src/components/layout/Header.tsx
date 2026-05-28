@@ -29,8 +29,8 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onMouseDown);
   }, [menuOpen]);
 
-  function handleLogout() {
-    logoutStaff();
+  async function handleLogout() {
+    await logoutStaff();
     setMenuOpen(false);
     setStaffName("");
     router.replace("/login");

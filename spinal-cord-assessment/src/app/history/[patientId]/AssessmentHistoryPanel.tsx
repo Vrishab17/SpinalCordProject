@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import AuthGuard from "@/components/AuthGuard";
 import TablePagination from "@/components/landing/TablePagination";
 
 const PAGE_SIZE = 12;
@@ -244,7 +243,6 @@ export default function AssessmentHistoryPanel({
   };
 
   return (
-    <AuthGuard>
       <div style={{ minWidth: 0 }}>
         <div
           style={{
@@ -653,6 +651,5 @@ export default function AssessmentHistoryPanel({
           />
         )}
       </div>
-    </AuthGuard>
   );
 }

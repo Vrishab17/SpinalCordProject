@@ -1,5 +1,5 @@
 /**
- * Reads AIS letter from an ISNCSCI calculation result for storage in `als_grade`.
+ * Reads AIS letter from an ISNCSCI calculation result for storage in `ais_grade`.
  */
 export function extractAisGradeFromResult(result: unknown): string | null {
   const r = result as { classification?: Record<string, unknown> } | undefined;
