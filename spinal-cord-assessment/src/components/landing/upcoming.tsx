@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import {
   DEFAULT_CLINICIAN_PATIENT_FILTER,
   type ClinicianPatientFilter,
@@ -103,95 +102,24 @@ export default function UpcomingReviews({
       setLoading(true);
       setError(null);
 
-      let assessmentQuery = supabase
-        .from("Assessment")
-        .select("assessment_id, PATIENTpatient_id, review_date, STAFFstaff_id")
-        .not("review_date", "is", null)
-        .order("review_date", { ascending: true });
-
-      if (clinicianPatientFilter.status === "mine") {
-        assessmentQuery = assessmentQuery.eq(
-          "STAFFstaff_id",
-          clinicianPatientFilter.staffId
-        );
-      }
-
-      const { data: assessmentData, error: assessmentError } = await assessmentQuery;
-
-      if (assessmentError) {
-        setError(`Upcoming reviews query failed: ${assessmentError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const latestPerPatient = new Map<number, AssessmentRow>();
-      for (const row of (assessmentData ?? []) as AssessmentRow[]) {
-        if (!latestPerPatient.has(row.PATIENTpatient_id)) {
-          latestPerPatient.set(row.PATIENTpatient_id, row);
-        }
-      }
-
-      const assessments = Array.from(latestPerPatient.values());
-
-      if (assessments.length === 0) {
-        setRows([]);
-        setLoading(false);
-        return;
-      }
-
-      const patientIds = [...new Set(assessments.map((a) => a.PATIENTpatient_id))];
-
-      const { data: patientData, error: patientError } = await supabase
-        .from("Patient")
-        .select("patient_id, nhi_number")
-        .in("patient_id", patientIds);
-
-      if (patientError) {
-        setError(`Patient query failed: ${patientError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const { data: patientNameData, error: patientNameError } = await supabase
-        .from("Patient Name")
-        .select("PATIENTpatient_id, given_name, family_name")
-        .in("PATIENTpatient_id", patientIds);
-
-      if (patientNameError) {
-        setError(`Patient Name query failed: ${patientNameError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const patients = (patientData ?? []) as PatientRow[];
-      const patientNames = (patientNameData ?? []) as PatientNameRow[];
-
-      const patientMap = new Map<number, PatientRow>();
-      patients.forEach((p) => patientMap.set(p.patient_id, p));
-
-      const nameMap = new Map<number, PatientNameRow>();
-      patientNames.forEach((n) => nameMap.set(n.PATIENTpatient_id, n));
-
-      const mappedRows: UpcomingReviewDisplay[] = assessments.map((assessment) => {
-        const patient = patientMap.get(assessment.PATIENTpatient_id);
-        const name = nameMap.get(assessment.PATIENTpatient_id);
-        const reviewDate = formatReviewDate(assessment.review_date);
-
-        return {
-          id: assessment.assessment_id,
-          patientId: assessment.PATIENTpatient_id,
-          nhi: patient?.nhi_number ?? "N/A",
-          patientName: name
-            ? `${name.given_name} ${name.family_name}`
-            : `Patient #${assessment.PATIENTpatient_id}`,
-          date: reviewDate.formatted,
-          isToday: reviewDate.isToday,
-          isOverdue: reviewDate.isOverdue,
-          reviewDateMs: reviewDate.reviewDateMs,
-        };
+      const params = new URLSearchParams({
+        scope: clinicianPatientFilter.status === "all" ? "all" : "mine",
       });
+      const res = await fetch(`/api/dashboard/upcoming-reviews?${params}`, {
+        credentials: "include",
+      });
+      const body = (await res.json()) as {
+        rows?: UpcomingReviewDisplay[];
+        error?: string;
+      };
 
-      setRows(mappedRows);
+      if (!res.ok) {
+        setError(body.error ?? "Upcoming reviews query failed");
+        setLoading(false);
+        return;
+      }
+
+      setRows(body.rows ?? []);
       setLoading(false);
     }
 

@@ -11,14 +11,21 @@ export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
+    if (typeof username !== "string" || typeof password !== "string") {
+      return NextResponse.json(
+        { error: "Invalid username or password" },
+        { status: 401 }
+      );
+    }
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("Staff Credentials")
       .select("username, password_hash, STAFFstaff_id")
-      .eq("username", username)
+      .eq("username", username.trim())
       .maybeSingle();
 
-    if (error || !data) {
+    if (error || !data || !data.password_hash) {
       return NextResponse.json(
         { error: "Invalid username or password" },
         { status: 401 }
@@ -53,7 +60,7 @@ export async function POST(request: Request) {
     const staff = {
       username: data.username,
       staffId: data.STAFFstaff_id as number,
-      fullName,
+      fullName: fullName || data.username,
     };
 
     const res = NextResponse.json(staff);

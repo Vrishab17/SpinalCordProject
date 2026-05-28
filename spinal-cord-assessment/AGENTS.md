@@ -105,3 +105,41 @@ Do not replace it with an image, remove it, or change its `data-level` colouring
 - Supabase schema/seed material lives under `supabase/`.
 - Static assets required at runtime are in `public/`, especially `diagram.svg` and `isncsci-template.pdf`.
 - Environment configuration must provide the Supabase values expected by `src/lib/supabaseClient.ts`.
+
+## Database Connection Map
+
+- Browser-safe Supabase client: `src/lib/supabaseClient.ts` uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Use it only for data that is intentionally readable under RLS.
+- Server/admin Supabase client: `src/lib/supabaseAdmin.ts` exposes `getSupabaseAdmin()` using `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Use it only in API routes/server helpers.
+- Admin-backed API reads now cover RLS-protected clinical data:
+  - `src/app/api/test/route.ts`
+  - `src/app/api/hash-existing-passwords/route.ts`
+  - `src/app/api/login/route.ts`
+  - `src/app/api/dashboard/recent-assessments/route.ts`
+  - `src/app/api/dashboard/upcoming-reviews/route.ts`
+  - `src/app/api/patients/search/route.ts`
+  - `src/app/api/patients/assessment-detail/route.ts`
+  - `src/app/api/assessment/context/route.ts`
+  - `src/app/api/assessments/save/route.ts`
+  - `src/app/api/patients/register/route.ts`
+
+## Login And Session Flow
+
+- Login posts to `src/app/api/login/route.ts`.
+- The login route uses `getSupabaseAdmin()`, reads `Staff Credentials`, verifies `password_hash` with `bcrypt.compare`, fetches `Staff Name`, returns `{ username, staffId, fullName }`, and sets the `sca_staff_session` HTTP-only cookie.
+- The login page also stores the returned staff object in `sessionStorage` as `staffInfo`.
+- `AuthGuard` first checks `sessionStorage`, then `/api/auth/session`; if the cookie is valid it restores `staffInfo`.
+- Save/register API routes require the server cookie through `requireStaffSession()`.
+
+## Local Database Test Routes
+
+- `GET /api/test` is local-only and returns 404 in production. It uses `getSupabaseAdmin()` and reports row counts/errors for `Patient`, `Assessment`, `Staff`, `Staff Credentials`, and `Staff Name`.
+- `GET /api/hash-existing-passwords` is local-only and returns 404 in production. It scans `Staff Credentials`, skips bcrypt hashes beginning `$2a$`, `$2b$`, or `$2y$`, hashes plaintext values with bcrypt, and returns scanned/hashed/skipped username summaries without returning passwords or hashes.
+
+## Verification Checklist
+
+- `/api/test`: start the dev server and visit/curl the route. `ok: true` means the service-role client and expected tables are reachable.
+- `/api/hash-existing-passwords`: run once locally after loading seed/plaintext credentials. A second run should normally show `hashed: 0` and all existing bcrypt credentials skipped.
+- Login: post to `/api/login` with a valid username/password; success returns staff identity and sets `sca_staff_session`.
+- Dashboard assessments: authenticated dashboard widgets call `/api/dashboard/recent-assessments` and `/api/dashboard/upcoming-reviews`, so they are not blocked by anon RLS.
+- Patient search/new assessment: `PatientSearch` calls `/api/patients/search`; `AssessmentNewClient` calls `/api/assessment/context`.
+- Save draft/final: `AssessmentForm` calls `persistAssessmentToDatabase`, which posts to `/api/assessments/save`; that route uses `getSupabaseAdmin()` plus the staff session cookie.

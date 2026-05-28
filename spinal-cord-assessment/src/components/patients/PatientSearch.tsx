@@ -3,8 +3,7 @@
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { normalizeNhi, validateNhiInput } from "@/lib/nhi";
-import { supabase } from "@/lib/supabaseClient";
+import { validateNhiInput } from "@/lib/nhi";
 
 const NAVY = "#15284C";
 const BORDER = "#D6D6D6";
@@ -47,7 +46,7 @@ function DetailRow({
 }) {
   return (
     <div
-      className="patient-search-page"
+      className="patient-detail-row"
       style={{
         display: "flex",
         justifyContent: "space-between",
@@ -138,55 +137,30 @@ export default function PatientSearch() {
     const normalized = nhiCheck.nhi;
 
     try {
-      const { data, error: supaError } = await supabase
-        .from("Patient")
-        .select("*")
-        .ilike("nhi_number", normalized)
-        .limit(1);
+      const response = await fetch(
+        `/api/patients/search?nhi=${encodeURIComponent(normalized)}`,
+        { credentials: "include" }
+      );
+      const result = (await response.json()) as {
+        patient?: Patient | null;
+        error?: string;
+      };
 
-      if (supaError) {
-        setError(
-          supaError.message ||
-            "Something went wrong while searching. Try again."
-        );
+      if (!response.ok) {
+        setError(result.error || "Something went wrong while searching. Try again.");
         setLoading(false);
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (!result.patient) {
         setError("No patient found in the database for this NHI number.");
         setLoading(false);
         return;
       }
 
-      const patientRow = data[0];
-
-      const [{ data: nameData }, { data: gpData }] = await Promise.all([
-        supabase
-          .from("Patient Name")
-          .select("given_name, family_name")
-          .eq("PATIENTpatient_id", patientRow.patient_id)
-          .limit(1),
-        supabase
-          .from("GP Enrollment")
-          .select("hpi_practitioner_id")
-          .eq("PATIENTpatient_id", patientRow.patient_id)
-          .limit(1),
-      ]);
-
-      const fullName = nameData?.[0]
-        ? `${nameData[0].given_name} ${nameData[0].family_name}`
-        : "Unknown";
-
-      const gp = gpData?.[0]?.hpi_practitioner_id ?? "Not assigned";
-
       setPatient({
-        id: patientRow.patient_id,
-        name: fullName,
-        nhi: patientRow.nhi_number,
-        dob: formatDate(patientRow.date_of_birth),
-        gender: patientRow.gender ?? "—",
-        gp: String(gp),
+        ...result.patient,
+        dob: formatDate(result.patient.dob),
       });
     } catch (err: unknown) {
       const message =

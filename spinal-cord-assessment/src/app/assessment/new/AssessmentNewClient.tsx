@@ -7,113 +7,50 @@ import AssessmentForm, {
   type UiExam,
 } from "@/components/assessment/AssessmentForm";
 import PatientAssessmentBar from "@/components/assessment/PatientAssessmentBar";
-import { supabase } from "@/lib/supabaseClient";
-import { loadPatientInjuryDates } from "@/lib/patientInjuryClient";
-import { normalizeNhi } from "@/lib/nhi";
-import { loadAssessmentContext } from "@/lib/assessmentExamData";
 import {
-  ASSESSMENT_NOT_FOUND_MESSAGE,
   assessmentIdParamLoadError,
   parseAssessmentIdParam,
 } from "@/lib/assessmentId";
 import AuthGuard from "@/components/AuthGuard";
 
-function formatNZDate(ds: string | null | undefined): string {
-  if (!ds) return "";
-  const d = new Date(ds);
-  if (Number.isNaN(d.getTime())) return ds;
-  return d.toLocaleDateString("en-NZ", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function ageFromDob(dob: string | null | undefined): string {
-  if (!dob) return "";
-  const birth = new Date(dob);
-  if (Number.isNaN(birth.getTime())) return "";
-  const today = new Date();
-  let y = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) y--;
-  return `${y} Years`;
-}
-
-async function loadPatientBar(nhi: string) {
-  const { data: patient, error } = await supabase
-    .from("Patient")
-    .select(
-      "patient_id,nhi_number,date_of_birth,gender,ethnicity,place_of_birth"
-    )
-    .eq("nhi_number", normalizeNhi(nhi))
-    .maybeSingle();
-
-  if (error || !patient) {
-    return {
-      patientId: null as number | null,
-      bar: {
-        name: "",
-        dob: "",
-        age: "",
-        gender: "",
-        ethnicity: "",
-        nhi: "",
-        address: "",
-      },
-    };
-  }
-
-  const pid = patient.patient_id as number;
-
-  const [nameRes, addrRes] = await Promise.all([
-    supabase
-      .from("Patient Name")
-      .select("given_name,family_name")
-      .eq("PATIENTpatient_id", pid)
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("Patient Address")
-      .select("line1,line2,suburb,city,postal_code,country")
-      .eq("PATIENTpatient_id", pid)
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const nm = nameRes.data as {
-    given_name?: string | null;
-    family_name?: string | null;
-  } | null;
-  const fullName =
-    nm && (nm.family_name || nm.given_name)
-      ? `${nm.family_name ?? ""}${nm.family_name && nm.given_name ? ", " : ""}${nm.given_name ?? ""}`.trim()
-      : "";
-
-  const ad = addrRes.data as Record<string, unknown> | null;
-  const addrParts = ad
-    ? [
-        ad.line1,
-        ad.line2,
-        ad.suburb,
-        ad.city,
-        ad.postal_code != null ? String(ad.postal_code) : null,
-        ad.country,
-      ].filter((x): x is string => typeof x === "string" && x.trim() !== "")
-    : [];
-
-  return {
-    patientId: pid,
-    bar: {
-      name: fullName,
-      dob: formatNZDate(patient.date_of_birth as string | null),
-      age: ageFromDob(patient.date_of_birth as string | null),
-      gender: String(patient.gender ?? ""),
-      ethnicity: String(patient.ethnicity ?? ""),
-      nhi: String(patient.nhi_number ?? ""),
-      address: addrParts.length > 0 ? addrParts.join(", ") : "",
-    },
+type AssessmentContextResponse = {
+  patientId: number | null;
+  resolvedNhi: string | null;
+  displayAssessmentId?: string | null;
+  initialExam: UiExam | null;
+  initialComments: string;
+  initialInjuryDate: string;
+  initialReviewDate: string;
+  initialCreatedAt: string | null;
+  initialUpdatedAt: string | null;
+  readOnly: boolean;
+  bar: {
+    name: string;
+    dob: string;
+    age: string;
+    gender: string;
+    ethnicity: string;
+    nhi: string;
+    address: string;
   };
+  error?: string;
+};
+
+async function loadAssessmentContextFromApi(params: {
+  assessmentId?: string | null;
+  nhi?: string | null;
+}): Promise<AssessmentContextResponse> {
+  const query = new URLSearchParams();
+  if (params.assessmentId) query.set("assessmentId", params.assessmentId);
+  if (params.nhi) query.set("nhi", params.nhi);
+  const res = await fetch(`/api/assessment/context?${query.toString()}`, {
+    credentials: "include",
+  });
+  const body = (await res.json()) as AssessmentContextResponse;
+  if (!res.ok) {
+    throw new Error(body.error || "Failed to load assessment.");
+  }
+  return body;
 }
 
 function AssessmentNewInner() {
@@ -192,62 +129,34 @@ function AssessmentNewInner() {
 
       try {
         if (assessmentId != null) {
-          const ctx = await loadAssessmentContext(assessmentId);
-          if (cancelled) return;
-
-          if (!ctx) {
-            setLoadError(ASSESSMENT_NOT_FOUND_MESSAGE);
-            setDisplayAssessmentId(null);
-            setPatientId(null);
-            setResolvedNhi(null);
-            setInitialExam(null);
-            setInitialComments("");
-            setInitialInjuryDate("");
-            setInitialReviewDate("");
-            setInitialCreatedAt(null);
-            setInitialUpdatedAt(null);
-            setReadOnly(false);
-            setFetching(false);
-            return;
-          }
-
-          const loaded = await loadPatientBar(ctx.nhi);
+          const ctx = await loadAssessmentContextFromApi({ assessmentId });
           if (cancelled) return;
 
           setPatientId(ctx.patientId);
-          setResolvedNhi(ctx.nhi);
-          setDisplayAssessmentId(ctx.assessmentId);
-          setInitialExam(ctx.exam);
-          setInitialComments(ctx.comments);
-          setInitialInjuryDate(ctx.injuryDate);
-          setInitialReviewDate(ctx.reviewDate);
-          setInitialCreatedAt(ctx.createdAt);
-          setInitialUpdatedAt(ctx.updatedAt);
-          setReadOnly(ctx.isFinalised);
-          setBar(loaded.bar);
+          setResolvedNhi(ctx.resolvedNhi);
+          setDisplayAssessmentId(ctx.displayAssessmentId ?? assessmentId);
+          setInitialExam(ctx.initialExam);
+          setInitialComments(ctx.initialComments);
+          setInitialInjuryDate(ctx.initialInjuryDate);
+          setInitialReviewDate(ctx.initialReviewDate);
+          setInitialCreatedAt(ctx.initialCreatedAt);
+          setInitialUpdatedAt(ctx.initialUpdatedAt);
+          setReadOnly(ctx.readOnly);
+          setBar(ctx.bar);
           setFetching(false);
           return;
         }
 
         if (nhiParam) {
-          const loaded = await loadPatientBar(nhiParam);
+          const loaded = await loadAssessmentContextFromApi({ nhi: nhiParam });
           if (cancelled) return;
 
-          let injuryDates = { injuryDate: "", reviewDate: "" };
-          if (loaded.patientId != null) {
-            try {
-              injuryDates = await loadPatientInjuryDates(loaded.patientId);
-            } catch {
-              // Patient Injury row may not exist yet
-            }
-          }
-
           setPatientId(loaded.patientId);
-          setResolvedNhi(normalizeNhi(nhiParam));
-          setInitialExam(null);
-          setInitialComments("");
-          setInitialInjuryDate(injuryDates.injuryDate);
-          setInitialReviewDate(injuryDates.reviewDate);
+          setResolvedNhi(loaded.resolvedNhi);
+          setInitialExam(loaded.initialExam);
+          setInitialComments(loaded.initialComments);
+          setInitialInjuryDate(loaded.initialInjuryDate);
+          setInitialReviewDate(loaded.initialReviewDate);
           setInitialCreatedAt(null);
           setInitialUpdatedAt(null);
           setReadOnly(false);

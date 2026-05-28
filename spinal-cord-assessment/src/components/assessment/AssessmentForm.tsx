@@ -2,7 +2,6 @@
 
 import { exportAssessmentPdf } from "@/lib/exportAssessmentPdf";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ISNCSCI, Exam as ISNCSCIExam } from "isncsci";
@@ -323,31 +322,17 @@ export default function AssessmentForm({
     async function loadPatient() {
       if (!nhi) return;
 
-      const { data: patientData, error: patientError } = await supabase
-        .from("Patient")
-        .select("*")
-        .eq("nhi_number", nhi)
-        .single();
-
-      if (patientError || !patientData) {
-        console.error("Could not load patient:", patientError);
+      const res = await fetch(
+        `/api/patients/assessment-detail?nhi=${encodeURIComponent(nhi)}`,
+        { credentials: "include" }
+      );
+      const body = (await res.json()) as { patient?: any; error?: string };
+      if (!res.ok || !body.patient) {
+        console.error("Could not load patient:", body.error);
         return;
       }
 
-      const { data: nameData, error: nameError } = await supabase
-        .from("Patient Name")
-        .select("*")
-        .eq("PATIENTpatient_id", patientData.patient_id)
-        .single();
-
-      if (nameError) {
-        console.error("Could not load patient name:", nameError);
-      }
-
-      setPatient({
-        ...patientData,
-        name: nameData,
-      });
+      setPatient(body.patient);
     }
 
     loadPatient();

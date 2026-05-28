@@ -7,7 +7,6 @@ import {
   NEW_PATIENT_STORAGE_KEY,
   writeNewPatientFormData,
 } from "@/lib/newPatientStorage";
-import { supabase } from "@/lib/supabaseClient";
 import PersonalDetailsSection from "./PersonalDetailsSection";
 import InjuryInformationSection from "./InjuryInformationSection";
 import NewPatientActions from "./NewPatientActions";
@@ -160,18 +159,23 @@ export default function NewPatientForm() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("Patient")
-        .select("patient_id, nhi_number")
-        .eq("nhi_number", nhiCheck.nhi)
-        .maybeSingle();
+      const response = await fetch(
+        `/api/patients/search?nhi=${encodeURIComponent(nhiCheck.nhi)}`,
+        { credentials: "include" }
+      );
+      const result = (await response.json()) as {
+        patient?: { id: number } | null;
+        error?: string;
+      };
 
-      if (error) {
-        setErrorMessage(`Could not validate NHI number: ${error.message}`);
+      if (!response.ok) {
+        setErrorMessage(
+          `Could not validate NHI number: ${result.error ?? "request failed"}`
+        );
         return;
       }
 
-      if (data) {
+      if (result.patient) {
         setErrorMessage(`A patient with NHI number ${nhiCheck.nhi} already exists.`);
         return;
       }
