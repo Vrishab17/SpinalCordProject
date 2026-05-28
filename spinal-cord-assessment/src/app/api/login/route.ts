@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabaseClient";
+import {
+  STAFF_SESSION_COOKIE,
+  staffSessionCookieOptions,
+  staffSessionJson,
+} from "@/lib/server/staffSession";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("Staff Credentials")
       .select("username, password_hash, STAFFstaff_id")
@@ -44,11 +50,19 @@ export async function POST(request: Request) {
       .filter(Boolean)
       .join(" ");
 
-    return NextResponse.json({
+    const staff = {
       username: data.username,
-      staffId: data.STAFFstaff_id,
+      staffId: data.STAFFstaff_id as number,
       fullName,
-    });
+    };
+
+    const res = NextResponse.json(staff);
+    res.cookies.set(
+      STAFF_SESSION_COOKIE,
+      staffSessionJson(staff),
+      staffSessionCookieOptions()
+    );
+    return res;
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },

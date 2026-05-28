@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { normalizeNhi, validateNhiInput } from "@/lib/nhi";
 import { supabase } from "@/lib/supabaseClient";
 
 const NAVY = "#15284C";
@@ -33,14 +34,6 @@ function formatDate(dateString: string) {
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
-}
-
-function normalizeNhi(raw: string): string {
-  return raw.trim().replace(/\s+/g, "").toUpperCase();
-}
-
-function isValidNhiFormat(normalized: string): boolean {
-  return /^[A-Z]{3}[0-9A-Z]{4}$/.test(normalized);
 }
 
 function DetailRow({
@@ -135,21 +128,13 @@ export default function PatientSearch() {
     setError(null);
     setPatient(null);
 
-    const normalized = normalizeNhi(nhi);
-
-    if (!normalized) {
-      setError("Enter an NHI number.");
+    const nhiCheck = validateNhiInput(nhi);
+    if (!nhiCheck.ok) {
+      setError(nhiCheck.message);
       setLoading(false);
       return;
     }
-
-    if (!isValidNhiFormat(normalized)) {
-      setError(
-        "That NHI doesn’t look valid. Use 7 characters: 3 letters followed by 4 letters or digits (e.g. ABC1234)."
-      );
-      setLoading(false);
-      return;
-    }
+    const normalized = nhiCheck.nhi;
 
     try {
       const { data, error: supaError } = await supabase

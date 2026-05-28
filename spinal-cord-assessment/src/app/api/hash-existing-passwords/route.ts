@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import { supabase } from "@/lib/supabaseClient";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   const { data, error } = await supabase
     .from("Staff Credentials")
     .select("username, password_hash");

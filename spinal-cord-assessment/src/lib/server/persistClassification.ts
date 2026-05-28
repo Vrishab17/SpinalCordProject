@@ -1,6 +1,6 @@
-import type { AssessmentId } from "./assessmentId";
-import { extractAisGradeFromResult } from "./extractAisGrade";
-import { supabase } from "./supabaseClient";
+import type { AssessmentId } from "@/lib/assessmentId";
+import { extractAisGradeFromResult } from "@/lib/extractAisGrade";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 type ClassificationPayload = {
   nli_sensory_right: string | null;
@@ -41,9 +41,7 @@ function str(value: unknown): string | null {
 }
 
 function mapClassificationResult(result: unknown): ClassificationPayload | null {
-  const r = result as {
-    classification?: Record<string, unknown>;
-  } | null;
+  const r = result as { classification?: Record<string, unknown> } | null;
   const c = r?.classification;
   if (!c || typeof c !== "object") return null;
 
@@ -100,30 +98,10 @@ function mapAssessmentTotals(result: unknown): TotalsPayload | null {
   };
 }
 
-async function nextNumericId(
-  table: "Classification Result" | "Assessment Totals",
-  column: "classification_id" | "totals_id"
-): Promise<number> {
-  const { data, error } = await supabase
-    .from(table)
-    .select(column)
-    .order(column, { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  const max = (data as Record<string, number> | null)?.[column];
-  if (typeof max === "number" && Number.isFinite(max)) return max + 1;
-  return 1;
-}
-
-/**
- * Persists ISNCSCI classification and dermatome totals for the latest exam on an assessment.
- */
-export async function persistClassificationAndTotals(opts: {
-  assessmentId: AssessmentId;
-  result: unknown;
-}): Promise<void> {
+export async function persistClassificationOnServer(
+  db: SupabaseClient,
+  opts: { assessmentId: AssessmentId; result: unknown }
+): Promise<void> {
   const classification = mapClassificationResult(opts.result);
   if (!classification?.ais_grade) {
     throw new Error("Could not read AIS grade from the classification result.");
@@ -131,7 +109,7 @@ export async function persistClassificationAndTotals(opts: {
 
   const totals = mapAssessmentTotals(opts.result);
 
-  const { data: examRow, error: exFindErr } = await supabase
+  const { data: examRow, error: exFindErr } = await db
     .from("Exam")
     .select("exam_id")
     .eq("ASSESSMENTassessment_id", opts.assessmentId)
@@ -146,25 +124,20 @@ export async function persistClassificationAndTotals(opts: {
 
   const examId = examRow.exam_id as number;
 
-  const { data: existingClass } = await supabase
+  const { data: existingClass } = await db
     .from("Classification Result")
     .select("classification_id")
     .eq("EXAMexam_id", examId)
     .maybeSingle();
 
   if (existingClass?.classification_id != null) {
-    const { error: crErr } = await supabase
+    const { error: crErr } = await db
       .from("Classification Result")
       .update(classification)
       .eq("classification_id", existingClass.classification_id);
     if (crErr) throw new Error(crErr.message);
   } else {
-    const classification_id = await nextNumericId(
-      "Classification Result",
-      "classification_id"
-    );
-    const { error: crErr } = await supabase.from("Classification Result").insert({
-      classification_id,
+    const { error: crErr } = await db.from("Classification Result").insert({
       EXAMexam_id: examId,
       ...classification,
     });
@@ -173,22 +146,20 @@ export async function persistClassificationAndTotals(opts: {
 
   if (!totals) return;
 
-  const { data: existingTotals } = await supabase
+  const { data: existingTotals } = await db
     .from("Assessment Totals")
     .select("totals_id")
     .eq("EXAMexam_id", examId)
     .maybeSingle();
 
   if (existingTotals?.totals_id != null) {
-    const { error: tErr } = await supabase
+    const { error: tErr } = await db
       .from("Assessment Totals")
       .update(totals)
       .eq("totals_id", existingTotals.totals_id);
     if (tErr) throw new Error(tErr.message);
   } else {
-    const totals_id = await nextNumericId("Assessment Totals", "totals_id");
-    const { error: tErr } = await supabase.from("Assessment Totals").insert({
-      totals_id,
+    const { error: tErr } = await db.from("Assessment Totals").insert({
       EXAMexam_id: examId,
       ...totals,
     });
