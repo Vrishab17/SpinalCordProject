@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/supabaseClient";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return Response.json({ error: "Not found" }, { status: 404 });
+  }
   // Count rows without fetching data. Works even if empty.
   // If RLS blocks anon reads, you'll get an error — that's still useful info.
   const { error, count } = await supabase

@@ -1,6 +1,5 @@
 "use client";
 
-import AuthGuard from "@/components/AuthGuard";
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/layout/Header";
 import Buttons from "@/components/landing/buttons";
@@ -24,7 +23,6 @@ export default function DashboardClient() {
   }, [showAllAssessments, staffId]);
 
   return (
-    <AuthGuard>
       <main
         className="dashboard-page"
         style={{
@@ -173,6 +171,5 @@ export default function DashboardClient() {
           </div>
         </div>
       </main>
-    </AuthGuard>
   );
 }

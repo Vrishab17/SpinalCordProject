@@ -1,5 +1,7 @@
 import type { UiExam, UiScore } from "@/components/assessment/AssessmentForm";
 import { LEVELS, MOTOR_LEVELS } from "@/components/assessment/examConstants";
+import { injuryDatesToFormInput, toDateOnly } from "./assessmentDates";
+import { loadPatientInjuryDates } from "./patientInjuryClient";
 import type { AssessmentId } from "./assessmentId";
 import { supabase } from "./supabaseClient";
 
@@ -70,6 +72,10 @@ export type LoadedAssessmentContext = {
   patientId: number;
   nhi: string;
   status: string;
+  injuryDate: string;
+  reviewDate: string;
+  createdAt: string | null;
+  updatedAt: string | null;
   exam: UiExam;
   comments: string;
   isFinalised: boolean;
@@ -80,7 +86,9 @@ export async function loadAssessmentContext(
 ): Promise<LoadedAssessmentContext | null> {
   const { data: assessment, error: aErr } = await supabase
     .from("Assessment")
-    .select("assessment_id, PATIENTpatient_id, status")
+    .select(
+      "assessment_id, PATIENTpatient_id, status, injury_date, review_date, created_at, updated_at"
+    )
     .eq("assessment_id", assessmentId)
     .maybeSingle();
 
@@ -102,11 +110,31 @@ export async function loadAssessmentContext(
   const status = String(assessment.status ?? "DRAFT");
   const upper = status.toUpperCase();
 
+  let injuryDate = toDateOnly(assessment.injury_date as string | null) ?? "";
+  let reviewDate = toDateOnly(assessment.review_date as string | null) ?? "";
+  if (!injuryDate && !reviewDate) {
+    try {
+      const fromPatient = await loadPatientInjuryDates(patientId);
+      injuryDate = fromPatient.injuryDate;
+      reviewDate = fromPatient.reviewDate;
+    } catch {
+      // non-fatal if injury table missing
+    }
+  } else {
+    const merged = injuryDatesToFormInput(injuryDate, reviewDate);
+    injuryDate = merged.injuryDate;
+    reviewDate = merged.reviewDate;
+  }
+
   return {
     assessmentId,
     patientId,
     nhi: patient.nhi_number as string,
     status,
+    injuryDate,
+    reviewDate,
+    createdAt: (assessment.created_at as string | null) ?? null,
+    updatedAt: (assessment.updated_at as string | null) ?? null,
     exam: examBundle?.exam ?? emptyUiExam(),
     comments: examBundle?.comments ?? "",
     isFinalised: upper === "FINALISED" || upper === "FINALIZED",

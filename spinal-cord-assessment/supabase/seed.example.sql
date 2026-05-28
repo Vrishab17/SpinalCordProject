@@ -10,11 +10,9 @@ INSERT INTO "Staff Name" ("STAFFstaff_id", family_name, given_name, preferred_na
 SELECT staff_id, 'Example', 'Alex', 'Alex', 'Dr'
 FROM "Staff" WHERE hpi_practitioner = 'HPI000000';
 
--- Credentials: use a bcrypt hash (never store plain text).
--- Generate via POST /api/hash-existing-passwords or an external bcrypt tool.
--- INSERT INTO "Staff Credentials" ("STAFFstaff_id", username, password_hash)
--- SELECT staff_id, 'alex.example', '$2a$10$REPLACE_WITH_BCRYPT_HASH'
--- FROM "Staff" WHERE hpi_practitioner = 'HPI000000';
+-- Dev login (see also seed.mwalker.sql):
+--   username: mwalker
+--   password: password
 
 -- Patient
 INSERT INTO "Patient" (nhi_number, date_of_birth, gender, ethnicity, is_active)

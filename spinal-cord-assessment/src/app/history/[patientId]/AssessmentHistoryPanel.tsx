@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import AuthGuard from "@/components/AuthGuard";
 import TablePagination from "@/components/landing/TablePagination";
 
 const PAGE_SIZE = 12;
@@ -244,10 +243,8 @@ export default function AssessmentHistoryPanel({
   };
 
   return (
-    <AuthGuard>
-      <div className="history-assessment-panel" style={{ minWidth: 0 }}>
+      <div style={{ minWidth: 0 }}>
         <div
-          className="history-panel-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -261,7 +258,7 @@ export default function AssessmentHistoryPanel({
             Assessment History
           </h2>
 
-          <div className="history-panel-actions" style={{ display: "flex", gap: 12 }}>
+          <div style={{ display: "flex", gap: 12 }}>
             <Link
               href={`/assessment?nhi=${encodeURIComponent(nhiNumber)}`}
               style={{
@@ -568,7 +565,6 @@ export default function AssessmentHistoryPanel({
         </div>
 
         <div
-          className="history-table-scroll"
           style={{
             border: `1px solid ${BORDER}`,
             borderRadius: "6px",
@@ -576,9 +572,8 @@ export default function AssessmentHistoryPanel({
             overflow: "hidden",
           }}
         >
-              <div
-                className="history-table-header"
-                style={{
+          <div
+            style={{
               display: "grid",
               gridTemplateColumns: "1fr 1.8fr 2fr 1.2fr 1.4fr 90px",
               padding: "13px 20px",
@@ -608,7 +603,6 @@ export default function AssessmentHistoryPanel({
           ) : (
             paginatedVisible.map((a) => (
               <div
-                className="history-table-row"
                 key={a.assessment_id}
                 style={{
                   display: "grid",
@@ -657,6 +651,5 @@ export default function AssessmentHistoryPanel({
           />
         )}
       </div>
-    </AuthGuard>
   );
 }

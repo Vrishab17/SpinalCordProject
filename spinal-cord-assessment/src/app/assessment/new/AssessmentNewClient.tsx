@@ -8,6 +8,8 @@ import AssessmentForm, {
 } from "@/components/assessment/AssessmentForm";
 import PatientAssessmentBar from "@/components/assessment/PatientAssessmentBar";
 import { supabase } from "@/lib/supabaseClient";
+import { loadPatientInjuryDates } from "@/lib/patientInjuryClient";
+import { normalizeNhi } from "@/lib/nhi";
 import { loadAssessmentContext } from "@/lib/assessmentExamData";
 import {
   ASSESSMENT_NOT_FOUND_MESSAGE,
@@ -44,7 +46,7 @@ async function loadPatientBar(nhi: string) {
     .select(
       "patient_id,nhi_number,date_of_birth,gender,ethnicity,place_of_birth"
     )
-    .eq("nhi_number", nhi)
+    .eq("nhi_number", normalizeNhi(nhi))
     .maybeSingle();
 
   if (error || !patient) {
@@ -134,6 +136,10 @@ function AssessmentNewInner() {
   const [resolvedNhi, setResolvedNhi] = useState<string | null>(nhiParam);
   const [initialExam, setInitialExam] = useState<UiExam | null>(null);
   const [initialComments, setInitialComments] = useState("");
+  const [initialInjuryDate, setInitialInjuryDate] = useState("");
+  const [initialReviewDate, setInitialReviewDate] = useState("");
+  const [initialCreatedAt, setInitialCreatedAt] = useState<string | null>(null);
+  const [initialUpdatedAt, setInitialUpdatedAt] = useState<string | null>(null);
   const [readOnly, setReadOnly] = useState(false);
   const [bar, setBar] = useState({
     name: "",
@@ -171,6 +177,10 @@ function AssessmentNewInner() {
         setResolvedNhi(null);
         setInitialExam(null);
         setInitialComments("");
+        setInitialInjuryDate("");
+        setInitialReviewDate("");
+        setInitialCreatedAt(null);
+        setInitialUpdatedAt(null);
         setReadOnly(false);
         setLoadError(null);
         setFetching(false);
@@ -192,6 +202,10 @@ function AssessmentNewInner() {
             setResolvedNhi(null);
             setInitialExam(null);
             setInitialComments("");
+            setInitialInjuryDate("");
+            setInitialReviewDate("");
+            setInitialCreatedAt(null);
+            setInitialUpdatedAt(null);
             setReadOnly(false);
             setFetching(false);
             return;
@@ -205,6 +219,10 @@ function AssessmentNewInner() {
           setDisplayAssessmentId(ctx.assessmentId);
           setInitialExam(ctx.exam);
           setInitialComments(ctx.comments);
+          setInitialInjuryDate(ctx.injuryDate);
+          setInitialReviewDate(ctx.reviewDate);
+          setInitialCreatedAt(ctx.createdAt);
+          setInitialUpdatedAt(ctx.updatedAt);
           setReadOnly(ctx.isFinalised);
           setBar(loaded.bar);
           setFetching(false);
@@ -215,10 +233,23 @@ function AssessmentNewInner() {
           const loaded = await loadPatientBar(nhiParam);
           if (cancelled) return;
 
+          let injuryDates = { injuryDate: "", reviewDate: "" };
+          if (loaded.patientId != null) {
+            try {
+              injuryDates = await loadPatientInjuryDates(loaded.patientId);
+            } catch {
+              // Patient Injury row may not exist yet
+            }
+          }
+
           setPatientId(loaded.patientId);
-          setResolvedNhi(nhiParam);
+          setResolvedNhi(normalizeNhi(nhiParam));
           setInitialExam(null);
           setInitialComments("");
+          setInitialInjuryDate(injuryDates.injuryDate);
+          setInitialReviewDate(injuryDates.reviewDate);
+          setInitialCreatedAt(null);
+          setInitialUpdatedAt(null);
           setReadOnly(false);
           setBar(loaded.bar);
           setFetching(false);
@@ -285,6 +316,10 @@ function AssessmentNewInner() {
               initialAssessmentId={assessmentId}
               initialExam={initialExam}
               initialComments={initialComments}
+              initialInjuryDate={initialInjuryDate}
+              initialReviewDate={initialReviewDate}
+              initialCreatedAt={initialCreatedAt}
+              initialUpdatedAt={initialUpdatedAt}
               readOnly={readOnly}
               onAssessmentIdChange={setDisplayAssessmentId}
             />

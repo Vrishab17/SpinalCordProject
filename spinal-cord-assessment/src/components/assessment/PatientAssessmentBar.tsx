@@ -19,7 +19,6 @@ type Props = {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div
-      className="patient-assessment-bar"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -75,7 +74,7 @@ export default function PatientAssessmentBar(props: Props) {
     ? dash
     : props.assessmentId?.trim() || dash;
 
-  const fields = [
+  const patientFields = [
     { label: "Assessment ID", value: assessmentIdValue },
     { label: "Name", value: v.name || dash },
     { label: "DOB", value: v.dob || dash },
@@ -85,6 +84,15 @@ export default function PatientAssessmentBar(props: Props) {
     { label: "NHI", value: v.nhi || dash },
     { label: "Address", value: v.address || dash },
   ];
+
+  const gridStyle: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns:
+      "minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1.8fr)",
+    gap: "8px 20px",
+    alignItems: "center",
+    width: "100%",
+  };
 
   return (
     <div
@@ -96,18 +104,8 @@ export default function PatientAssessmentBar(props: Props) {
         padding: "14px 22px",
       }}
     >
-      <div
-        className="patient-assessment-bar-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1.8fr)",
-          gap: "8px 20px",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        {fields.map((field) => (
+      <div style={gridStyle}>
+        {patientFields.map((field) => (
           <Field key={field.label} label={field.label} value={field.value} />
         ))}
       </div>

@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { validateNhiInput } from "@/lib/nhi";
+import {
+  NEW_PATIENT_STORAGE_KEY,
+  writeNewPatientFormData,
+} from "@/lib/newPatientStorage";
 import { supabase } from "@/lib/supabaseClient";
 import PersonalDetailsSection from "./PersonalDetailsSection";
 import InjuryInformationSection from "./InjuryInformationSection";
@@ -27,11 +32,12 @@ export type NewPatientFormData = {
   suburb: string;
   postalCode: string;
   dateOfInjury: string;
+  reviewDate: string;
   injuryCause: string;
   notes: string;
 };
 
-const STORAGE_KEY = "new_patient_form_data";
+const STORAGE_KEY = NEW_PATIENT_STORAGE_KEY;
 
 const initialFormData: NewPatientFormData = {
   firstName: "",
@@ -53,6 +59,7 @@ const initialFormData: NewPatientFormData = {
   suburb: "",
   postalCode: "",
   dateOfInjury: "",
+  reviewDate: "",
   injuryCause: "",
   notes: "",
 };
@@ -68,16 +75,6 @@ export default function NewPatientForm() {
 
   useEffect(() => {
     try {
-      const encodedData = searchParams.get("data");
-
-      if (encodedData) {
-        const parsed = JSON.parse(decodeURIComponent(encodedData)) as NewPatientFormData;
-        setFormData(parsed);
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-        setHasLoadedInitialData(true);
-        return;
-      }
-
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as NewPatientFormData;
@@ -157,12 +154,16 @@ export default function NewPatientForm() {
     setChecking(true);
 
     try {
-      const normalizedNhi = formData.nhiNumber.trim().toUpperCase();
+      const nhiCheck = validateNhiInput(formData.nhiNumber);
+      if (!nhiCheck.ok) {
+        setErrorMessage(nhiCheck.message);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("Patient")
         .select("patient_id, nhi_number")
-        .eq("nhi_number", normalizedNhi)
+        .eq("nhi_number", nhiCheck.nhi)
         .maybeSingle();
 
       if (error) {
@@ -171,19 +172,13 @@ export default function NewPatientForm() {
       }
 
       if (data) {
-        setErrorMessage(`A patient with NHI number ${normalizedNhi} already exists.`);
+        setErrorMessage(`A patient with NHI number ${nhiCheck.nhi} already exists.`);
         return;
       }
 
-      const nextFormData = {
-        ...formData,
-        nhiNumber: normalizedNhi,
-      };
-
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextFormData));
-
-      const encoded = encodeURIComponent(JSON.stringify(nextFormData));
-      router.push(`/patients/confirm?data=${encoded}`);
+      const nextFormData = { ...formData, nhiNumber: nhiCheck.nhi };
+      writeNewPatientFormData(nextFormData);
+      router.push("/patients/confirm");
     } finally {
       setChecking(false);
     }
