@@ -26,6 +26,7 @@ export default function DashboardClient() {
   return (
     <AuthGuard>
       <main
+        className="dashboard-page"
         style={{
           height: "100vh",
           display: "flex",
@@ -36,6 +37,7 @@ export default function DashboardClient() {
         <Header />
 
         <div
+          className="dashboard-shell"
           style={{
             flex: 1,
             overflow: "hidden",
@@ -49,6 +51,7 @@ export default function DashboardClient() {
           }}
         >
           <div
+            className="dashboard-toolbar"
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -71,6 +74,7 @@ export default function DashboardClient() {
             </h1>
 
             <div
+              className="dashboard-toolbar-actions"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -135,6 +139,7 @@ export default function DashboardClient() {
           </div>
 
           <div
+            className="dashboard-widgets-grid"
             style={{
               flex: 1,
               display: "grid",
@@ -145,6 +150,7 @@ export default function DashboardClient() {
             }}
           >
             <div
+              className="dashboard-widget"
               style={{
                 height: "100%",
                 minHeight: 0,
@@ -155,6 +161,7 @@ export default function DashboardClient() {
             </div>
 
             <div
+              className="dashboard-widget"
               style={{
                 height: "100%",
                 minHeight: 0,

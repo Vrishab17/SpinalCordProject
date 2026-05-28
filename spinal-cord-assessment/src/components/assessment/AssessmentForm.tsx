@@ -781,6 +781,7 @@ export default function AssessmentForm({
         </div>
       ) : null}
       <div
+        className="assessment-layout"
         style={{
           flex: 1,
           display: "grid",
@@ -791,6 +792,7 @@ export default function AssessmentForm({
         }}
       >
         <div
+          className="assessment-main-area"
           style={{
             overflow: "auto",
             padding: "20px 24px 28px",
@@ -798,6 +800,7 @@ export default function AssessmentForm({
           }}
         >
           <div
+            className="assessment-score-grid"
             style={{
               display: "grid",
               gridTemplateColumns:
@@ -809,7 +812,7 @@ export default function AssessmentForm({
               margin: "0 auto",
             }}
           >
-            <section>
+            <section className="assessment-side assessment-side-right">
               <h2
                 style={{
                   margin: "0 0 10px",
@@ -886,6 +889,7 @@ export default function AssessmentForm({
             </section>
 
             <section
+              className="assessment-diagram"
               style={{
                 display: "flex",
                 justifyContent: "center",
@@ -896,7 +900,7 @@ export default function AssessmentForm({
               <BodyDiagram exam={exam as never} />
             </section>
 
-            <section>
+            <section className="assessment-side assessment-side-left">
               <h2
                 style={{
                   margin: "0 0 10px",
@@ -996,6 +1000,7 @@ export default function AssessmentForm({
               Lowest non-key muscles with motor function
             </h3>
             <div
+              className="assessment-action-buttons"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",

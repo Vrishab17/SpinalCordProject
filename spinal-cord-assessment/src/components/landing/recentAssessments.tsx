@@ -418,6 +418,7 @@ export default function RecentAssessments({
 
   return (
     <div
+      className="dashboard-card-panel"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
@@ -431,6 +432,7 @@ export default function RecentAssessments({
       }}
     >
       <div
+        className="dashboard-card-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -592,6 +594,7 @@ export default function RecentAssessments({
       </div>
 
       <div
+        className="responsive-table-scroll"
         style={{
           flex: 1,
           minHeight: 0,

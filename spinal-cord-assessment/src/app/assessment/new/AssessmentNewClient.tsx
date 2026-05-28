@@ -238,6 +238,7 @@ function AssessmentNewInner() {
   return (
     <AuthGuard>
       <div
+        className="assessment-page"
         style={{
           minHeight: "100vh",
           display: "flex",

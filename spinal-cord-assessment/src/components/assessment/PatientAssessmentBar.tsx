@@ -19,6 +19,7 @@ type Props = {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div
+      className="patient-assessment-bar"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -96,6 +97,7 @@ export default function PatientAssessmentBar(props: Props) {
       }}
     >
       <div
+        className="patient-assessment-bar-grid"
         style={{
           display: "grid",
           gridTemplateColumns:

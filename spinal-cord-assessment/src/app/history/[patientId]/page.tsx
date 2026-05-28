@@ -354,6 +354,7 @@ export default async function Page({ params }: Props) {
   return (
     <AuthGuard>
       <div
+        className="history-page"
         style={{
           height: "100vh",
           overflow: "hidden",
@@ -366,6 +367,7 @@ export default async function Page({ params }: Props) {
         <Header />
 
         <div
+          className="history-layout"
           style={{
             padding: "24px 40px 40px",
             display: "grid",
@@ -381,6 +383,7 @@ export default async function Page({ params }: Props) {
         >
           {/* ════ LEFT PANEL ════ */}
           <div
+            className="history-patient-panel"
             style={{ display: "flex", flexDirection: "column", minWidth: 0 }}
           >
             <h2
@@ -394,8 +397,9 @@ export default async function Page({ params }: Props) {
               Patient Details
             </h2>
 
-            <div
-              style={{
+              <div
+                className="history-patient-card"
+                style={{
                 border: `1px solid ${BORDER}`,
                 backgroundColor: "#FFFFFF",
                 padding: "20px 22px 24px",
@@ -420,6 +424,7 @@ export default async function Page({ params }: Props) {
               <div style={{ display: "grid", rowGap: 8 }}>
                 {detailRows.map(({ label, value }) => (
                   <div
+                    className="history-detail-grid"
                     key={label}
                     style={{
                       display: "grid",

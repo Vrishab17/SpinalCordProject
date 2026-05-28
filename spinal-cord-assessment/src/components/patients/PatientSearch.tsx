@@ -54,6 +54,7 @@ function DetailRow({
 }) {
   return (
     <div
+      className="patient-search-page"
       style={{
         display: "flex",
         justifyContent: "space-between",
@@ -213,6 +214,7 @@ export default function PatientSearch() {
 
   return (
     <div
+      className="patient-detail-row"
       style={{
         flex: 1,
         display: "flex",
@@ -222,6 +224,7 @@ export default function PatientSearch() {
       }}
     >
       <div
+        className="page-shell patient-search-shell"
         style={{
           maxWidth: "1300px",
           width: "100%",
@@ -234,6 +237,7 @@ export default function PatientSearch() {
         }}
       >
         <div
+          className="patient-search-column"
           style={{
             width: "100%",
             maxWidth: CENTER_CARD_MAX,
@@ -256,7 +260,7 @@ export default function PatientSearch() {
             Patient Search
           </h1>
 
-          <section style={panelStyle}>
+          <section className="patient-panel" style={panelStyle}>
             <div
               style={{
                 width: "100%",
@@ -361,7 +365,7 @@ export default function PatientSearch() {
           </section>
 
           {patient ? (
-            <section style={panelStyle}>
+            <section className="patient-panel" style={panelStyle}>
               <div
                 style={{
                   width: "100%",
@@ -380,6 +384,7 @@ export default function PatientSearch() {
                   }}
                 >
                   <div
+                    className="patient-search-actions"
                     style={{
                       display: "flex",
                       alignItems: "center",

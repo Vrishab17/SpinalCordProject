@@ -191,6 +191,7 @@ export default function NewPatientForm() {
 
   return (
     <div
+      className="new-patient-form"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #5F6F8C",

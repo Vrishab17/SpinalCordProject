@@ -38,6 +38,7 @@ export default function Header() {
 
   return (
     <header
+      className="app-header"
       style={{
         backgroundColor: "#33476D",
         color: "#FFFFFF",
@@ -50,6 +51,7 @@ export default function Header() {
     >
       <Link href="/dashboard" style={{ textDecoration: "none" }}>
         <div
+          className="app-header-brand"
           style={{
             cursor: "pointer",
             transition: "all 0.2s ease",
@@ -80,6 +82,7 @@ export default function Header() {
       </Link>
 
       <div
+        className="app-header-profile"
         ref={menuRef}
         style={{
           position: "relative",
@@ -107,6 +110,7 @@ export default function Header() {
           }}
         >
           <span
+            className="app-header-staff-name"
             style={{
               fontSize: "18px",
               color: "#AEB9D3",

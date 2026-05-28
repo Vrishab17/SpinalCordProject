@@ -129,6 +129,7 @@ export default function ConfirmPatientContent() {
       >
         <Header />
         <div
+          className="page-shell confirm-patient-shell"
           style={{
             maxWidth: "1300px",
             margin: "0 auto",
@@ -355,6 +356,7 @@ export default function ConfirmPatientContent() {
           </h1>
 
           <div
+            className="confirm-summary-card"
             style={{
               backgroundColor: "#FFFFFF",
               border: "1px solid #5F6F8C",
@@ -362,6 +364,7 @@ export default function ConfirmPatientContent() {
             }}
           >
             <div
+              className="confirm-summary-grid"
               style={{
                 padding: "14px 18px",
                 borderBottom: "1px solid #5F6F8C",
@@ -459,6 +462,7 @@ export default function ConfirmPatientContent() {
           </div>
 
           <div
+            className="confirm-consent-card"
             style={{
               backgroundColor: "#FFFFFF",
               border: "1px solid #5F6F8C",
@@ -532,6 +536,7 @@ export default function ConfirmPatientContent() {
           )}
 
           <div
+            className="confirm-actions"
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -564,6 +569,7 @@ export default function ConfirmPatientContent() {
             </button>
 
             <div
+              className="confirm-primary-actions"
               style={{
                 display: "flex",
                 gap: "16px",
