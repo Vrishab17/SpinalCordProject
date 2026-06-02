@@ -38,28 +38,6 @@ textarea {
 }
 
 @media (max-width: 900px) {
-  .app-header {
-    padding: 16px 18px !important;
-    gap: 16px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .app-header-brand > div:first-child {
-    font-size: 23px !important;
-  }
-
-  .app-header-brand > div:last-child {
-    font-size: 17px !important;
-  }
-
-  .app-header-profile {
-    margin-left: auto !important;
-  }
-
-  .app-header-staff-name {
-    font-size: 16px !important;
-  }
-
   .login-page {
     min-height: 100vh !important;
     height: auto !important;
@@ -132,7 +110,7 @@ textarea {
     overflow-y: auto !important;
   }
 
-  .responsive-table-scroll table {
+  .dashboard-table {
     min-width: 720px;
   }
 
@@ -218,22 +196,6 @@ textarea {
 }
 
 @media (max-width: 600px) {
-  .app-header {
-    align-items: flex-start !important;
-  }
-
-  .app-header-profile {
-    width: 100% !important;
-    justify-content: flex-end !important;
-  }
-
-  .app-header-staff-name {
-    max-width: calc(100vw - 120px) !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
   .login-brand-panel {
     min-height: 260px !important;
     padding: 88px 22px 30px !important;
@@ -382,6 +344,7 @@ textarea {
 
 @media (max-width: 1100px) {
   .dashboard-content,
+  .dashboard-grid,
   .history-layout,
   .assessment-layout {
     grid-template-columns: 1fr !important;
@@ -395,6 +358,7 @@ textarea {
   .assessment-page {
     height: auto !important;
     min-height: 100dvh !important;
+    overflow-x: hidden !important;
     overflow-y: auto !important;
   }
 
@@ -422,8 +386,26 @@ textarea {
     -webkit-overflow-scrolling: touch !important;
   }
 
+  .dashboard-grid,
   .dashboard-widgets-grid {
-    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex: none !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+  }
+
+  .dashboard-widget,
+  .dashboard-card-panel,
+  .dashboard-table-scroll {
+    flex: none !important;
+  }
+
+  .dashboard-card-panel {
+    min-height: unset !important;
+  }
+
+  .dashboard-table-scroll {
+    overflow-y: visible !important;
   }
 
   .history-layout {
@@ -491,33 +473,15 @@ textarea {
     overflow-y: auto !important;
   }
 
-  .app-header {
-    height: auto !important;
-    min-height: unset !important;
-    padding: 14px 16px !important;
-    gap: 12px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .app-header-title {
-    font-size: 24px !important;
-    line-height: 1.1 !important;
-  }
-
-  .app-header-subtitle {
-    font-size: 16px !important;
-  }
-
-  .app-header-user {
-    width: 100% !important;
-    justify-content: flex-end !important;
-  }
-
   .dashboard-actions {
     width: 100% !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 14px !important;
+  }
+
+  .dashboard-toolbar h1 {
+    width: 100% !important;
   }
 
   .dashboard-actions button,

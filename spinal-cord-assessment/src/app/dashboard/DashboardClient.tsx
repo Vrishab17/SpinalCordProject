@@ -78,7 +78,7 @@ export default function DashboardClient() {
         </div>
 
         <div
-          className="dashboard-content dashboard-widgets-grid"
+          className="dashboard-content dashboard-grid dashboard-widgets-grid"
           style={{
             flex: 1,
             display: "grid",
