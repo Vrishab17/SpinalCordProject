@@ -229,10 +229,11 @@ function toISNCSCIExam(exam: UiExam): ISNCSCIExam {
 type AssessmentFormProps = {
   patientId: number | null;
   patientNhi?: string | null;
-  initialAssessmentId?: number | null;
+  initialAssessmentId?: string | null;
   initialExam?: UiExam | null;
   initialComments?: string;
   readOnly?: boolean;
+  onAssessmentIdChange?: (assessmentId: string) => void;
 };
 
 export default function AssessmentForm({
@@ -242,6 +243,7 @@ export default function AssessmentForm({
   initialExam = null,
   initialComments = "",
   readOnly = false,
+  onAssessmentIdChange,
 }: AssessmentFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -251,7 +253,7 @@ export default function AssessmentForm({
   const [exam, setExam] = useState<UiExam>(initialExam ?? defaultExam);
   const [result, setResult] = useState<unknown>(null);
   const [comments, setComments] = useState(initialComments);
-  const [linkedAssessmentId, setLinkedAssessmentId] = useState<number | null>(
+  const [linkedAssessmentId, setLinkedAssessmentId] = useState<string | null>(
     initialAssessmentId
   );
   const [saving, setSaving] = useState(false);
@@ -463,6 +465,7 @@ export default function AssessmentForm({
         comments,
       });
       setLinkedAssessmentId(assessmentId);
+      onAssessmentIdChange?.(assessmentId);
 
       const calculated = tryComputeClassification(exam);
       if (calculated) {
@@ -525,6 +528,7 @@ export default function AssessmentForm({
         alsGrade: aisGrade,
       });
       setLinkedAssessmentId(assessmentId);
+      onAssessmentIdChange?.(assessmentId);
       showSaveSuccess();
     } catch (e) {
       showSaveError(e instanceof Error ? e.message : "Could not save.");

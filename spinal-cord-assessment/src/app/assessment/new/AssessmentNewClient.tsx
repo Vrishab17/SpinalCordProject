@@ -9,6 +9,11 @@ import AssessmentForm, {
 import PatientAssessmentBar from "@/components/assessment/PatientAssessmentBar";
 import { supabase } from "@/lib/supabaseClient";
 import { loadAssessmentContext } from "@/lib/assessmentExamData";
+import {
+  ASSESSMENT_NOT_FOUND_MESSAGE,
+  assessmentIdParamLoadError,
+  parseAssessmentIdParam,
+} from "@/lib/assessmentId";
 import AuthGuard from "@/components/AuthGuard";
 
 function formatNZDate(ds: string | null | undefined): string {
@@ -113,21 +118,18 @@ function AssessmentNewInner() {
   const searchParams = useSearchParams();
   const nhiParam = searchParams.get("nhi");
   const assessmentIdParam = searchParams.get("assessmentId");
-
-  const parsedAssessmentId = assessmentIdParam
-    ? Number(assessmentIdParam)
-    : null;
-  const assessmentId =
-    parsedAssessmentId != null &&
-    Number.isInteger(parsedAssessmentId) &&
-    parsedAssessmentId > 0
-      ? parsedAssessmentId
-      : null;
+  const assessmentIdParamError = assessmentIdParamLoadError(assessmentIdParam);
+  const assessmentId = parseAssessmentIdParam(assessmentIdParam);
 
   const [fetching, setFetching] = useState(
     Boolean(nhiParam) || assessmentId != null
   );
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(
+    assessmentIdParamError
+  );
+  const [displayAssessmentId, setDisplayAssessmentId] = useState<string | null>(
+    assessmentId
+  );
   const [patientId, setPatientId] = useState<number | null>(null);
   const [resolvedNhi, setResolvedNhi] = useState<string | null>(nhiParam);
   const [initialExam, setInitialExam] = useState<UiExam | null>(null);
@@ -144,9 +146,26 @@ function AssessmentNewInner() {
   });
 
   useEffect(() => {
+    setDisplayAssessmentId(assessmentId);
+  }, [assessmentId]);
+
+  useEffect(() => {
+    if (assessmentIdParamError) {
+      setLoadError(assessmentIdParamError);
+      setDisplayAssessmentId(null);
+      setFetching(false);
+      return;
+    }
+  }, [assessmentIdParamError]);
+
+  useEffect(() => {
     let cancelled = false;
 
     (async () => {
+      if (assessmentIdParamError) {
+        return;
+      }
+
       if (!nhiParam && assessmentId == null) {
         setPatientId(null);
         setResolvedNhi(null);
@@ -167,7 +186,8 @@ function AssessmentNewInner() {
           if (cancelled) return;
 
           if (!ctx) {
-            setLoadError("Assessment not found.");
+            setLoadError(ASSESSMENT_NOT_FOUND_MESSAGE);
+            setDisplayAssessmentId(null);
             setPatientId(null);
             setResolvedNhi(null);
             setInitialExam(null);
@@ -182,6 +202,7 @@ function AssessmentNewInner() {
 
           setPatientId(ctx.patientId);
           setResolvedNhi(ctx.nhi);
+          setDisplayAssessmentId(ctx.assessmentId);
           setInitialExam(ctx.exam);
           setInitialComments(ctx.comments);
           setReadOnly(ctx.isFinalised);
@@ -212,7 +233,7 @@ function AssessmentNewInner() {
     return () => {
       cancelled = true;
     };
-  }, [nhiParam, assessmentId]);
+  }, [nhiParam, assessmentId, assessmentIdParamError]);
 
   return (
     <AuthGuard>
@@ -226,6 +247,7 @@ function AssessmentNewInner() {
       >
         <Header />
         <PatientAssessmentBar
+          assessmentId={displayAssessmentId}
           name={bar.name}
           dob={bar.dob}
           age={bar.age}
@@ -238,10 +260,11 @@ function AssessmentNewInner() {
         {loadError ? (
           <div
             style={{
-              padding: "24px",
-              color: "#DC2626",
-              fontSize: "15px",
+              padding: "32px 24px",
+              color: "#33476D",
+              fontSize: "16px",
               textAlign: "center",
+              lineHeight: 1.5,
             }}
           >
             {loadError}
@@ -262,6 +285,7 @@ function AssessmentNewInner() {
               initialExam={initialExam}
               initialComments={initialComments}
               readOnly={readOnly}
+              onAssessmentIdChange={setDisplayAssessmentId}
             />
           </div>
         )}
@@ -272,12 +296,13 @@ function AssessmentNewInner() {
 
 export default function AssessmentNewClient() {
   return (
-    <AuthGuard>
-      <Suspense
-        fallback={
+    <Suspense
+      fallback={
+        <AuthGuard>
           <div style={{ minHeight: "100vh", backgroundColor: "#F6F4EC" }}>
             <Header />
             <PatientAssessmentBar
+              assessmentId={null}
               name="—"
               dob="—"
               age="—"
@@ -288,10 +313,10 @@ export default function AssessmentNewClient() {
               loading
             />
           </div>
-        }
-      >
-        <AssessmentNewInner />
-      </Suspense>
-    </AuthGuard>
+        </AuthGuard>
+      }
+    >
+      <AssessmentNewInner />
+    </Suspense>
   );
 }

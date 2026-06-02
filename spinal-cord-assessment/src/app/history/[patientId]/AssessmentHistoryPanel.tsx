@@ -577,12 +577,12 @@ export default function AssessmentHistoryPanel({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
+              gridTemplateColumns: "1fr 1.8fr 2fr 1.2fr 1.4fr 90px",
               padding: "13px 20px",
               borderBottom: `1px solid ${BORDER}`,
             }}
           >
-            {["DATE", "CLINICIAN NAME", "AIS", "STATUS", ""].map((col) => (
+            {["ASSESSMENT ID", "DATE", "CLINICIAN NAME", "AIS", "STATUS", ""].map((col) => (
               <div key={col} style={{ fontWeight: 700, color: NAVY }}>
                 {col}
               </div>
@@ -608,12 +608,13 @@ export default function AssessmentHistoryPanel({
                 key={a.assessment_id}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.8fr 2fr 1.2fr 1.4fr 90px",
+                  gridTemplateColumns: "1fr 1.8fr 2fr 1.2fr 1.4fr 90px",
                   padding: "16px 20px",
                   borderBottom: `1px solid ${ROW_DIVIDER}`,
                   alignItems: "center",
                 }}
               >
+                <div>{a.assessment_id}</div>
                 <div>{formatDate(a.assessment_date)}</div>
                 <div>{a.clinicianName}</div>
                 <div>{a.alsGrade ? `GRADE ${a.alsGrade}` : "N/A"}</div>

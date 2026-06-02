@@ -18,6 +18,7 @@ export type DraftAssessment = {
   id: string;
   assessmentId: string;
   patientId: number;
+  staffId: number;
   nhi: string;
   patientName: string;
   dateLastEditedISO: string;
@@ -37,6 +38,7 @@ type AssessmentRow = {
   PATIENTpatient_id: number;
   current_version: number;
   status: string;
+  STAFFstaff_id: number;
 };
 
 type PatientRow = {
@@ -110,7 +112,7 @@ export default function Drafts({
 
       const { data: assessmentData, error: assessmentError } = await supabase
         .from("Assessment")
-        .select("assessment_id, PATIENTpatient_id, current_version, status")
+        .select("assessment_id, PATIENTpatient_id, current_version, status, STAFFstaff_id")
         .in("assessment_id", assessmentIds);
 
       if (assessmentError) {
@@ -158,6 +160,7 @@ export default function Drafts({
             id: String(draft.draft_id),
             assessmentId: assessment.assessment_id,
             patientId: assessment.PATIENTpatient_id,
+            staffId: assessment.STAFFstaff_id,
             nhi: patient?.nhi_number ?? "N/A",
             patientName: name
               ? `${name.given_name} ${name.family_name}`
@@ -187,7 +190,9 @@ export default function Drafts({
   const visibleDrafts = useMemo(() => {
     if (clinicianPatientFilter.status === "all") return sortedDrafts;
     if (clinicianPatientFilter.status === "loading") return [];
-    return sortedDrafts.filter((d) => clinicianPatientFilter.patientIds.has(d.patientId));
+    return sortedDrafts.filter(
+      (d) => d.staffId === clinicianPatientFilter.staffId
+    );
   }, [sortedDrafts, clinicianPatientFilter]);
 
   function openDraft(assessmentId: string) {

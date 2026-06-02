@@ -81,7 +81,7 @@ function formatReviewDate(dateString: string) {
   };
 }
 
-/** One upcoming row per patient — earliest review date wins. */
+/** One upcoming row per patient ??? earliest review date wins. */
 function dedupeAssessmentsByPatient(
   assessments: AssessmentRow[]
 ): AssessmentRow[] {
@@ -119,15 +119,31 @@ export default function UpcomingReviews({
       return;
     }
 
+    if (clinicianPatientFilter.status === "loading") {
+      setLoading(true);
+      setRows([]);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const { data: assessmentData, error: assessmentError } = await supabase
+    let assessmentQuery = supabase
       .from("Assessment")
       .select("assessment_id, PATIENTpatient_id, review_date")
       .not("review_date", "is", null)
       .order("review_date", { ascending: true })
       .limit(200);
+
+    if (clinicianPatientFilter.status === "mine") {
+      assessmentQuery = assessmentQuery.eq(
+        "STAFFstaff_id",
+        clinicianPatientFilter.staffId
+      );
+    }
+
+    const { data: assessmentData, error: assessmentError } = await assessmentQuery;
 
     if (assessmentError) {
       setError(`Upcoming reviews query failed: ${assessmentError.message}`);
@@ -209,7 +225,7 @@ export default function UpcomingReviews({
 
     setRows(mappedRows);
     setLoading(false);
-  }, []);
+  }, [clinicianPatientFilter]);
 
   useEffect(() => {
     loadReviews();
@@ -218,14 +234,7 @@ export default function UpcomingReviews({
   const filterLoading = clinicianPatientFilter.status === "loading";
 
   const { sortedRows, overdueCount } = useMemo(() => {
-    let list: UpcomingReviewDisplay[];
-    if (clinicianPatientFilter.status === "loading") {
-      list = [];
-    } else if (clinicianPatientFilter.status === "all") {
-      list = rows;
-    } else {
-      list = rows.filter((r) => clinicianPatientFilter.patientIds.has(r.patientId));
-    }
+    const list = filterLoading ? [] : rows;
 
     const overdue = list.filter((r) => r.isOverdue).length;
     const sorted = [...list].sort((a, b) => {
@@ -233,7 +242,7 @@ export default function UpcomingReviews({
       return a.reviewDateMs - b.reviewDateMs;
     });
     return { sortedRows: sorted, overdueCount: overdue };
-  }, [rows, clinicianPatientFilter]);
+  }, [rows, filterLoading]);
 
   useEffect(() => {
     setPage(1);
@@ -622,7 +631,7 @@ export default function UpcomingReviews({
               {modalStep === "actions" ? "Review follow-up" : "Change review date"}
             </h3>
             <p style={{ margin: "0 0 20px", fontSize: "14px", color: "#5C667A" }}>
-              {activeReview.patientName} · NHI {activeReview.nhi}
+              {activeReview.patientName} ? NHI {activeReview.nhi}
             </p>
 
             {actionError ? (
@@ -713,7 +722,7 @@ export default function UpcomingReviews({
                     }}
                     onClick={handleSaveReviewDate}
                   >
-                    {actionLoading ? "Saving…" : "Save date"}
+                    {actionLoading ? "Saving???" : "Save date"}
                   </button>
                   <button
                     type="button"

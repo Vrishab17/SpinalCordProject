@@ -1,5 +1,6 @@
 import type { UiExam, UiScore } from "@/components/assessment/AssessmentForm";
 import { LEVELS, MOTOR_LEVELS } from "@/components/assessment/examConstants";
+import type { AssessmentId } from "./assessmentId";
 import { supabase } from "./supabaseClient";
 
 type DbSide = "RIGHT" | "LEFT";
@@ -65,7 +66,7 @@ async function nextId(
 }
 
 export type LoadedAssessmentContext = {
-  assessmentId: number;
+  assessmentId: AssessmentId;
   patientId: number;
   nhi: string;
   status: string;
@@ -75,7 +76,7 @@ export type LoadedAssessmentContext = {
 };
 
 export async function loadAssessmentContext(
-  assessmentId: number
+  assessmentId: AssessmentId
 ): Promise<LoadedAssessmentContext | null> {
   const { data: assessment, error: aErr } = await supabase
     .from("Assessment")
@@ -113,7 +114,7 @@ export async function loadAssessmentContext(
 }
 
 export async function loadExamDataForAssessment(
-  assessmentId: number
+  assessmentId: AssessmentId
 ): Promise<{ exam: UiExam; comments: string } | null> {
   const { data: examRow, error: eErr } = await supabase
     .from("Exam")
@@ -194,7 +195,7 @@ export async function loadExamDataForAssessment(
 }
 
 export async function persistExamData(opts: {
-  assessmentId: number;
+  assessmentId: AssessmentId;
   exam: UiExam;
   comments: string;
 }): Promise<{ examId: number }> {

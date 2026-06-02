@@ -1,7 +1,9 @@
-/** Dashboard filter: patients linked via Assessment.STAFFstaff_id → PATIENTpatient_id. */
+/** Dashboard filter: assessments assigned to the logged-in clinician vs all. */
 export type ClinicianPatientFilter =
   | { status: "all" }
   | { status: "loading" }
-  | { status: "ready"; patientIds: ReadonlySet<number> };
+  | { status: "mine"; staffId: number };
 
-export const DEFAULT_CLINICIAN_PATIENT_FILTER: ClinicianPatientFilter = { status: "all" };
+export const DEFAULT_CLINICIAN_PATIENT_FILTER: ClinicianPatientFilter = {
+  status: "loading",
+};

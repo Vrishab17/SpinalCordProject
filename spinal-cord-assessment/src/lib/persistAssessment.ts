@@ -1,22 +1,32 @@
 import type { UiExam } from "@/components/assessment/AssessmentForm";
+import {
+  type AssessmentId,
+  generateRandomLlnnAssessmentId,
+} from "./assessmentId";
 import { persistExamData } from "./assessmentExamData";
 import { supabase } from "./supabaseClient";
 
 export type PersistMode = "draft" | "final";
 
-/** Next numeric PK when the DB column has no SERIAL/default (avoids NOT NULL violations). */
-async function allocateAssessmentId(): Promise<number> {
-  const { data, error } = await supabase
-    .from("Assessment")
-    .select("assessment_id")
-    .order("assessment_id", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+const ASSESSMENT_ID_ALLOCATION_ATTEMPTS = 50;
 
-  if (error) throw new Error(error.message);
-  const max = data?.assessment_id;
-  if (typeof max === "number" && Number.isFinite(max)) return max + 1;
-  return 1;
+/** Random LLNN PK when the DB column has no SERIAL/default (avoids NOT NULL violations). */
+async function allocateAssessmentId(): Promise<AssessmentId> {
+  for (let attempt = 0; attempt < ASSESSMENT_ID_ALLOCATION_ATTEMPTS; attempt++) {
+    const candidate = generateRandomLlnnAssessmentId();
+    const { data, error } = await supabase
+      .from("Assessment")
+      .select("assessment_id")
+      .eq("assessment_id", candidate)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return candidate;
+  }
+
+  throw new Error(
+    "Could not allocate a unique assessment ID. Please try again."
+  );
 }
 
 async function allocateDraftId(): Promise<number> {
@@ -55,10 +65,10 @@ export async function persistAssessmentToDatabase(opts: {
   patientId: number;
   staffId: number;
   mode: PersistMode;
-  existingAssessmentId: number | null;
+  existingAssessmentId: AssessmentId | null;
   exam: UiExam;
   comments: string;
-}): Promise<{ assessmentId: number }> {
+}): Promise<{ assessmentId: AssessmentId }> {
   const isoNow = new Date().toISOString();
   const dateOnly = isoNow.slice(0, 10);
   const status = opts.mode === "draft" ? "DRAFT" : "FINALISED";
@@ -150,7 +160,7 @@ export async function persistAssessmentToDatabase(opts: {
     .single();
 
   if (error) throw new Error(error.message);
-  const assessmentId = data.assessment_id as number;
+  const assessmentId = data.assessment_id as AssessmentId;
 
   if (opts.mode === "draft") {
     const draft_id = await allocateDraftId();
@@ -178,7 +188,7 @@ export async function persistAssessmentToDatabase(opts: {
  * history can show AIS (see `history/[patientId]/page.tsx`).
  */
 export async function persistExamAndClassification(opts: {
-  assessmentId: number;
+  assessmentId: AssessmentId;
   alsGrade: string;
 }): Promise<void> {
   const { data: examRow, error: exFindErr } = await supabase

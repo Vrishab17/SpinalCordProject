@@ -23,6 +23,7 @@ spinal-cord-assessment/.next/
 
 # misc
 .DS_Store
+.cursor/
 *.pem
 
 # debug

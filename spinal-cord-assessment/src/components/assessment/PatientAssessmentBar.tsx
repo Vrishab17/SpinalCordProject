@@ -5,6 +5,7 @@ const BORDER = "#D6D6D6";
 const MUTED = "#5C667A";
 
 type Props = {
+  assessmentId?: string | null;
   name: string;
   dob: string;
   age: string;
@@ -69,7 +70,12 @@ export default function PatientAssessmentBar(props: Props) {
       }
     : props;
 
+  const assessmentIdValue = props.loading
+    ? dash
+    : props.assessmentId?.trim() || dash;
+
   const fields = [
+    { label: "Assessment ID", value: assessmentIdValue },
     { label: "Name", value: v.name || dash },
     { label: "DOB", value: v.dob || dash },
     { label: "Age", value: v.age || dash },
@@ -93,7 +99,7 @@ export default function PatientAssessmentBar(props: Props) {
         style={{
           display: "grid",
           gridTemplateColumns:
-            "minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1.8fr)",
+            "minmax(0, 0.9fr) minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 1.8fr)",
           gap: "8px 20px",
           alignItems: "center",
           width: "100%",

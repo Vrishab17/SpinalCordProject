@@ -84,6 +84,71 @@ function getStatusColor(status: string) {
   }
 }
 
+function assessmentTimestamp(row: AssessmentRow): number {
+  const parsed = new Date(row.assessment_date).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function keepLatestPerPatient(assessments: AssessmentRow[]): AssessmentRow[] {
+  const byPatient = new Map<number, AssessmentRow>();
+
+  for (const row of assessments) {
+    const existing = byPatient.get(row.PATIENTpatient_id);
+    if (!existing) {
+      byPatient.set(row.PATIENTpatient_id, row);
+      continue;
+    }
+
+    const existingTs = assessmentTimestamp(existing);
+    const rowTs = assessmentTimestamp(row);
+    if (
+      rowTs > existingTs ||
+      (rowTs === existingTs && row.current_version > existing.current_version)
+    ) {
+      byPatient.set(row.PATIENTpatient_id, row);
+    }
+  }
+
+  return Array.from(byPatient.values());
+}
+
+function sortAssessmentRows(
+  assessments: AssessmentRow[],
+  filterSelections: DashboardFilterSelections
+): AssessmentRow[] {
+  const sorted = [...assessments];
+
+  sorted.sort((a, b) => {
+    if (filterSelections.date) {
+      const dateCmp =
+        filterSelections.date === "date_earliest_first"
+          ? assessmentTimestamp(a) - assessmentTimestamp(b)
+          : assessmentTimestamp(b) - assessmentTimestamp(a);
+      if (dateCmp !== 0) return dateCmp;
+
+      if (filterSelections.version) {
+        return filterSelections.version === "version_oldest"
+          ? a.current_version - b.current_version
+          : b.current_version - a.current_version;
+      }
+      return 0;
+    }
+
+    if (filterSelections.version) {
+      const versionCmp =
+        filterSelections.version === "version_oldest"
+          ? a.current_version - b.current_version
+          : b.current_version - a.current_version;
+      if (versionCmp !== 0) return versionCmp;
+      return assessmentTimestamp(b) - assessmentTimestamp(a);
+    }
+
+    return assessmentTimestamp(b) - assessmentTimestamp(a);
+  });
+
+  return sorted;
+}
+
 export default function RecentAssessments({
   clinicianPatientFilter = DEFAULT_CLINICIAN_PATIENT_FILTER,
 }: RecentAssessmentsProps) {
@@ -170,7 +235,7 @@ export default function RecentAssessments({
   const clinicianFilterKey = useMemo(() => {
     if (clinicianPatientFilter.status === "all") return "all";
     if (clinicianPatientFilter.status === "loading") return "loading";
-    return `ready:${[...clinicianPatientFilter.patientIds].sort((a, b) => a - b).join(",")}`;
+    return `mine:${clinicianPatientFilter.staffId}`;
   }, [clinicianPatientFilter]);
 
   const uiFilterKey = useMemo(
@@ -202,28 +267,14 @@ export default function RecentAssessments({
         return;
       }
 
-      if (clinicianPatientFilter.status === "ready" && clinicianPatientFilter.patientIds.size === 0) {
-        if (reqId !== requestSeqRef.current) return;
-        setRows([]);
-        setTotalCount(0);
-        setLoading(false);
-        setError(null);
-        return;
-      }
-
       setLoading(true);
       setError(null);
-
-      const from = (page - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
 
       let assessmentQuery = supabase
         .from("Assessment")
         .select(
-          "assessment_id, assessment_date, status, current_version, PATIENTpatient_id",
-          { count: "exact" }
-        )
-        .range(from, to);
+          "assessment_id, assessment_date, status, current_version, PATIENTpatient_id"
+        );
 
       if (filterSelections.status === "status_draft") {
         assessmentQuery = assessmentQuery.eq("status", "DRAFT");
@@ -231,36 +282,14 @@ export default function RecentAssessments({
         assessmentQuery = assessmentQuery.in("status", ["FINALISED", "FINALIZED", "FINAL"]);
       }
 
-      if (filterSelections.date) {
-        assessmentQuery = assessmentQuery.order("assessment_date", {
-          ascending: filterSelections.date === "date_earliest_first",
-        });
-        if (filterSelections.version) {
-          assessmentQuery = assessmentQuery.order("current_version", {
-            ascending: filterSelections.version === "version_oldest",
-          });
-        }
-      } else if (filterSelections.version) {
-        assessmentQuery = assessmentQuery
-          .order("current_version", {
-            ascending: filterSelections.version === "version_oldest",
-          })
-          .order("assessment_date", { ascending: false });
-      } else {
-        assessmentQuery = assessmentQuery.order("assessment_date", { ascending: false });
-      }
-
-      if (
-        clinicianPatientFilter.status === "ready" &&
-        clinicianPatientFilter.patientIds.size > 0
-      ) {
-        assessmentQuery = assessmentQuery.in(
-          "PATIENTpatient_id",
-          Array.from(clinicianPatientFilter.patientIds)
+      if (clinicianPatientFilter.status === "mine") {
+        assessmentQuery = assessmentQuery.eq(
+          "STAFFstaff_id",
+          clinicianPatientFilter.staffId
         );
       }
 
-      const { data: assessmentData, error: assessmentError, count } = await assessmentQuery;
+      const { data: assessmentData, error: assessmentError } = await assessmentQuery;
 
       if (reqId !== requestSeqRef.current) return;
 
@@ -270,23 +299,30 @@ export default function RecentAssessments({
         return;
       }
 
-      setTotalCount(count ?? 0);
+      const latestPerPatient = keepLatestPerPatient(
+        (assessmentData ?? []) as AssessmentRow[]
+      );
+      const sortedAssessments = sortAssessmentRows(
+        latestPerPatient,
+        filterSelections
+      );
+      const totalMatching = sortedAssessments.length;
+      setTotalCount(totalMatching);
 
-      const assessments = (assessmentData ?? []) as AssessmentRow[];
-      const totalMatching = count ?? 0;
-
-      if (assessments.length === 0 && page > 1 && totalMatching > 0) {
+      if (sortedAssessments.length === 0 && page > 1 && totalMatching > 0) {
         setPage(1);
         setLoading(false);
         return;
       }
 
-      if (assessments.length === 0) {
+      if (sortedAssessments.length === 0) {
         setRows([]);
         setLoading(false);
         return;
       }
 
+      const from = (page - 1) * PAGE_SIZE;
+      const assessments = sortedAssessments.slice(from, from + PAGE_SIZE);
       const patientIds = [...new Set(assessments.map((a) => a.PATIENTpatient_id))];
 
       const { data: patientData, error: patientError } = await supabase
@@ -573,6 +609,7 @@ export default function RecentAssessments({
         >
           <thead>
             <tr>
+              <th style={headerCellStyle}>Assessment ID</th>
               <th style={headerCellStyle}>NHI Number</th>
               <th style={headerCellStyle}>Patient Name</th>
               <th style={headerCellStyle}>Date</th>
@@ -584,25 +621,25 @@ export default function RecentAssessments({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                <td colSpan={6} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   Loading...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "red" }}>
+                <td colSpan={6} style={{ padding: "24px", textAlign: "center", color: "red" }}>
                   {error}
                 </td>
               </tr>
             ) : rows.length === 0 && totalCount === 0 ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                <td colSpan={6} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   No recent assessments to display.
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
+                <td colSpan={6} style={{ padding: "24px", textAlign: "center", color: "#6B7280" }}>
                   No assessments match this filter.
                 </td>
               </tr>
@@ -620,6 +657,7 @@ export default function RecentAssessments({
                     }}
                     style={{ cursor: "pointer" }}
                   >
+                    <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.id}</td>
                     <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.nhiNumber}</td>
                     <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.patientName}</td>
                     <td style={{ ...bodyCellStyle, borderBottom: "1px solid #E5E7EB" }}>{row.date}</td>
