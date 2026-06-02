@@ -212,6 +212,7 @@ function AssessmentNewInner() {
           </div>
         ) : (
           <div
+            className="assessment-form-shell"
             style={{
               flex: 1,
               minHeight: 0,

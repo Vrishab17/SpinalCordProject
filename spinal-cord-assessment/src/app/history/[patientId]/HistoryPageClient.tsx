@@ -154,6 +154,7 @@ export default function HistoryPageClient() {
 
   return (
     <div
+      className="history-page"
       style={{
         height: "100vh",
         overflow: "hidden",
@@ -165,6 +166,7 @@ export default function HistoryPageClient() {
     >
       <Header />
       <div
+        className="history-layout"
         style={{
           padding: "24px 40px 40px",
           display: "grid",
@@ -177,11 +179,12 @@ export default function HistoryPageClient() {
           boxSizing: "border-box",
         }}
       >
-        <div>
+        <div className="patient-details-card history-card">
           <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 14px" }}>
             Patient Details
           </h2>
           <div
+            className="history-card"
             style={{
               border: `1px solid ${BORDER}`,
               backgroundColor: "#FFFFFF",
@@ -197,6 +200,7 @@ export default function HistoryPageClient() {
             <div style={{ display: "grid", rowGap: 8 }}>
               {detailRows.map(({ label, value }) => (
                 <div
+                  className="history-detail-grid"
                   key={label}
                   style={{
                     display: "grid",

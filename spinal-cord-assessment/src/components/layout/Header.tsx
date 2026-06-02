@@ -80,7 +80,7 @@ export default function Header() {
         style={{ textDecoration: "none", color: "inherit" }}
       >
         <div
-          className="app-header-brand"
+          className="app-header-brand app-header-title"
           style={{
             fontSize: "28px",
             fontWeight: 700,
@@ -89,13 +89,16 @@ export default function Header() {
         >
           Health New Zealand
         </div>
-        <div style={{ fontSize: "20px", fontWeight: 700, color: "#1FC2D5" }}>
+        <div
+          className="app-header-subtitle"
+          style={{ fontSize: "20px", fontWeight: 700, color: "#1FC2D5" }}
+        >
           Te Whatu Ora
         </div>
       </Link>
 
       <div
-        className="app-header-profile"
+        className="app-header-profile app-header-user"
         ref={menuRef}
         style={{
           position: "relative",

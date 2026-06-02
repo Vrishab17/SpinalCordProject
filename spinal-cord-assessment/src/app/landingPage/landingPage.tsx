@@ -13,6 +13,7 @@ export default function LandingPage() {
 
   return (
     <main
+      className="dashboard-page"
       style={{
         height: "100vh",
         display: "flex",
@@ -23,6 +24,7 @@ export default function LandingPage() {
       <Header />
 
       <div
+        className="dashboard-shell"
         style={{
           flex: 1,
           overflow: "hidden",
@@ -36,7 +38,7 @@ export default function LandingPage() {
         }}
       >
         <div
-          className="dashboard-header-row"
+          className="dashboard-header-row dashboard-toolbar"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -71,6 +73,7 @@ export default function LandingPage() {
           </div>
 
           <div
+            className="dashboard-actions dashboard-toolbar-actions"
             style={{
               display: "flex",
               alignItems: "center",
@@ -87,7 +90,7 @@ export default function LandingPage() {
         </div>
 
         <div
-          className="dashboard-grid"
+          className="dashboard-content dashboard-grid dashboard-widgets-grid"
           style={{
             flex: 1,
             display: "grid",
@@ -98,6 +101,7 @@ export default function LandingPage() {
           }}
         >
           <div
+            className="dashboard-widget"
             style={{
               height: "100%",
               minHeight: 0,
@@ -108,6 +112,7 @@ export default function LandingPage() {
           </div>
 
           <div
+            className="dashboard-widget"
             style={{
               height: "100%",
               minHeight: 0,

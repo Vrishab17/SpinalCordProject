@@ -367,6 +367,7 @@ export default function UpcomingReviews({
   return (
     <>
       <div
+        className="dashboard-card dashboard-card-panel"
         style={{
           backgroundColor: "#FFFFFF",
           border: "1px solid #D6D6D6",
@@ -497,6 +498,7 @@ export default function UpcomingReviews({
         </div>
 
         <div
+          className="table-scroll dashboard-table-scroll responsive-table-scroll"
           style={{
             flex: 1,
             minHeight: 0,
@@ -505,6 +507,7 @@ export default function UpcomingReviews({
           }}
         >
           <table
+            className="dashboard-table"
             style={{
               width: "100%",
               borderCollapse: "separate",
