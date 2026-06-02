@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getLoggedInStaff, logoutStaff } from "@/lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getLoggedInStaff, logoutStaff } from "@/lib/auth";
 
 export default function Header() {
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const [staffName, setStaffName] = useState("Loading...");
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -29,6 +30,29 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onMouseDown);
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (menuOpen) {
+      menuItemsRef.current[0]?.focus();
+    }
+  }, [menuOpen]);
+
+  function handleMenuKeyDown(e: React.KeyboardEvent) {
+    const items = menuItemsRef.current.filter(Boolean) as HTMLButtonElement[];
+    const currentIdx = items.indexOf(document.activeElement as HTMLButtonElement);
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = currentIdx < items.length - 1 ? currentIdx + 1 : 0;
+      items[next]?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = currentIdx > 0 ? currentIdx - 1 : items.length - 1;
+      items[prev]?.focus();
+    } else if (e.key === "Escape") {
+      setMenuOpen(false);
+    }
+  }
+
   async function handleLogout() {
     await logoutStaff();
     setMenuOpen(false);
@@ -49,35 +73,24 @@ export default function Header() {
         width: "100%",
       }}
     >
-      <Link href="/dashboard" style={{ textDecoration: "none" }}>
+      <Link
+        href="/"
+        className="header-logo"
+        aria-label="Go to Assessment Dashboard"
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
         <div
           className="app-header-brand"
           style={{
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            display: "inline-block",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "0.8";
-            e.currentTarget.style.transform = "scale(1.03)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.transform = "scale(1)";
+            fontSize: "28px",
+            fontWeight: 700,
+            marginBottom: "4px",
           }}
         >
-          <div style={{ fontSize: "28px", fontWeight: 700, color: "#FFFFFF" }}>
-            Health New Zealand
-          </div>
-          <div
-            style={{
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "#1FC2D5",
-            }}
-          >
-            Te Whatu Ora
-          </div>
+          Health New Zealand
+        </div>
+        <div style={{ fontSize: "20px", fontWeight: 700, color: "#1FC2D5" }}>
+          Te Whatu Ora
         </div>
       </Link>
 
@@ -158,6 +171,8 @@ export default function Header() {
         {menuOpen ? (
           <div
             role="menu"
+            className="profile-menu"
+            onKeyDown={handleMenuKeyDown}
             style={{
               position: "absolute",
               top: "calc(100% + 10px)",
@@ -169,32 +184,72 @@ export default function Header() {
               boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
               overflow: "hidden",
               zIndex: 50,
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              padding: "8px 0",
             }}
           >
             <button
               type="button"
               role="menuitem"
-              onClick={handleLogout}
+              tabIndex={-1}
+              ref={(el) => {
+                menuItemsRef.current[0] = el;
+              }}
+              className="profile-menu-item"
               style={{
-                width: "100%",
-                padding: "16px 20px",
+                background: "none",
                 border: "none",
-                backgroundColor: "#FFFFFF",
-                color: "#DC2626",
-                fontSize: "16px",
-                fontWeight: 600,
+                padding: "8px 16px",
                 textAlign: "left",
                 cursor: "pointer",
                 fontFamily: "inherit",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#FEF2F2";
+            >
+              Profile
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              ref={(el) => {
+                menuItemsRef.current[1] = el;
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#FFFFFF";
+              className="profile-menu-item"
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 16px",
+                textAlign: "left",
+                cursor: "pointer",
+                fontFamily: "inherit",
               }}
             >
-              Log Out
+              Settings
+            </button>
+            <hr style={{ margin: "4px 0", borderColor: "#E5E7EB" }} />
+            <button
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              ref={(el) => {
+                menuItemsRef.current[2] = el;
+              }}
+              className="profile-menu-item"
+              onClick={handleLogout}
+              style={{
+                background: "none",
+                border: "none",
+                padding: "8px 16px",
+                textAlign: "left",
+                cursor: "pointer",
+                color: "#B91C1C",
+                fontFamily: "inherit",
+                fontWeight: 600,
+              }}
+            >
+              Sign out
             </button>
           </div>
         ) : null}

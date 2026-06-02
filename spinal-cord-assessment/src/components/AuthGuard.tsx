@@ -36,7 +36,7 @@ export default function AuthGuard({
         // fall through to logout
       }
 
-      logoutStaff();
+      await logoutStaff();
       router.replace("/login");
     }
 

@@ -4,18 +4,18 @@ import Header from "@/components/layout/Header";
 import Buttons from "@/components/landing/buttons";
 import RecentAssessments from "@/components/landing/recentAssessments";
 import UpcomingReviews from "@/components/landing/upcoming";
+import Drafts from "@/components/landing/drafts";
 import ShowAllAssessmentsToggle from "@/components/landing/ShowAllAssessmentsToggle";
 import { useClinicianPatientFilter } from "@/lib/useClinicianPatientFilter";
 
-export default function DashboardClient() {
+export default function LandingPage() {
   const { showAllAssessments, setShowAllAssessments, clinicianFilter } =
     useClinicianPatientFilter();
 
   return (
     <main
-      className="dashboard-page"
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#F6F4EC",
@@ -24,10 +24,9 @@ export default function DashboardClient() {
       <Header />
 
       <div
-        className="dashboard-shell"
         style={{
           flex: 1,
-          overflow: "hidden",
+          overflow: "auto",
           maxWidth: "1300px",
           width: "100%",
           margin: "0 auto",
@@ -38,7 +37,7 @@ export default function DashboardClient() {
         }}
       >
         <div
-          className="dashboard-toolbar"
+          className="dashboard-header-row"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -49,19 +48,30 @@ export default function DashboardClient() {
             gap: "12px",
           }}
         >
-          <h1
-            style={{
-              fontSize: "40px",
-              fontWeight: 700,
-              margin: 0,
-              color: "#15284C",
-            }}
-          >
-            ISNCSCI / ASRU
-          </h1>
+          <div>
+            <h1
+              style={{
+                fontSize: "32px",
+                fontWeight: 700,
+                margin: 0,
+                color: "#15284C",
+              }}
+            >
+              Assessment Dashboard
+            </h1>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: 400,
+                margin: "4px 0 0",
+                color: "#6B7280",
+              }}
+            >
+              ISNCSCI / ASRU
+            </p>
+          </div>
 
           <div
-            className="dashboard-toolbar-actions"
             style={{
               display: "flex",
               alignItems: "center",
@@ -78,18 +88,17 @@ export default function DashboardClient() {
         </div>
 
         <div
-          className="dashboard-widgets-grid"
+          className="dashboard-grid"
           style={{
             flex: 1,
             display: "grid",
-            gridTemplateColumns: "2fr 1fr",
+            gridTemplateColumns: "5fr 3fr",
             gap: "20px",
             overflow: "hidden",
             minHeight: 0,
           }}
         >
           <div
-            className="dashboard-widget"
             style={{
               height: "100%",
               minHeight: 0,
@@ -100,14 +109,23 @@ export default function DashboardClient() {
           </div>
 
           <div
-            className="dashboard-widget"
+            className="dashboard-sidebar"
             style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
               height: "100%",
               minHeight: 0,
               overflow: "hidden",
             }}
           >
-            <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
+            <div style={{ flex: "0 1 auto", maxHeight: "50%", minHeight: 0, overflow: "hidden" }}>
+              <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
+            </div>
+
+            <div style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden" }}>
+              <Drafts clinicianPatientFilter={clinicianFilter} />
+            </div>
           </div>
         </div>
       </div>

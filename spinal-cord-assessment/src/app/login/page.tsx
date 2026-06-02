@@ -9,9 +9,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isStaffLoggedIn()) {
-      router.replace("/dashboard");
+      router.replace("/");
     }
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- redirect-if-logged-in runs once
+  }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +29,7 @@ export default function LoginPage() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         username,
         password,
@@ -51,12 +53,11 @@ export default function LoginPage() {
       })
     );
 
-    router.replace("/dashboard");
+    router.replace("/");
   }
 
   return (
     <div className="login-page" style={{ display: "flex", height: "100vh" }}>
-      {/* LEFT PANEL */}
       <div
         className="login-brand-panel"
         style={{
@@ -91,7 +92,6 @@ export default function LoginPage() {
         </h1>
       </div>
 
-      {/* RIGHT PANEL */}
       <div
         className="login-form-panel"
         style={{
@@ -113,10 +113,11 @@ export default function LoginPage() {
           }}
         >
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>
+            <label htmlFor="staff-username" style={{ fontSize: 13, fontWeight: 500 }}>
               STAFF USERNAME
             </label>
             <input
+              id="staff-username"
               type="text"
               placeholder="jdoe"
               value={username}
@@ -136,8 +137,11 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label style={{ fontSize: 13, fontWeight: 500 }}>PASSWORD</label>
+            <label htmlFor="staff-password" style={{ fontSize: 13, fontWeight: 500 }}>
+              PASSWORD
+            </label>
             <input
+              id="staff-password"
               type="password"
               value={password}
               onChange={(e) => {
@@ -146,7 +150,7 @@ export default function LoginPage() {
               }}
               style={{
                 width: "100%",
-                padding: "14px", // was 10px
+                padding: "14px",
                 border: "1px solid #ccc",
                 fontSize: "16px",
                 borderRadius: "6px",
@@ -157,6 +161,7 @@ export default function LoginPage() {
 
           {error && (
             <div
+              role="alert"
               style={{
                 backgroundColor: "#FEE2E2",
                 color: "#991B1B",
@@ -176,7 +181,7 @@ export default function LoginPage() {
             style={{
               backgroundColor: "#2F3E5C",
               color: "white",
-              padding: "14px", // was 12px
+              padding: "14px",
               border: "none",
               cursor: "pointer",
               fontSize: "16px",
