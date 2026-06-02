@@ -45,16 +45,20 @@ type UpcomingReviewDisplay = {
 
 type ReviewModalStep = "actions" | "change-date";
 
+function parseReviewCalendarDate(dateString: string): Date {
+  const dateOnly = dateString.trim().slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateOnly)) {
+    const [year, month, day] = dateOnly.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const parsed = new Date(dateString);
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
 function formatReviewDate(dateString: string) {
-  const reviewDate = new Date(dateString);
+  const reviewOnly = parseReviewCalendarDate(dateString);
   const today = new Date();
-
-  const reviewOnly = new Date(
-    reviewDate.getFullYear(),
-    reviewDate.getMonth(),
-    reviewDate.getDate()
-  );
-
   const todayOnly = new Date(
     today.getFullYear(),
     today.getMonth(),
@@ -69,9 +73,9 @@ function formatReviewDate(dateString: string) {
     return { formatted: "Today", isToday: true, isOverdue: false, reviewDateMs };
   }
 
-  const day = String(reviewDate.getDate()).padStart(2, "0");
-  const month = String(reviewDate.getMonth() + 1).padStart(2, "0");
-  const year = reviewDate.getFullYear();
+  const day = String(reviewOnly.getDate()).padStart(2, "0");
+  const month = String(reviewOnly.getMonth() + 1).padStart(2, "0");
+  const year = reviewOnly.getFullYear();
 
   return {
     formatted: `${day}/${month}/${year}`,
@@ -233,15 +237,18 @@ export default function UpcomingReviews({
 
   const filterLoading = clinicianPatientFilter.status === "loading";
 
-  const { sortedRows, overdueCount } = useMemo(() => {
+  const { sortedRows, dueCount } = useMemo(() => {
     const list = filterLoading ? [] : rows;
+    const isDue = (row: UpcomingReviewDisplay) => row.isToday || row.isOverdue;
 
-    const overdue = list.filter((r) => r.isOverdue).length;
+    const due = list.filter(isDue).length;
     const sorted = [...list].sort((a, b) => {
-      if (a.isOverdue !== b.isOverdue) return a.isOverdue ? -1 : 1;
+      const aDue = isDue(a);
+      const bDue = isDue(b);
+      if (aDue !== bDue) return aDue ? -1 : 1;
       return a.reviewDateMs - b.reviewDateMs;
     });
-    return { sortedRows: sorted, overdueCount: overdue };
+    return { sortedRows: sorted, dueCount: due };
   }, [rows, filterLoading]);
 
   useEffect(() => {
@@ -400,14 +407,14 @@ export default function UpcomingReviews({
             <button
               type="button"
               aria-label={
-                overdueCount > 0
-                  ? `${overdueCount} assessment${overdueCount === 1 ? "" : "s"} overdue`
-                  : "No overdue assessments"
+                dueCount > 0
+                  ? `${dueCount} review${dueCount === 1 ? "" : "s"} due today or overdue`
+                  : "No reviews due today or overdue"
               }
               title={
-                overdueCount > 0
-                  ? `${overdueCount} assessment${overdueCount === 1 ? "" : "s"} overdue`
-                  : "No overdue assessments"
+                dueCount > 0
+                  ? `${dueCount} review${dueCount === 1 ? "" : "s"} due today or overdue`
+                  : "No reviews due today or overdue"
               }
               style={{
                 position: "relative",
@@ -429,7 +436,7 @@ export default function UpcomingReviews({
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden="true"
-                style={{ display: "block", color: overdueCount > 0 ? "#DC2626" : "#15284C" }}
+                style={{ display: "block", color: dueCount > 0 ? "#DC2626" : "#15284C" }}
               >
                 <path
                   d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7zM13.73 21a2 2 0 01-3.46 0"
@@ -439,7 +446,7 @@ export default function UpcomingReviews({
                   strokeLinejoin="round"
                 />
               </svg>
-              {overdueCount > 0 ? (
+              {dueCount > 0 ? (
                 <span
                   style={{
                     position: "absolute",
@@ -458,7 +465,7 @@ export default function UpcomingReviews({
                     boxSizing: "border-box",
                   }}
                 >
-                  {overdueCount > 99 ? "99+" : overdueCount}
+                  {dueCount > 99 ? "99+" : dueCount}
                 </span>
               ) : null}
             </button>
@@ -481,9 +488,9 @@ export default function UpcomingReviews({
                   pointerEvents: "none",
                 }}
               >
-                {overdueCount === 0
-                  ? "No assessments overdue"
-                  : `${overdueCount} assessment${overdueCount === 1 ? "" : "s"} overdue`}
+                {dueCount === 0
+                  ? "No reviews due today or overdue"
+                  : `${dueCount} review${dueCount === 1 ? "" : "s"} due today or overdue`}
               </div>
             ) : null}
           </div>
@@ -555,14 +562,14 @@ export default function UpcomingReviews({
                 </tr>
               ) : (
                 paginatedRows.map((row) => {
-                  const dateColor = row.isOverdue ? "#DC2626" : row.isToday ? "#C0392B" : "#15284C";
-                  const defaultBg = row.isOverdue ? "#FEF2F2" : "transparent";
+                  const isDue = row.isToday || row.isOverdue;
+                  const defaultBg = isDue ? "#FEF2F2" : "transparent";
                   return (
                     <tr
                       key={row.patientId}
                       onClick={() => openReviewModal(row)}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = row.isOverdue ? "#FEE2E2" : "#F8FAFC";
+                        e.currentTarget.style.backgroundColor = isDue ? "#FEE2E2" : "#F8FAFC";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = defaultBg;
@@ -572,17 +579,17 @@ export default function UpcomingReviews({
                         backgroundColor: defaultBg,
                       }}
                     >
-                      <td style={{ ...bodyCellStyle, color: row.isOverdue ? "#DC2626" : "#15284C" }}>
+                      <td style={{ ...bodyCellStyle, color: isDue ? "#DC2626" : "#15284C" }}>
                         {row.nhi}
                       </td>
-                      <td style={{ ...bodyCellStyle, color: row.isOverdue ? "#DC2626" : "#15284C" }}>
+                      <td style={{ ...bodyCellStyle, color: isDue ? "#DC2626" : "#15284C" }}>
                         {row.patientName}
                       </td>
                       <td
                         style={{
                           ...bodyCellStyle,
-                          color: dateColor,
-                          fontWeight: row.isOverdue || row.isToday ? 600 : 400,
+                          color: isDue ? "#DC2626" : "#15284C",
+                          fontWeight: isDue ? 600 : 400,
                         }}
                       >
                         {row.date}
