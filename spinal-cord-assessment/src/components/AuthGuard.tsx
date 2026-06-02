@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLoggedInStaff } from "@/lib/auth";
+import { getLoggedInStaff, logoutStaff } from "@/lib/auth";
 
 export default function AuthGuard({
   children,
@@ -16,12 +16,13 @@ export default function AuthGuard({
     const staff = getLoggedInStaff();
 
     if (!staff) {
-      window.location.href = "/login";
+      logoutStaff();
+      router.replace("/login");
       return;
     }
 
     setChecked(true);
-  }, []);
+  }, [router]);
 
   if (!checked) {
     return (

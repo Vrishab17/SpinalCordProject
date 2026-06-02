@@ -452,7 +452,7 @@ export default function PatientSearch() {
                     type="button"
                     onClick={() =>
                       router.push(
-                        `/assessment/new?nhi=${encodeURIComponent(patient.nhi)}`
+                        `/assessment?nhi=${encodeURIComponent(patient.nhi)}`
                       )
                     }
                     style={{

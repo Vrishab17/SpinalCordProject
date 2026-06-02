@@ -2,19 +2,15 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
-<<<<<<< HEAD
-import { formatDate, displayStatus } from "@/lib/formatters";
-=======
 import AuthGuard from "@/components/AuthGuard";
 import TablePagination from "@/components/landing/TablePagination";
 
 const PAGE_SIZE = 12;
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AssessmentDisplay = {
-  assessment_id: number;
+  assessment_id: string;
   assessment_date: string | null;
   status: string | null;
   clinicianName: string;
@@ -99,8 +95,6 @@ const filterFieldStyle: CSSProperties = {
   fontFamily: "inherit",
 };
 
-<<<<<<< HEAD
-=======
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(ds: string | null | undefined): string {
@@ -131,7 +125,6 @@ function isDraftStatus(status: string | null | undefined): boolean {
   return displayStatus(status) !== "FINAL";
 }
 
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
 // ─── Component ────────────────────────────────────────────────────────────────
 
 type Props = {
@@ -139,14 +132,10 @@ type Props = {
   nhiNumber: string;
 };
 
-<<<<<<< HEAD
-export default function AssessmentHistoryPanel({ assessments, patientName, nhiNumber }: Props) {
-=======
 export default function AssessmentHistoryPanel({
   assessments,
   nhiNumber,
 }: Props) {
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [open, setOpen] = useState(false);
@@ -271,38 +260,9 @@ export default function AssessmentHistoryPanel({
             Assessment History
           </h2>
 
-<<<<<<< HEAD
-      {/* Heading row */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 14,
-        flexWrap: "wrap",
-        gap: 12,
-      }}>
-        <div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: NAVY }}>Assessment History</h2>
-          {nhiNumber && (
-            <span style={{ fontSize: 13, color: "#6B7A96", marginTop: 2, display: "block" }}>
-              {patientName !== "Unknown" ? patientName : ""}{patientName !== "Unknown" && nhiNumber ? " · " : ""}NHI: {nhiNumber}
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: "flex", gap: 10 }}>
-
-          {/* Filter button + dropdown */}
-          <div ref={dropdownRef} style={{ position: "relative" }}>
-            <button
-              onClick={handleOpen}
-              aria-expanded={open}
-              aria-haspopup="true"
-=======
           <div style={{ display: "flex", gap: 12 }}>
             <Link
-              href={`/assessment/new?nhi=${encodeURIComponent(nhiNumber)}`}
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
+              href={`/assessment?nhi=${encodeURIComponent(nhiNumber)}`}
               style={{
                 padding: "10px 16px",
                 backgroundColor: NAVY,
@@ -695,70 +655,3 @@ export default function AssessmentHistoryPanel({
     </AuthGuard>
   );
 }
-<<<<<<< HEAD
-
-// ─── Shared styles ────────────────────────────────────────────────────────────
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 12,
-  fontWeight: 600,
-  color: NAVY,
-  marginBottom: 5,
-  letterSpacing: "0.03em",
-};
-
-const inputStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "7px 8px",
-  fontSize: 13,
-  border: `1px solid #B0BAC9`,
-  color: NAVY,
-  outline: "none",
-  width: "100%",
-  boxSizing: "border-box",
-};
-
-const selectStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "7px 8px",
-  fontSize: 13,
-  border: `1px solid #B0BAC9`,
-  color: NAVY,
-  backgroundColor: "#fff",
-  outline: "none",
-  boxSizing: "border-box",
-};
-
-// ─── FilterTag ────────────────────────────────────────────────────────────────
-
-function FilterTag({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <span style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 5,
-      padding: "3px 8px",
-      backgroundColor: "#E8EDF4",
-      border: `1px solid #B0BAC9`,
-      fontSize: 12,
-      fontWeight: 500,
-      color: NAVY,
-    }}>
-      {label}
-      <button
-        onClick={onRemove}
-        aria-label={`Remove ${label} filter`}
-        style={{
-          background: "none", border: "none", cursor: "pointer",
-          color: NAVY, padding: 0, fontSize: 14, lineHeight: 1,
-          display: "flex", alignItems: "center",
-        }}
-      >
-        ×
-      </button>
-    </span>
-  );
-}
-=======
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806

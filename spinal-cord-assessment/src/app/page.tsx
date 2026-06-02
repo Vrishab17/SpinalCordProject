@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,15 +9,13 @@ export default function Page() {
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
 
-  // Run once on mount only. Including `router` in deps can re-fire the effect when the
-  // router object identity changes, causing repeated replace() → infinite refresh in dev.
   useEffect(() => {
     if (!hasValidStaffSession()) {
       router.replace("/login");
       return;
     }
     setAuthed(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: session gate runs once
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- session gate runs once on mount
   }, []);
 
   if (authed !== true) {
@@ -41,10 +38,3 @@ export default function Page() {
 
   return <LandingPage />;
 }
-=======
-import { redirect } from "next/navigation";
-
-export default function Home() {
-  redirect("/login");
-}
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806

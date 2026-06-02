@@ -1,6 +1,5 @@
 import Header from "@/components/layout/Header";
 import { supabase } from "@/lib/supabaseClient";
-import { formatDate, calculateAge } from "@/lib/formatters";
 import AssessmentHistoryPanel from "./AssessmentHistoryPanel";
 import type { AssessmentDisplay } from "./AssessmentHistoryPanel";
 import AuthGuard from "@/components/AuthGuard";
@@ -37,7 +36,7 @@ type PatientAddressRow = {
 };
 
 type AssessmentRow = {
-  assessment_id: number;
+  assessment_id: string;
   assessment_date: string | null;
   status: string | null;
   STAFFstaff_id: number | null;
@@ -45,7 +44,7 @@ type AssessmentRow = {
 
 type ExamRow = {
   exam_id: number;
-  ASSESSMENTassessment_id: number;
+  ASSESSMENTassessment_id: string;
 };
 
 type ClassificationResultRow = {
@@ -80,8 +79,6 @@ const LABEL_COL = "#6B7A96";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-<<<<<<< HEAD
-=======
 function formatDate(ds: string | null | undefined): string {
   if (!ds) return "N/A";
   const d = new Date(ds);
@@ -104,7 +101,6 @@ function calculateAge(dob: string | null | undefined): string {
   return `${age} Years`;
 }
 
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
 function formatClinicianFromStaffName(sn: StaffNameRow | undefined): string {
   if (!sn) return "Unassigned";
   const fam = sn.family_name?.trim() ?? "";
@@ -120,19 +116,8 @@ function formatClinicianFromStaffName(sn: StaffNameRow | undefined): string {
 export default async function Page({ params }: Props) {
   const { patientId } = await params;
 
-  if (!supabase) {
-    return (
-      <div style={{ minHeight: "100vh", backgroundColor: BG }}>
-        <Header />
-        <div style={{ padding: "40px", fontSize: 15, color: "#DC2626" }}>
-          Database connection is not configured. Check your environment variables.
-        </div>
-      </div>
-    );
-  }
-
   const numericId = Number(patientId);
-  const isNumeric = Number.isInteger(numericId);
+  const isNumeric = Number.isInteger(numericId) && !Number.isNaN(numericId);
 
   let patient: PatientRow;
   let name: PatientNameRow | null;
@@ -245,12 +230,6 @@ export default async function Page({ params }: Props) {
     assessmentRes = { error: assessRes.error };
   }
 
-<<<<<<< HEAD
-  // ── Staff names + Exam data (fetched in parallel) ──
-  const staffIds = [...new Set(
-    assessments.map((a) => a.STAFFstaff_id).filter((id): id is number => id != null)
-  )];
-=======
   // ── Staff names (Assessment.STAFFstaff_id → Staff Name) ──
   const staffIds = [
     ...new Set(
@@ -274,50 +253,40 @@ export default async function Page({ params }: Props) {
   }
 
   // ── AIS grade: Assessment → Exam → Classification Result (als_grade) ──
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
   const assessmentIds = assessments.map((a) => a.assessment_id);
+  const alsGradeByAssessmentId = new Map<string, string | null>();
 
-  const staffNameById = new Map<number, StaffNameRow>();
-  const alsGradeByAssessmentId = new Map<number, string | null>();
+  if (assessmentIds.length > 0) {
+    const { data: examRows } = await supabase
+      .from("Exam")
+      .select(SEL.exam)
+      .in("ASSESSMENTassessment_id", assessmentIds);
 
-  const [staffNameResult, examResult] = await Promise.all([
-    staffIds.length > 0
-      ? supabase.from("Staff Name").select(SEL.staff_name).in("STAFFstaff_id", staffIds)
-      : null,
-    assessmentIds.length > 0
-      ? supabase.from("Exam").select(SEL.exam).in("ASSESSMENTassessment_id", assessmentIds)
-      : null,
-  ]);
-
-  (staffNameResult?.data ?? []).forEach((row) => {
-    const r = row as StaffNameRow;
-    staffNameById.set(r.STAFFstaff_id, r);
-  });
-
-  const bestExamByAssessment = new Map<number, number>();
-  for (const row of examResult?.data ?? []) {
-    const e = row as ExamRow;
-    const prev = bestExamByAssessment.get(e.ASSESSMENTassessment_id);
-    if (prev === undefined || e.exam_id > prev) {
-      bestExamByAssessment.set(e.ASSESSMENTassessment_id, e.exam_id);
-    }
-  }
-
-  const examIds = [...bestExamByAssessment.values()];
-  if (examIds.length > 0) {
-    const { data: classRows } = await supabase
-      .from("Classification Result")
-      .select(SEL.classification_result)
-      .in("EXAMexam_id", examIds);
-
-    const alsByExam = new Map<number, string | null>();
-    for (const row of classRows ?? []) {
-      const cr = row as ClassificationResultRow;
-      alsByExam.set(cr.EXAMexam_id, cr.als_grade);
+    const bestExamByAssessment = new Map<string, number>();
+    for (const row of examRows ?? []) {
+      const e = row as ExamRow;
+      const prev = bestExamByAssessment.get(e.ASSESSMENTassessment_id);
+      if (prev === undefined || e.exam_id > prev) {
+        bestExamByAssessment.set(e.ASSESSMENTassessment_id, e.exam_id);
+      }
     }
 
-    for (const [assessmentId, examId] of bestExamByAssessment) {
-      alsGradeByAssessmentId.set(assessmentId, alsByExam.get(examId) ?? null);
+    const examIds = [...bestExamByAssessment.values()];
+    if (examIds.length > 0) {
+      const { data: classRows } = await supabase
+        .from("Classification Result")
+        .select(SEL.classification_result)
+        .in("EXAMexam_id", examIds);
+
+      const alsByExam = new Map<number, string | null>();
+      for (const row of classRows ?? []) {
+        const cr = row as ClassificationResultRow;
+        alsByExam.set(cr.EXAMexam_id, cr.als_grade);
+      }
+
+      for (const [assessmentId, examId] of bestExamByAssessment) {
+        alsGradeByAssessmentId.set(assessmentId, alsByExam.get(examId) ?? null);
+      }
     }
   }
 
@@ -340,21 +309,13 @@ export default async function Page({ params }: Props) {
       ].filter((v): v is string => v != null && v.trim() !== "")
     : [];
 
-  const ageDisplay = calculateAge(patient.date_of_birth);
-
   type DetailRow = { label: string; value: React.ReactNode };
 
   const detailRows: DetailRow[] = [
     { label: "Date of Birth", value: formatDate(patient.date_of_birth) },
-<<<<<<< HEAD
-    { label: "Age",           value: ageDisplay !== "N/A" ? `${ageDisplay} Years` : "N/A" },
-    { label: "Gender",        value: patient.gender ?? "Unknown" },
-    { label: "Ethnicity",     value: patient.ethnicity ?? "N/A" },
-=======
     { label: "Age", value: calculateAge(patient.date_of_birth) },
     { label: "Gender", value: patient.gender ?? "Unknown" },
     { label: "Ethnicity", value: patient.ethnicity ?? "N/A" },
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
     { label: "Place of Birth", value: patient.place_of_birth ?? "N/A" },
     {
       label: "NZ Citizenship Status",

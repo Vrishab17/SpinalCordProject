@@ -2,20 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
-import { supabase } from "@/lib/supabaseClient";
-import { hasValidStaffSession } from "@/lib/staffSession";
-=======
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
+import { isStaffLoggedIn } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (hasValidStaffSession()) {
+    if (isStaffLoggedIn()) {
       router.replace("/");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: redirect-if-logged-in runs once
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- redirect-if-logged-in runs once
   }, []);
 
   const [username, setUsername] = useState("");
@@ -28,22 +24,6 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-<<<<<<< HEAD
-    if (!supabase) {
-      setError("Database connection is not configured.");
-      setLoading(false);
-      return;
-    }
-
-    const { data, error: queryError } = await supabase
-      .from("Staff Credentials")
-      .select("username, password_hash, STAFFstaff_id")
-      .eq("username", username)
-      .maybeSingle();
-
-    if (queryError) {
-      setError("Invalid username or password. Please try again.");
-=======
     const response = await fetch("/api/login", {
       method: "POST",
       headers: {
@@ -59,51 +39,11 @@ export default function LoginPage() {
 
     if (!response.ok) {
       setError(result.error || "Invalid username or password");
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
       setLoading(false);
       return;
     }
 
-<<<<<<< HEAD
-    if (!data) {
-      setError("Invalid username or password");
-      setLoading(false);
-      return;
-    }
-
-    // TODO: Replace with server-side bcrypt comparison — plaintext comparison
-    // is insecure and only acceptable during prototyping.
-    if (data.password_hash !== password) {
-      setError("Invalid username or password");
-      setLoading(false);
-      return;
-    }
-
-    const { data: nameData, error: nameError } = await supabase
-      .from("Staff Name")
-      .select("prefix, given_name, preferred_name, family_name")
-      .eq("STAFFstaff_id", data.STAFFstaff_id)
-      .maybeSingle();
-
-    if (nameError) {
-      console.error("Staff name lookup failed:", nameError.message);
-    }
-
-    const firstName =
-      nameData?.preferred_name || nameData?.given_name || "";
-
-    const fullName = [
-      nameData?.prefix,
-      firstName,
-      nameData?.family_name,
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    localStorage.setItem(
-=======
     sessionStorage.setItem(
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
       "staffInfo",
       JSON.stringify({
         username: result.username,
@@ -112,16 +52,11 @@ export default function LoginPage() {
       })
     );
 
-    router.push("/dashboard");
+    router.replace("/");
   }
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-<<<<<<< HEAD
-
-=======
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
-      {/* LEFT PANEL */}
       <div
         style={{
           flex: 1,
@@ -138,13 +73,7 @@ export default function LoginPage() {
           <div style={{ fontWeight: 700, fontSize: 30 }}>
             Health New Zealand
           </div>
-<<<<<<< HEAD
-          <div style={{ color: "#6EC1E4", fontSize: 20 }}>
-            Te Whatu Ora
-          </div>
-=======
           <div style={{ color: "#6EC1E4", fontSize: 20 }}>Te Whatu Ora</div>
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
         </div>
 
         <h1
@@ -161,7 +90,6 @@ export default function LoginPage() {
         </h1>
       </div>
 
-      {/* RIGHT PANEL */}
       <div
         style={{
           flex: 1,
@@ -181,11 +109,7 @@ export default function LoginPage() {
           }}
         >
           <div>
-<<<<<<< HEAD
             <label htmlFor="staff-username" style={{ fontSize: 13, fontWeight: 500 }}>
-=======
-            <label style={{ fontSize: 13, fontWeight: 500 }}>
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
               STAFF USERNAME
             </label>
             <input
@@ -222,11 +146,7 @@ export default function LoginPage() {
               }}
               style={{
                 width: "100%",
-<<<<<<< HEAD
                 padding: "14px",
-=======
-                padding: "14px", // was 10px
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
                 border: "1px solid #ccc",
                 fontSize: "16px",
                 borderRadius: "6px",
@@ -257,11 +177,7 @@ export default function LoginPage() {
             style={{
               backgroundColor: "#2F3E5C",
               color: "white",
-<<<<<<< HEAD
               padding: "14px",
-=======
-              padding: "14px", // was 12px
->>>>>>> f3e83f65b8bd27a194e1f88bad6d30304196e806
               border: "none",
               cursor: "pointer",
               fontSize: "16px",

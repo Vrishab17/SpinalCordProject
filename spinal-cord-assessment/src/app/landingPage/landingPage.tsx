@@ -1,10 +1,17 @@
+"use client";
+
 import Header from "@/components/layout/Header";
 import Buttons from "@/components/landing/buttons";
 import RecentAssessments from "@/components/landing/recentAssessments";
 import UpcomingReviews from "@/components/landing/upcoming";
 import Drafts from "@/components/landing/drafts";
+import ShowAllAssessmentsToggle from "@/components/landing/ShowAllAssessmentsToggle";
+import { useClinicianPatientFilter } from "@/lib/useClinicianPatientFilter";
 
 export default function LandingPage() {
+  const { showAllAssessments, setShowAllAssessments, clinicianFilter } =
+    useClinicianPatientFilter();
+
   return (
     <main
       style={{
@@ -37,6 +44,8 @@ export default function LandingPage() {
             alignItems: "center",
             marginBottom: "20px",
             flexShrink: 0,
+            flexWrap: "wrap",
+            gap: "12px",
           }}
         >
           <div>
@@ -62,7 +71,20 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <Buttons />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              flexWrap: "wrap",
+            }}
+          >
+            <ShowAllAssessmentsToggle
+              showAll={showAllAssessments}
+              onChange={setShowAllAssessments}
+            />
+            <Buttons />
+          </div>
         </div>
 
         <div
@@ -83,7 +105,7 @@ export default function LandingPage() {
               overflow: "hidden",
             }}
           >
-            <RecentAssessments />
+            <RecentAssessments clinicianPatientFilter={clinicianFilter} />
           </div>
 
           <div
@@ -98,11 +120,11 @@ export default function LandingPage() {
             }}
           >
             <div style={{ flex: "0 1 auto", maxHeight: "50%", minHeight: 0, overflow: "hidden" }}>
-              <UpcomingReviews />
+              <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
             </div>
 
             <div style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden" }}>
-              <Drafts />
+              <Drafts clinicianPatientFilter={clinicianFilter} />
             </div>
           </div>
         </div>

@@ -951,7 +951,7 @@ export default function PatientSearchPage() {
               </button>
               <button
                 className="btn"
-                onClick={() => router.push(`/assessment/new?patientId=${result.patientId}`)}
+                onClick={() => router.push(`/assessment?nhi=${encodeURIComponent(result.nhiNumber)}`)}
                 style={{
                   flex: 1,
                   padding: "14px 20px",
