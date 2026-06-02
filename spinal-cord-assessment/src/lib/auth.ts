@@ -17,9 +17,17 @@ export function getLoggedInStaff(): StaffInfo | null {
   }
 }
 
-export function logoutStaff() {
+export async function logoutStaff() {
   if (typeof window === "undefined") return;
   sessionStorage.removeItem("staffInfo");
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch {
+    // ignore network errors during logout
+  }
 }
 
 export function isStaffLoggedIn(): boolean {

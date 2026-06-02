@@ -53,8 +53,8 @@ export default function Header() {
     }
   }
 
-  function handleLogout() {
-    logoutStaff();
+  async function handleLogout() {
+    await logoutStaff();
     setMenuOpen(false);
     setStaffName("");
     router.replace("/login");
@@ -62,6 +62,7 @@ export default function Header() {
 
   return (
     <header
+      className="app-header"
       style={{
         backgroundColor: "#33476D",
         color: "#FFFFFF",
@@ -79,6 +80,7 @@ export default function Header() {
         style={{ textDecoration: "none", color: "inherit" }}
       >
         <div
+          className="app-header-brand"
           style={{
             fontSize: "28px",
             fontWeight: 700,
@@ -93,6 +95,7 @@ export default function Header() {
       </Link>
 
       <div
+        className="app-header-profile"
         ref={menuRef}
         style={{
           position: "relative",
@@ -120,6 +123,7 @@ export default function Header() {
           }}
         >
           <span
+            className="app-header-staff-name"
             style={{
               fontSize: "18px",
               color: "#AEB9D3",

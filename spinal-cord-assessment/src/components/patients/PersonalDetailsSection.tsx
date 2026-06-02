@@ -148,6 +148,7 @@ export default function PersonalDetailsSection({ formData, onChange }: Props) {
       }}
     >
       <div
+        className="new-patient-section-header"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -178,6 +179,7 @@ export default function PersonalDetailsSection({ formData, onChange }: Props) {
       </div>
 
       <div
+        className="new-patient-grid new-patient-personal-grid"
         style={{
           padding: "20px 18px 24px 18px",
           display: "grid",

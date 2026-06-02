@@ -20,6 +20,7 @@ export default function NewPatientPage() {
         <Header />
 
         <div
+          className="page-shell"
           style={{
             maxWidth: "1300px",
             margin: "0 auto",
@@ -27,6 +28,7 @@ export default function NewPatientPage() {
           }}
         >
           <button
+            className="responsive-button"
             onClick={() => router.push("/dashboard")}
             style={{
               marginBottom: "20px",

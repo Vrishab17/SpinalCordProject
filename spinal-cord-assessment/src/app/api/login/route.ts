@@ -1,18 +1,31 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabaseClient";
+import {
+  STAFF_SESSION_COOKIE,
+  staffSessionCookieOptions,
+  staffSessionJson,
+} from "@/lib/server/staffSession";
+import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
 
+    if (typeof username !== "string" || typeof password !== "string") {
+      return NextResponse.json(
+        { error: "Invalid username or password" },
+        { status: 401 }
+      );
+    }
+
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("Staff Credentials")
       .select("username, password_hash, STAFFstaff_id")
-      .eq("username", username)
+      .eq("username", username.trim())
       .maybeSingle();
 
-    if (error || !data) {
+    if (error || !data || !data.password_hash) {
       return NextResponse.json(
         { error: "Invalid username or password" },
         { status: 401 }
@@ -44,11 +57,19 @@ export async function POST(request: Request) {
       .filter(Boolean)
       .join(" ");
 
-    return NextResponse.json({
+    const staff = {
       username: data.username,
-      staffId: data.STAFFstaff_id,
-      fullName,
-    });
+      staffId: data.STAFFstaff_id as number,
+      fullName: fullName || data.username,
+    };
+
+    const res = NextResponse.json(staff);
+    res.cookies.set(
+      STAFF_SESSION_COOKIE,
+      staffSessionJson(staff),
+      staffSessionCookieOptions()
+    );
+    return res;
   } catch {
     return NextResponse.json(
       { error: "Something went wrong" },

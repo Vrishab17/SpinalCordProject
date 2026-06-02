@@ -44,6 +44,7 @@ export default function InjuryInformationSection({ formData, onChange }: Props) 
   return (
     <section>
       <div
+        className="new-patient-section-header"
         style={{
           padding: "14px 18px",
           borderBottom: "1px solid #5F6F8C",
@@ -62,6 +63,7 @@ export default function InjuryInformationSection({ formData, onChange }: Props) 
       </div>
 
       <div
+        className="new-patient-grid new-patient-injury-grid"
         style={{
           padding: "20px 18px 24px 18px",
           display: "grid",
@@ -78,6 +80,20 @@ export default function InjuryInformationSection({ formData, onChange }: Props) 
             name="dateOfInjury"
             type="date"
             value={formData.dateOfInjury}
+            onChange={onChange}
+            style={inputStyle}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="reviewDate" style={labelStyle}>
+            NEXT REVIEW DATE
+          </label>
+          <input
+            id="reviewDate"
+            name="reviewDate"
+            type="date"
+            value={formData.reviewDate}
             onChange={onChange}
             style={inputStyle}
           />

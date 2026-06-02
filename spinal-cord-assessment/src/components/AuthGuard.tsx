@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getLoggedInStaff, logoutStaff } from "@/lib/auth";
+import { getLoggedInStaff, logoutStaff, type StaffInfo } from "@/lib/auth";
 
 export default function AuthGuard({
   children,
@@ -13,15 +13,37 @@ export default function AuthGuard({
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const staff = getLoggedInStaff();
+    let cancelled = false;
 
-    if (!staff) {
-      logoutStaff();
+    async function verify() {
+      const local = getLoggedInStaff();
+      if (local) {
+        if (!cancelled) setChecked(true);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/session", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const staff = (await res.json()) as StaffInfo;
+          sessionStorage.setItem("staffInfo", JSON.stringify(staff));
+          if (!cancelled) setChecked(true);
+          return;
+        }
+      } catch {
+        // fall through to logout
+      }
+
+      await logoutStaff();
       router.replace("/login");
-      return;
     }
 
-    setChecked(true);
+    void verify();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   if (!checked) {

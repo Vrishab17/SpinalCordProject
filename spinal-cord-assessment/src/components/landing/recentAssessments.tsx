@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import {
   DEFAULT_CLINICIAN_PATIENT_FILTER,
   type ClinicianPatientFilter,
@@ -270,117 +269,33 @@ export default function RecentAssessments({
       setLoading(true);
       setError(null);
 
-      let assessmentQuery = supabase
-        .from("Assessment")
-        .select(
-          "assessment_id, assessment_date, status, current_version, PATIENTpatient_id"
-        );
-
-      if (filterSelections.status === "status_draft") {
-        assessmentQuery = assessmentQuery.eq("status", "DRAFT");
-      } else if (filterSelections.status === "status_finalised") {
-        assessmentQuery = assessmentQuery.in("status", ["FINALISED", "FINALIZED", "FINAL"]);
-      }
-
-      if (clinicianPatientFilter.status === "mine") {
-        assessmentQuery = assessmentQuery.eq(
-          "STAFFstaff_id",
-          clinicianPatientFilter.staffId
-        );
-      }
-
-      const { data: assessmentData, error: assessmentError } = await assessmentQuery;
-
-      if (reqId !== requestSeqRef.current) return;
-
-      if (assessmentError) {
-        setError(`Assessment query failed: ${assessmentError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const latestPerPatient = keepLatestPerPatient(
-        (assessmentData ?? []) as AssessmentRow[]
-      );
-      const sortedAssessments = sortAssessmentRows(
-        latestPerPatient,
-        filterSelections
-      );
-      const totalMatching = sortedAssessments.length;
-      setTotalCount(totalMatching);
-
-      if (sortedAssessments.length === 0 && page > 1 && totalMatching > 0) {
-        setPage(1);
-        setLoading(false);
-        return;
-      }
-
-      if (sortedAssessments.length === 0) {
-        setRows([]);
-        setLoading(false);
-        return;
-      }
-
-      const from = (page - 1) * PAGE_SIZE;
-      const assessments = sortedAssessments.slice(from, from + PAGE_SIZE);
-      const patientIds = [...new Set(assessments.map((a) => a.PATIENTpatient_id))];
-
-      const { data: patientData, error: patientError } = await supabase
-        .from("Patient")
-        .select("patient_id, nhi_number")
-        .in("patient_id", patientIds);
-
-      if (reqId !== requestSeqRef.current) return;
-
-      if (patientError) {
-        setError(`Patient query failed: ${patientError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const { data: patientNameData, error: patientNameError } = await supabase
-        .from("Patient Name")
-        .select("PATIENTpatient_id, given_name, family_name")
-        .in("PATIENTpatient_id", patientIds);
-
-      if (reqId !== requestSeqRef.current) return;
-
-      if (patientNameError) {
-        setError(`Patient Name query failed: ${patientNameError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      const patients = (patientData ?? []) as PatientRow[];
-      const patientNames = (patientNameData ?? []) as PatientNameRow[];
-
-      const patientMap = new Map<number, PatientRow>();
-      patients.forEach((p) => patientMap.set(p.patient_id, p));
-
-      const nameMap = new Map<number, PatientNameRow>();
-      patientNames.forEach((n) => nameMap.set(n.PATIENTpatient_id, n));
-
-      const mappedRows: RecentAssessmentDisplay[] = assessments.map((a) => {
-        const patient = patientMap.get(a.PATIENTpatient_id);
-        const name = nameMap.get(a.PATIENTpatient_id);
-        const parsed = new Date(a.assessment_date).getTime();
-
-        return {
-          id: a.assessment_id,
-          patientId: a.PATIENTpatient_id,
-          nhiNumber: patient?.nhi_number ?? "N/A",
-          patientName: name
-            ? `${name.given_name} ${name.family_name}`
-            : `Patient #${a.PATIENTpatient_id}`,
-          date: formatDate(a.assessment_date),
-          assessmentDateMs: Number.isNaN(parsed) ? 0 : parsed,
-          versionNum: a.current_version,
-          versionNumber: `v${a.current_version}`,
-          status: a.status,
-        };
+      const params = new URLSearchParams({
+        scope: clinicianPatientFilter.status === "all" ? "all" : "mine",
+        page: String(page),
       });
+      if (filterSelections.date) params.set("date", filterSelections.date);
+      if (filterSelections.version) params.set("version", filterSelections.version);
+      if (filterSelections.status) params.set("status", filterSelections.status);
 
-      setRows(mappedRows);
+      const res = await fetch(`/api/dashboard/recent-assessments?${params}`, {
+        credentials: "include",
+      });
+      const body = (await res.json()) as {
+        rows?: RecentAssessmentDisplay[];
+        totalCount?: number;
+        error?: string;
+      };
+
+      if (reqId !== requestSeqRef.current) return;
+
+      if (!res.ok) {
+        setError(body.error ?? "Recent assessments query failed");
+        setLoading(false);
+        return;
+      }
+
+      setRows(body.rows ?? []);
+      setTotalCount(body.totalCount ?? 0);
       setLoading(false);
     }
 
@@ -418,6 +333,7 @@ export default function RecentAssessments({
 
   return (
     <div
+      className="dashboard-card-panel"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
@@ -431,6 +347,7 @@ export default function RecentAssessments({
       }}
     >
       <div
+        className="dashboard-card-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -592,6 +509,7 @@ export default function RecentAssessments({
       </div>
 
       <div
+        className="responsive-table-scroll"
         style={{
           flex: 1,
           minHeight: 0,

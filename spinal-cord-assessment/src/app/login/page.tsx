@@ -29,6 +29,7 @@ export default function LoginPage() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         username,
         password,
@@ -56,8 +57,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div className="login-page" style={{ display: "flex", height: "100vh" }}>
       <div
+        className="login-brand-panel"
         style={{
           flex: 1,
           backgroundColor: "#2F3E5C",
@@ -91,6 +93,7 @@ export default function LoginPage() {
       </div>
 
       <div
+        className="login-form-panel"
         style={{
           flex: 1,
           backgroundColor: "#F5F3EF",
@@ -100,6 +103,7 @@ export default function LoginPage() {
         }}
       >
         <form
+          className="login-form"
           onSubmit={handleLogin}
           style={{
             width: 420,

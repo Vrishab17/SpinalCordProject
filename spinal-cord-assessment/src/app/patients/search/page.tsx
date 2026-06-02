@@ -205,7 +205,7 @@ function LoadingSkeleton() {
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {

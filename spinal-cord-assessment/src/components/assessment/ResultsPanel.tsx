@@ -153,6 +153,7 @@ export default function ResultsPanel({
 
   return (
     <aside
+      className="assessment-results-panel"
       style={{
         height: "100%",
         display: "flex",

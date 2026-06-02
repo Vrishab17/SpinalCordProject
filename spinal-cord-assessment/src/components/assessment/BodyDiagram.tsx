@@ -123,6 +123,7 @@ export default function BodyDiagram({ exam }: Props) {
 
   return (
     <div
+      className="body-diagram-svg"
       ref={diagramRef}
       style={{
         width: "clamp(460px, 46vw, 780px)",

@@ -13,6 +13,7 @@ export default function NewPatientActions({
 }: Props) {
   return (
     <div
+      className="form-actions"
       style={{
         padding: "0 18px 22px 18px",
         display: "flex",

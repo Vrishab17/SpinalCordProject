@@ -18,4 +18,364 @@ body {
   font-family: 'Fira Sans', sans-serif;
   background-color: var(--bg-page);
   color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+.responsive-table-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+.body-diagram-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .app-header {
+    padding: 16px 18px !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .app-header-brand > div:first-child {
+    font-size: 23px !important;
+  }
+
+  .app-header-brand > div:last-child {
+    font-size: 17px !important;
+  }
+
+  .app-header-profile {
+    margin-left: auto !important;
+  }
+
+  .app-header-staff-name {
+    font-size: 16px !important;
+  }
+
+  .login-page {
+    min-height: 100vh !important;
+    height: auto !important;
+    flex-direction: column !important;
+  }
+
+  .login-brand-panel,
+  .login-form-panel {
+    flex: none !important;
+    width: 100% !important;
+  }
+
+  .login-brand-panel {
+    min-height: 320px !important;
+    padding: 96px 28px 36px !important;
+  }
+
+  .login-brand-panel h1 {
+    font-size: 42px !important;
+    max-width: 100% !important;
+  }
+
+  .login-form-panel {
+    padding: 36px 24px !important;
+  }
+
+  .login-form {
+    width: min(420px, 100%) !important;
+  }
+
+  .page-shell,
+  .dashboard-shell,
+  .patient-search-shell,
+  .confirm-patient-shell {
+    padding: 24px 18px !important;
+  }
+
+  .dashboard-page {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+
+  .dashboard-shell {
+    overflow: visible !important;
+  }
+
+  .dashboard-toolbar {
+    align-items: flex-start !important;
+  }
+
+  .dashboard-toolbar-actions {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .dashboard-widgets-grid {
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-widget,
+  .dashboard-card-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .responsive-table-scroll {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .responsive-table-scroll table {
+    min-width: 720px;
+  }
+
+  .assessment-layout {
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .assessment-main-area {
+    overflow: visible !important;
+    padding: 14px !important;
+  }
+
+  .assessment-score-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    max-width: 100% !important;
+  }
+
+  .assessment-side {
+    width: 100% !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+  }
+
+  .assessment-diagram {
+    order: -1;
+    width: 100% !important;
+    overflow-x: auto !important;
+    justify-content: center !important;
+  }
+
+  .body-diagram-svg {
+    width: min(100%, 620px) !important;
+    min-width: 320px !important;
+  }
+
+  .assessment-results-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid #d6d6d6 !important;
+  }
+
+  .assessment-action-buttons {
+    grid-template-columns: 1fr !important;
+  }
+
+  .patient-assessment-bar-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .history-page {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow: visible !important;
+  }
+
+  .history-layout {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+    padding: 24px 18px 32px !important;
+    overflow: visible !important;
+  }
+
+  .history-table-scroll {
+    overflow-x: auto !important;
+  }
+
+  .history-table-header,
+  .history-table-row {
+    min-width: 760px;
+  }
+
+  .new-patient-personal-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .confirm-summary-grid {
+    grid-template-columns: 180px 1fr !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    align-items: flex-start !important;
+  }
+
+  .app-header-profile {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+
+  .app-header-staff-name {
+    max-width: calc(100vw - 120px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .login-brand-panel {
+    min-height: 260px !important;
+    padding: 88px 22px 30px !important;
+  }
+
+  .login-brand-panel h1 {
+    font-size: 34px !important;
+  }
+
+  .page-shell,
+  .dashboard-shell,
+  .patient-search-shell,
+  .confirm-patient-shell {
+    padding: 20px 14px !important;
+  }
+
+  .dashboard-toolbar h1,
+  .patient-search-column h1,
+  .confirm-patient-shell h1 {
+    font-size: 30px !important;
+  }
+
+  .dashboard-toolbar-actions,
+  .dashboard-buttons,
+  .patient-search-actions,
+  .form-actions,
+  .confirm-actions,
+  .confirm-primary-actions,
+  .history-panel-actions {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .responsive-button,
+  .dashboard-buttons button,
+  .patient-search-actions button,
+  .form-actions button,
+  .confirm-actions button,
+  .confirm-primary-actions button,
+  .history-panel-actions a,
+  .history-panel-actions button {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .patient-assessment-bar-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .patient-assessment-bar {
+    padding: 12px 14px !important;
+  }
+
+  .assessment-main-area {
+    padding: 12px !important;
+  }
+
+  .assessment-score-grid {
+    gap: 18px !important;
+  }
+
+  .body-diagram-svg {
+    min-width: 280px !important;
+  }
+
+  .assessment-action-buttons {
+    grid-template-columns: 1fr !important;
+  }
+
+  .assessment-action-buttons button {
+    width: 100% !important;
+  }
+
+  .dashboard-card-panel {
+    padding: 14px !important;
+  }
+
+  .dashboard-card-header,
+  .history-panel-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .patient-detail-row {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .patient-detail-row span:last-child {
+    text-align: left !important;
+  }
+
+  .new-patient-section-header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .new-patient-grid,
+  .new-patient-personal-grid,
+  .new-patient-injury-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .new-patient-grid > div {
+    grid-column: auto !important;
+  }
+
+  .form-actions {
+    gap: 12px !important;
+  }
+
+  .confirm-summary-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 4px !important;
+  }
+
+  .confirm-summary-grid > div:nth-child(odd) {
+    color: #6B7280;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .confirm-actions {
+    gap: 12px !important;
+  }
+
+  .history-detail-grid {
+    grid-template-columns: 1fr !important;
+    row-gap: 2px !important;
+  }
+
+  .history-detail-grid span:last-child {
+    text-align: left !important;
+  }
+
+  .history-table-header,
+  .history-table-row {
+    min-width: 700px;
+  }
 }

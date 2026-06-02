@@ -37,6 +37,7 @@ Edit `.env.local`:
 |----------|------------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → **Project Settings** → **API** → Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Same page → **anon** / **publishable** key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Same page → **service_role** (server API routes only) |
 
 Never commit `.env.local`. Do not put the **service role** key in `NEXT_PUBLIC_*` variables.
 
@@ -67,13 +68,19 @@ Or run manually: [`supabase/migrations/20260521234028_assessment_id_llnn_format.
 
 Login uses `Staff` + `Staff Credentials` (bcrypt password hash), not Supabase Auth.
 
-1. Insert a staff row and credentials (see `supabase/seed.example.sql`), **or**
-2. Use your existing data and ensure `password_hash` is bcrypt.
+**Default dev account** (after running `supabase/seed.mwalker.sql`):
+
+| Username | Password |
+|----------|----------|
+| `mwalker` | `password` |
+
+1. Run `supabase/seed.mwalker.sql` in the SQL editor, **or** use existing staff and ensure `password_hash` is bcrypt.
+2. Alternatively insert staff manually (see `supabase/seed.example.sql`).
 
 To hash plain-text passwords already in the DB (one-off dev helper):
 
 ```http
-POST /api/hash-existing-passwords
+Visit: http://localhost:3000/api/hash-existing-passwords
 ```
 
 (Create credentials via SQL only on non-production environments.)
@@ -101,7 +108,8 @@ npm run lint    # ESLint
 | Path | Purpose |
 |------|---------|
 | `/login` | Staff login |
-| `/dashboard` | Recent assessments, drafts, upcoming reviews |
+| `/dashboard` | Recent assessments, upcoming reviews |
+| `/patients/new` | Register patient (session storage → confirm, no PII in URL) |
 | `/search` | Find patient by NHI, start assessment |
 | `/assessment?nhi=…` | New assessment for a patient |
 | `/assessment?assessmentId=AB12` | Open existing assessment (LLNN id) |

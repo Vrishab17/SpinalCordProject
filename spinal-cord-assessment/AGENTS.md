@@ -1,0 +1,191 @@
+# SpinalCordProject Code Map
+
+## Main Routes
+
+- `src/app/page.tsx`: redirects the root route to `/login`.
+- `src/app/login/page.tsx`: staff login screen. Posts credentials to `src/app/api/login/route.ts`, stores `staffInfo` in `sessionStorage`, then routes to `/dashboard`.
+- `src/app/dashboard/page.tsx` and `src/app/dashboard/DashboardClient.tsx`: authenticated dashboard with recent assessments, upcoming reviews, clinician filter toggle, and patient search entry point.
+- `src/app/search/page.tsx`: authenticated patient lookup page using `PatientSearch`.
+- `src/app/patients/new/page.tsx`: new patient registration form.
+- `src/app/patients/confirm/page.tsx` and `ConfirmPatientContent.tsx`: confirmation and consent page before inserting patient records.
+- `src/app/assessment/page.tsx`: assessment route wrapper that renders the new/edit assessment client.
+- `src/app/assessment/new/AssessmentNewClient.tsx`: authenticated assessment loader for either `?nhi=` or `?assessmentId=`.
+- `src/app/history/[patientId]/page.tsx`: server-side patient detail/history loader.
+
+## Key Folders And Files
+
+- `src/components/assessment/`: ISNCSCI form, results panel, body diagram, patient assessment bar, and scoring constants.
+- `src/components/layout/Header.tsx`: authenticated app header and profile/logout menu.
+- `src/components/landing/`: dashboard widgets, tables, pagination, and dashboard buttons.
+- `src/components/patients/`: patient search and new-patient form sections.
+- `src/lib/supabaseClient.ts`: shared Supabase client.
+- `src/lib/auth.ts` and `src/lib/staffSession.ts`: sessionStorage-based staff session helpers.
+- `src/lib/assessmentExamData.ts`: load/save exam score rows for an assessment.
+- `src/lib/persistAssessment.ts`: draft/final assessment persistence and classification result persistence.
+- `src/lib/exportAssessmentPdf.ts`: PDF export onto `public/isncsci-template.pdf`.
+- `public/diagram.svg`: official body diagram SVG used by `BodyDiagram`.
+- `src/styles/globals.css` and `src/styles/dashboard.css`: global styling and dashboard utility classes.
+
+## Assessment Page Structure
+
+`AssessmentNewClient` wraps the assessment experience in `AuthGuard`, renders `Header`, renders `PatientAssessmentBar`, then renders `AssessmentForm` once patient/assessment context has loaded. It supports:
+
+- `?nhi=...` for a new assessment attached to a patient.
+- `?assessmentId=...` for loading an existing draft or finalised assessment.
+
+`AssessmentForm` owns the page grid: right score column, `BodyDiagram`, left score column, non-key muscle selectors, comments/actions, and the `ResultsPanel` side panel.
+
+## Assessment Component Connections
+
+- `AssessmentNewClient` fetches patient bar details and loaded assessment context, then passes `patientId`, `patientNhi`, `initialAssessmentId`, `initialExam`, `initialComments`, and `readOnly` into `AssessmentForm`.
+- `AssessmentForm` stores the current exam and comments in React state. It passes the exam to `BodyDiagram`, preview totals/classification state to `ResultsPanel`, and save/export handlers to the action buttons.
+- `ResultsPanel` reads the current classification result and motor/sensory totals from props. Its Update button calls back to `AssessmentForm.updateClassification`.
+- `PatientAssessmentBar` displays immutable patient/assessment metadata above the form.
+- `BodyDiagram` receives the current exam and visually reflects LT/PP scoring.
+
+## Patient Data Fetching
+
+- Login uses `src/app/api/login/route.ts`.
+- Dashboard widgets fetch assessments, patient rows, and patient names in `recentAssessments.tsx` and `upcoming.tsx`.
+- Patient search fetches `Patient`, `Patient Name`, and `GP Enrollment` in `PatientSearch.tsx`.
+- Patient confirmation inserts patient-related rows in `ConfirmPatientContent.tsx`.
+- Assessment patient bar data is fetched in `AssessmentNewClient.loadPatientBar`.
+- Existing assessment context and exam scores are fetched through `src/lib/assessmentExamData.ts`.
+- Patient history fetches patient, name, address, assessments, staff names, exams, and AIS grades in `src/app/history/[patientId]/page.tsx`.
+
+## Assessment State And Classification
+
+- Current assessment UI state lives in `AssessmentForm` as `exam`, `result`, `comments`, `linkedAssessmentId`, `saving`, and `saveFeedback`.
+- The ISNCSCI conversion is handled by `toISNCSCIExam` in `AssessmentForm`.
+- Classification is calculated in `AssessmentForm` with the `isncsci` package via `new ISNCSCI(toISNCSCIExam(exam))`.
+- `calculate`, `computeClassification`, and `tryComputeClassification` control when results are generated.
+
+## Save Draft/Final Logic
+
+- Draft and final button handlers live in `AssessmentForm`: `handleSaveDraft` and `handleSaveFinal`.
+- Both call `persistAssessmentToDatabase` in `src/lib/persistAssessment.ts`.
+- Final save requires a successful classification and persists AIS grade via `persistExamAndClassification`.
+- Exam score row persistence is delegated to `persistExamData` in `src/lib/assessmentExamData.ts`.
+
+## PDF Export
+
+- The Export PDF button calls `AssessmentForm.handleExportPDF`.
+- PDF generation lives in `src/lib/exportAssessmentPdf.ts`.
+- It loads `public/isncsci-template.pdf`, writes patient, examiner, score, total, and classification fields with `pdf-lib`, then downloads the generated PDF.
+- Do not change PDF coordinates or export logic unless explicitly required.
+
+## Staff Login And Session
+
+- `src/app/login/page.tsx` posts username/password to `/api/login`.
+- On success it stores `{ username, fullName, staffId }` as `staffInfo` in `sessionStorage`.
+- `src/lib/auth.ts` reads and clears `staffInfo`.
+- `AuthGuard` protects authenticated client pages.
+- `Header` displays the logged-in staff name and calls `logoutStaff` before returning to `/login`.
+- `readStaffIdFromStorage` is used when saving assessments and filtering dashboard data.
+
+## Body Diagram Contract
+
+`BodyDiagram` must remain in the assessment page. It fetches `/diagram.svg`, injects the SVG markup, then finds SVG paths with `data-level` attributes such as `right-c5` or `left-s4-5`. For each dermatome level it overlays generated SVG paths coloured from light touch and pin prick scores.
+
+Do not replace it with an image, remove it, or change its `data-level` colouring logic. Responsive work should only adjust the surrounding layout/container so the SVG remains visible and scrollable when necessary.
+
+## Responsive Layout Strategy
+
+- Preserve desktop inline styles and current desktop visual layout.
+- Add semantic `className` hooks to major wrappers, cards, button rows, table scrollers, and form grids.
+- Put responsive overrides in `src/styles/globals.css`.
+- At `max-width: 900px`, let dashboard/history/assessment layouts stack and let dense tables or score grids scroll horizontally when needed.
+- At `max-width: 600px`, use single-column form/card/action layouts and full-width buttons where appropriate.
+- Keep the assessment score grid and body diagram non-overlapping; the results panel stacks below the form on smaller screens.
+
+## Build And Deployment Notes
+
+- Primary verification command: `npm run build`.
+- The app is a Next.js app using App Router and client/server components.
+- Supabase schema/seed material lives under `supabase/`.
+- Static assets required at runtime are in `public/`, especially `diagram.svg` and `isncsci-template.pdf`.
+- Environment configuration must provide the Supabase values expected by `src/lib/supabaseClient.ts`.
+
+## Database Connection Map
+
+- Browser-safe Supabase client: `src/lib/supabaseClient.ts` uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Use it only for data that is intentionally readable under RLS.
+- Server/admin Supabase client: `src/lib/supabaseAdmin.ts` exposes `getSupabaseAdmin()` using `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Use it only in API routes/server helpers.
+- Admin-backed API reads now cover RLS-protected clinical data:
+  - `src/app/api/test/route.ts`
+  - `src/app/api/hash-existing-passwords/route.ts`
+  - `src/app/api/login/route.ts`
+  - `src/app/api/dashboard/recent-assessments/route.ts`
+  - `src/app/api/dashboard/upcoming-reviews/route.ts`
+  - `src/app/api/patients/search/route.ts`
+  - `src/app/api/patients/assessment-detail/route.ts`
+  - `src/app/api/assessment/context/route.ts`
+  - `src/app/api/assessments/save/route.ts`
+  - `src/app/api/patients/register/route.ts`
+
+## Login And Session Flow
+
+- Login posts to `src/app/api/login/route.ts`.
+- The login route uses `getSupabaseAdmin()`, reads `Staff Credentials`, verifies `password_hash` with `bcrypt.compare`, fetches `Staff Name`, returns `{ username, staffId, fullName }`, and sets the `sca_staff_session` HTTP-only cookie.
+- The login page also stores the returned staff object in `sessionStorage` as `staffInfo`.
+- `AuthGuard` first checks `sessionStorage`, then `/api/auth/session`; if the cookie is valid it restores `staffInfo`.
+- Save/register API routes require the server cookie through `requireStaffSession()`.
+
+## Local Database Test Routes
+
+- `GET /api/test` is local-only and returns 404 in production. It uses `getSupabaseAdmin()` and reports row counts/errors for `Patient`, `Assessment`, `Staff`, `Staff Credentials`, and `Staff Name`.
+- `GET /api/hash-existing-passwords` is local-only and returns 404 in production. It scans `Staff Credentials`, skips bcrypt hashes beginning `$2a$`, `$2b$`, or `$2y$`, hashes plaintext values with bcrypt, and returns scanned/hashed/skipped username summaries without returning passwords or hashes.
+
+## Verification Checklist
+
+- `/api/test`: start the dev server and visit/curl the route. `ok: true` means the service-role client and expected tables are reachable.
+- `/api/hash-existing-passwords`: run once locally after loading seed/plaintext credentials. A second run should normally show `hashed: 0` and all existing bcrypt credentials skipped.
+- Login: post to `/api/login` with a valid username/password; success returns staff identity and sets `sca_staff_session`.
+- Dashboard assessments: authenticated dashboard widgets call `/api/dashboard/recent-assessments` and `/api/dashboard/upcoming-reviews`, so they are not blocked by anon RLS.
+- Patient search/new assessment: `PatientSearch` calls `/api/patients/search`; `AssessmentNewClient` calls `/api/assessment/context`.
+- Save draft/final: `AssessmentForm` calls `persistAssessmentToDatabase`, which posts to `/api/assessments/save`; that route uses `getSupabaseAdmin()` plus the staff session cookie.
+
+## Supabase Audit Map
+
+Current direct `supabase` browser-client imports:
+
+- `src/lib/supabaseClient.ts`: creates the anon/publishable browser client from `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, falling back to `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- `src/lib/patientInjuryClient.ts`: legacy client helper for `Patient Injury`; not used by active assessment flow.
+- `src/lib/assessmentExamData.ts`: legacy client helper for `Assessment`, `Patient`, `Exam`, `Exam Side`, `Motor Score`, `Light Touch Score`, and `Pin Prick Score`; active load/save now uses API routes instead.
+
+Current `getSupabaseAdmin()` API/server entry points:
+
+- `src/app/api/test/route.ts`: local-only health route. Counts `Patient`, `Assessment`, `Staff`, `Staff Credentials`, `Staff Name`, `Exam`, and `Classification Result`.
+- `src/app/api/hash-existing-passwords/route.ts`: local-only credential migration route. Reads/updates `Staff Credentials`.
+- `src/app/api/login/route.ts`: reads `Staff Credentials`, bcrypt-validates `password_hash`, reads `Staff Name`, and sets `sca_staff_session`.
+- `src/app/api/auth/session/route.ts`: reads only the staff session cookie; no DB.
+- `src/app/api/auth/logout/route.ts`: clears only the staff session cookie; no DB.
+- `src/app/api/dashboard/recent-assessments/route.ts`: reads `Assessment`, `Patient`, and `Patient Name`; returns `patientId` from `Assessment.PATIENTpatient_id`.
+- `src/app/api/dashboard/upcoming-reviews/route.ts`: reads `Assessment`, `Patient`, and `Patient Name`; returns `patientId` from `Assessment.PATIENTpatient_id`.
+- `src/app/api/patients/search/route.ts`: reads `Patient`, `Patient Name`, and `GP Enrollment` by NHI; returns numeric `Patient.patient_id` as `id`.
+- `src/app/api/patients/assessment-detail/route.ts`: reads `Patient` and `Patient Name` by NHI for PDF export patient fields.
+- `src/app/api/patients/register/route.ts`: via `registerPatientOnServer`, inserts `Patient`, `Patient Name`, `Patient Contact`, `Patient Address`, `Patient NHI Identifier`, `Patient Injury`, and `Audit Log`.
+- `src/app/api/assessment/context/route.ts`: loads either by LLNN `assessment_id` or NHI. Reads `Assessment`, `Patient`, `Patient Name`, `Patient Address`, `Patient Injury`, `Exam`, `Exam Side`, `Motor Score`, `Light Touch Score`, and `Pin Prick Score`.
+- `src/app/api/assessments/save/route.ts`: saves draft/final using `persistAssessmentOnServer`; writes `Assessment`, `Assessment Version`, `Draft Assessment`, `Final Assessment`, `Patient Injury`, `Exam`, `Exam Side`, score tables, optional `Classification Result`, optional `Assessment Totals`, and `Audit Log`.
+- `src/app/api/history/[patientId]/route.ts`: numeric patient history route. Reads `Patient`, `Patient Name`, `Patient Address`, `Assessment`, `Staff Name`, `Exam`, and `Classification Result`.
+
+ID expectations:
+
+- `/history/[patientId]`: numeric `Patient.patient_id` only. It must not receive NHI or assessment ID.
+- Dashboard recent/upcoming row `patientId`: always `Assessment.PATIENTpatient_id`.
+- `/assessment?assessmentId=LLNN`: loads an existing assessment by LLNN `Assessment.assessment_id`.
+- `/assessment?nhi=ABC1234`: starts a new assessment from NHI; the context API resolves it to `Patient.patient_id` before saving.
+- `AssessmentForm` save payload: sends numeric `patientId`, optional LLNN `existingAssessmentId`, exam state, comments, dates, and optional classification result.
+- Staff identity: numeric `Staff.staff_id` comes from `Staff Credentials.STAFFstaff_id` and is stored in cookie/sessionStorage as `staffId`.
+
+Flow checks:
+
+- Dashboard: `DashboardClient` sets clinician scope from sessionStorage staff info; `RecentAssessments` and `UpcomingReviews` fetch authenticated API payloads. Row clicks call `router.push('/history/' + row.patientId)`.
+- History: `HistoryPageClient` treats the route param as numeric `Patient.patient_id` and fetches `/api/history/[patientId]`; it no longer does browser anon Supabase reads.
+- Patient search: `PatientSearch` fetches `/api/patients/search?nhi=...`; View History routes to `/history/${patient.id}` and New Assessment routes to `/assessment?nhi=...`.
+- Assessment load: `AssessmentNewClient` fetches `/api/assessment/context`, fills the patient bar and form state, then `AssessmentForm` posts saves through `/api/assessments/save`.
+
+Known risks:
+
+- `patientInjuryClient.ts` and `assessmentExamData.ts` are legacy browser-client helpers and should not be reintroduced into active RLS-protected flows.
+- `.env` contains local secrets and must not be committed or printed.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` is the preferred browser key; `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is fallback only.
