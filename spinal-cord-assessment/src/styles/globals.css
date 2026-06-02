@@ -473,6 +473,30 @@ textarea {
     overflow-y: auto !important;
   }
 
+  .dashboard-page {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+  }
+
+  .dashboard-shell,
+  .dashboard-content,
+  .dashboard-grid,
+  .dashboard-widgets-grid,
+  .dashboard-widget,
+  .dashboard-card,
+  .dashboard-card-panel {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-table-scroll {
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+  }
+
   .dashboard-actions {
     width: 100% !important;
     flex-direction: column !important;
