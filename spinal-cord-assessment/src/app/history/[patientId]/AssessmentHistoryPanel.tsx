@@ -243,8 +243,9 @@ export default function AssessmentHistoryPanel({
   };
 
   return (
-      <div style={{ minWidth: 0 }}>
+      <div className="history-card" style={{ minWidth: 0 }}>
         <div
+          className="history-panel-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -258,7 +259,7 @@ export default function AssessmentHistoryPanel({
             Assessment History
           </h2>
 
-          <div style={{ display: "flex", gap: 12 }}>
+          <div className="history-panel-actions" style={{ display: "flex", gap: 12 }}>
             <Link
               href={`/assessment?nhi=${encodeURIComponent(nhiNumber)}`}
               style={{
@@ -565,6 +566,7 @@ export default function AssessmentHistoryPanel({
         </div>
 
         <div
+          className="table-scroll history-table-scroll"
           style={{
             border: `1px solid ${BORDER}`,
             borderRadius: "6px",
@@ -573,6 +575,7 @@ export default function AssessmentHistoryPanel({
           }}
         >
           <div
+            className="history-table-header"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1.8fr 2fr 1.2fr 1.4fr 90px",
@@ -603,6 +606,7 @@ export default function AssessmentHistoryPanel({
           ) : (
             paginatedVisible.map((a) => (
               <div
+                className="history-table-row"
                 key={a.assessment_id}
                 style={{
                   display: "grid",

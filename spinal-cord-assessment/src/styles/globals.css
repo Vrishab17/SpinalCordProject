@@ -379,3 +379,198 @@ textarea {
     min-width: 700px;
   }
 }
+
+@media (max-width: 1100px) {
+  .dashboard-content,
+  .history-layout,
+  .assessment-layout {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .dashboard-page,
+  .history-page,
+  .assessment-page {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+  }
+
+  .dashboard-shell,
+  .dashboard-widget,
+  .dashboard-card,
+  .history-card,
+  .assessment-card,
+  .assessment-form-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  .table-scroll,
+  .dashboard-table-scroll,
+  .history-table-scroll,
+  .assessment-table-scroll {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .dashboard-widgets-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .history-layout {
+    gap: 24px !important;
+  }
+
+  .assessment-main-area {
+    overflow: visible !important;
+  }
+
+  .assessment-score-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .assessment-diagram {
+    order: -1;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .body-diagram,
+  .body-diagram-svg {
+    width: min(100%, 620px) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .body-diagram svg,
+  .body-diagram-svg svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .assessment-results-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid #D6D6D6 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  main,
+  .dashboard-page,
+  .history-page,
+  .assessment-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .app-header {
+    height: auto !important;
+    min-height: unset !important;
+    padding: 14px 16px !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .app-header-title {
+    font-size: 24px !important;
+    line-height: 1.1 !important;
+  }
+
+  .app-header-subtitle {
+    font-size: 16px !important;
+  }
+
+  .app-header-user {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+
+  .dashboard-actions {
+    width: 100% !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .dashboard-actions button,
+  .assessment-action-buttons button,
+  .history-panel-actions a,
+  .history-panel-actions button {
+    width: 100% !important;
+  }
+
+  .dashboard-table {
+    min-width: 720px !important;
+  }
+
+  .history-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 20px 14px 28px !important;
+  }
+
+  .patient-details-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .assessment-side {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+
+  .patient-assessment-bar-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .patient-assessment-bar-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-toolbar h1,
+  .history-page h1,
+  .assessment-page h1 {
+    font-size: 34px !important;
+  }
+
+  .dashboard-table {
+    min-width: 650px !important;
+  }
+
+  .history-table-header,
+  .history-table-row {
+    min-width: 650px !important;
+  }
+}

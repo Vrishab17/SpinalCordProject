@@ -829,7 +829,7 @@ export default function AssessmentForm({
               margin: "0 auto",
             }}
           >
-            <section className="assessment-side assessment-side-right">
+            <section className="assessment-side assessment-table-scroll assessment-side-right">
               <h2
                 style={{
                   margin: "0 0 10px",
@@ -917,7 +917,7 @@ export default function AssessmentForm({
               <BodyDiagram exam={exam as never} />
             </section>
 
-            <section className="assessment-side assessment-side-left">
+            <section className="assessment-side assessment-table-scroll assessment-side-left">
               <h2
                 style={{
                   margin: "0 0 10px",
@@ -1017,7 +1017,7 @@ export default function AssessmentForm({
               Lowest non-key muscles with motor function
             </h3>
             <div
-              className="assessment-action-buttons"
+              className="assessment-input-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
@@ -1294,6 +1294,7 @@ export default function AssessmentForm({
               </p>
             ) : null}
             <div
+              className="assessment-action-buttons"
               style={{
                 display: "grid",
                 gridTemplateColumns: readOnly

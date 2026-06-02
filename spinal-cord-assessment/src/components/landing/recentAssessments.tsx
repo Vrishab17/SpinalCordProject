@@ -333,7 +333,7 @@ export default function RecentAssessments({
 
   return (
     <div
-      className="dashboard-card-panel"
+      className="dashboard-card dashboard-card-panel"
       style={{
         backgroundColor: "#FFFFFF",
         border: "1px solid #D6D6D6",
@@ -509,7 +509,7 @@ export default function RecentAssessments({
       </div>
 
       <div
-        className="responsive-table-scroll"
+        className="table-scroll dashboard-table-scroll responsive-table-scroll"
         style={{
           flex: 1,
           minHeight: 0,
@@ -517,6 +517,7 @@ export default function RecentAssessments({
         }}
       >
         <table
+          className="dashboard-table"
           style={{
             width: "100%",
             borderCollapse: "separate",

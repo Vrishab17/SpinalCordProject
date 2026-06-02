@@ -96,6 +96,7 @@ export default function PatientAssessmentBar(props: Props) {
 
   return (
     <div
+      className="patient-assessment-bar"
       style={{
         width: "100%",
         boxSizing: "border-box",
@@ -104,7 +105,7 @@ export default function PatientAssessmentBar(props: Props) {
         padding: "14px 22px",
       }}
     >
-      <div style={gridStyle}>
+      <div className="patient-assessment-bar-grid" style={gridStyle}>
         {patientFields.map((field) => (
           <Field key={field.label} label={field.label} value={field.value} />
         ))}

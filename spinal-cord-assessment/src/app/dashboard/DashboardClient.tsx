@@ -61,7 +61,7 @@ export default function DashboardClient() {
           </h1>
 
           <div
-            className="dashboard-toolbar-actions"
+            className="dashboard-actions dashboard-toolbar-actions"
             style={{
               display: "flex",
               alignItems: "center",
@@ -78,7 +78,7 @@ export default function DashboardClient() {
         </div>
 
         <div
-          className="dashboard-widgets-grid"
+          className="dashboard-content dashboard-widgets-grid"
           style={{
             flex: 1,
             display: "grid",
