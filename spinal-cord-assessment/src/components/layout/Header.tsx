@@ -198,45 +198,6 @@ export default function Header() {
                 menuItemsRef.current[0] = el;
               }}
               className="profile-menu-item"
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px 16px",
-                textAlign: "left",
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              Profile
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              tabIndex={-1}
-              ref={(el) => {
-                menuItemsRef.current[1] = el;
-              }}
-              className="profile-menu-item"
-              style={{
-                background: "none",
-                border: "none",
-                padding: "8px 16px",
-                textAlign: "left",
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              Settings
-            </button>
-            <hr style={{ margin: "4px 0", borderColor: "#E5E7EB" }} />
-            <button
-              type="button"
-              role="menuitem"
-              tabIndex={-1}
-              ref={(el) => {
-                menuItemsRef.current[2] = el;
-              }}
-              className="profile-menu-item"
               onClick={handleLogout}
               style={{
                 background: "none",

@@ -4,7 +4,6 @@ import Header from "@/components/layout/Header";
 import Buttons from "@/components/landing/buttons";
 import RecentAssessments from "@/components/landing/recentAssessments";
 import UpcomingReviews from "@/components/landing/upcoming";
-import Drafts from "@/components/landing/drafts";
 import ShowAllAssessmentsToggle from "@/components/landing/ShowAllAssessmentsToggle";
 import { useClinicianPatientFilter } from "@/lib/useClinicianPatientFilter";
 
@@ -15,7 +14,7 @@ export default function LandingPage() {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#F6F4EC",
@@ -26,7 +25,7 @@ export default function LandingPage() {
       <div
         style={{
           flex: 1,
-          overflow: "auto",
+          overflow: "hidden",
           maxWidth: "1300px",
           width: "100%",
           margin: "0 auto",
@@ -109,23 +108,13 @@ export default function LandingPage() {
           </div>
 
           <div
-            className="dashboard-sidebar"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
               height: "100%",
               minHeight: 0,
               overflow: "hidden",
             }}
           >
-            <div style={{ flex: "0 1 auto", maxHeight: "50%", minHeight: 0, overflow: "hidden" }}>
-              <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
-            </div>
-
-            <div style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden" }}>
-              <Drafts clinicianPatientFilter={clinicianFilter} />
-            </div>
+            <UpcomingReviews clinicianPatientFilter={clinicianFilter} />
           </div>
         </div>
       </div>
